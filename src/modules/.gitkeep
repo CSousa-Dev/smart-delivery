@@ -1,0 +1,9 @@
+# Esta pasta é para módulos da aplicação
+# Adicione seus módulos aqui seguindo a estrutura:
+# modules/
+# └── meu-modulo/
+#     ├── domain/
+#     ├── infrastructure/
+#     ├── presentation/
+#     └── module.ts
+
