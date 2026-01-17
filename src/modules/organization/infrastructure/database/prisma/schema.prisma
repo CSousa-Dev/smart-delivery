@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_ORGANIZATION")
+}
+
+model User {
+  id             String   @id @default(uuid()) @db.VarChar(36)
+  firstName      String   @map("first_name") @db.VarChar(60)
+  lastName       String   @map("last_name") @db.VarChar(60)
+  documentType   String   @map("document_type") @db.VarChar(4)
+  documentNumber String   @unique @map("document_number") @db.VarChar(14)
+  email          String   @unique @db.VarChar(120)
+  phoneNumber    String   @unique @map("phone_number") @db.VarChar(15)
+  emailOptIn     Boolean  @map("email_opt_in")
+  phoneOptIn     Boolean  @map("phone_opt_in")
+  statusId       String   @map("status_id") @db.VarChar(20)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime? @updatedAt @map("updated_at")
+  organizationLink UserOrganizationLink?
+
+  @@map("users")
+}
+
+model Organization {
+  id             String   @id @default(uuid()) @db.VarChar(36)
+  tradeName      String   @map("trade_name") @db.VarChar(80)
+  legalName      String?  @map("legal_name") @db.VarChar(120)
+  documentType   String   @map("document_type") @db.VarChar(4)
+  documentNumber String   @unique @map("document_number") @db.VarChar(14)
+  statusId       String   @map("status_id") @db.VarChar(30)
+  ownerUserId    String   @map("owner_user_id") @db.VarChar(36)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime? @updatedAt @map("updated_at")
+  organizationLinks UserOrganizationLink[]
+  organizationVerticals OrganizationVertical[]
+  businessUnits    BusinessUnit[]
+
+  @@map("organizations")
+}
+
+model UserOrganizationLink {
+  userId         String      @id @map("user_id") @db.VarChar(36)
+  organizationId String      @map("organization_id") @db.VarChar(36)
+  isOwner        Boolean     @default(false) @map("is_owner")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  user           User        @relation(fields: [userId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@map("user_organization_links")
+}
+
+model Vertical {
+  id String @id @default(uuid()) @db.VarChar(36)
+  name String @unique @db.VarChar(100)
+  code String @unique @db.VarChar(60)
+  description String @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+  organizationVerticals OrganizationVertical[]
+
+  @@map("verticals")
+}
+
+model OrganizationVertical {
+  organizationId String   @map("organization_id") @db.VarChar(36)
+  verticalId     String   @map("vertical_id") @db.VarChar(36)
+  createdAt      DateTime @default(now()) @map("created_at")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  vertical       Vertical @relation(fields: [verticalId], references: [id])
+
+  @@id([organizationId, verticalId])
+  @@index([verticalId])
+  @@map("organization_verticals")
+}
+
+model BusinessUnit {
+  id               String   @id @default(uuid()) @db.VarChar(36)
+  organizationId   String   @map("organization_id") @db.VarChar(36)
+  publicName       String   @map("public_name") @db.VarChar(120)
+  phoneNumber      String   @map("phone_number") @db.VarChar(15)
+  phoneHasWhatsapp Boolean  @map("phone_has_whatsapp")
+  email            String?  @db.VarChar(120)
+  instagram        String?  @db.VarChar(120)
+  website          String?  @db.VarChar(255)
+  statusId         String   @map("status_id") @db.VarChar(20)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime? @updatedAt @map("updated_at")
+  organization     Organization @relation(fields: [organizationId], references: [id])
+  address          BusinessUnitAddress?
+
+  @@index([organizationId])
+  @@map("business_units")
+}
+
+model BusinessUnitAddress {
+  businessUnitId String @id @map("business_unit_id") @db.VarChar(36)
+  street         String @db.VarChar(120)
+  number         String @db.VarChar(20)
+  complement     String? @db.VarChar(120)
+  neighborhood   String @db.VarChar(120)
+  city           String @db.VarChar(120)
+  state          String @db.VarChar(2)
+  postalCode     String @map("postal_code") @db.VarChar(8)
+  country        String @db.VarChar(2)
+  referencePoint String @map("reference_point") @db.VarChar(120)
+  businessUnit   BusinessUnit @relation(fields: [businessUnitId], references: [id])
+
+  @@map("business_unit_addresses")
+}

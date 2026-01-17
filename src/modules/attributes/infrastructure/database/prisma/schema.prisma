@@ -1,0 +1,189 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_ATTRIBUTES")
+}
+
+model Attribute {
+  id             String                 @id @default(uuid()) @db.VarChar(36)
+  name           String                 @unique @db.VarChar(120)
+  code           String                 @unique @db.VarChar(60)
+  description    String                 @db.VarChar(255)
+  type           String                 @db.VarChar(20)
+  isMultiValue   Boolean                @map("is_multi_value")
+  isRequired     Boolean                @map("is_required")
+  minValue       Decimal                @map("min_value") @db.Decimal(18, 4)
+  maxValue       Decimal                @map("max_value") @db.Decimal(18, 4)
+  defaultValueId String?                @map("default_value_id") @db.VarChar(36)
+  createdAt      DateTime               @default(now()) @map("created_at")
+  updatedAt      DateTime?              @updatedAt @map("updated_at")
+  allowedValues  AttributeAllowedValue[]
+  verticalAttributes VerticalAttribute[]
+  categoryAttributes CategoryAttribute[]
+
+  @@map("attributes")
+}
+
+model AttributeAllowedValue {
+  id              String      @id @default(uuid()) @db.VarChar(36)
+  attributeId     String      @map("attribute_id") @db.VarChar(36)
+  name            String      @db.VarChar(120)
+  value           String      @db.VarChar(120)
+  nameNormalized  String      @map("name_normalized") @db.VarChar(120)
+  valueNormalized String      @map("value_normalized") @db.VarChar(120)
+  description     String?     @db.VarChar(255)
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime?   @updatedAt @map("updated_at")
+  attribute       Attribute   @relation(fields: [attributeId], references: [id])
+  verticalAllowedValueLinks VerticalAllowedValueLink[]
+
+  @@unique([attributeId, nameNormalized])
+  @@unique([attributeId, valueNormalized])
+  @@index([attributeId])
+  @@map("attribute_allowed_values")
+}
+
+model Vertical {
+  id          String   @id @default(uuid()) @db.VarChar(36)
+  name        String   @unique @db.VarChar(100)
+  code        String   @unique @db.VarChar(60)
+  description String   @db.VarChar(255)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+  categories  Category[]
+  verticalAttributes VerticalAttribute[]
+
+  @@map("verticals")
+}
+
+model Category {
+  id              String    @id @default(uuid()) @db.VarChar(36)
+  verticalId      String    @map("vertical_id") @db.VarChar(36)
+  parentCategoryId String?  @map("parent_category_id") @db.VarChar(36)
+  name            String    @db.VarChar(100)
+  code            String    @db.VarChar(60)
+  description     String    @db.VarChar(255)
+  depth           Int
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime? @updatedAt @map("updated_at")
+  vertical        Vertical  @relation(fields: [verticalId], references: [id])
+  parentCategory  Category? @relation("CategoryParent", fields: [parentCategoryId], references: [id])
+  childCategories Category[] @relation("CategoryParent")
+  categoryAttributes CategoryAttribute[]
+
+  @@unique([verticalId, name])
+  @@unique([verticalId, code])
+  @@index([verticalId])
+  @@index([parentCategoryId])
+  @@map("categories")
+}
+
+model CategoryAttribute {
+  id               String   @id @default(uuid()) @db.VarChar(36)
+  categoryId       String   @map("category_id") @db.VarChar(36)
+  attributeId      String   @map("attribute_id") @db.VarChar(36)
+  isRequired       Boolean? @map("is_required")
+  isMultiValue     Boolean? @map("is_multi_value")
+  minValue         Decimal? @map("min_value") @db.Decimal(18, 4)
+  maxValue         Decimal? @map("max_value") @db.Decimal(18, 4)
+  defaultValueScope String? @map("default_value_scope") @db.VarChar(20)
+  defaultValueId   String?  @map("default_value_id") @db.VarChar(36)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime? @updatedAt @map("updated_at")
+  category         Category @relation(fields: [categoryId], references: [id])
+  attribute        Attribute @relation(fields: [attributeId], references: [id])
+  allowedValues    CategoryAllowedValue[]
+  allowedValueLinks CategoryAllowedValueLink[]
+
+  @@unique([categoryId, attributeId])
+  @@index([categoryId])
+  @@index([attributeId])
+  @@map("category_attributes")
+}
+
+model CategoryAllowedValue {
+  id                 String   @id @default(uuid()) @db.VarChar(36)
+  categoryAttributeId String  @map("category_attribute_id") @db.VarChar(36)
+  name               String   @db.VarChar(120)
+  value              String   @db.VarChar(120)
+  nameNormalized     String   @map("name_normalized") @db.VarChar(120)
+  valueNormalized    String   @map("value_normalized") @db.VarChar(120)
+  description        String?  @db.VarChar(255)
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime? @updatedAt @map("updated_at")
+  categoryAttribute  CategoryAttribute @relation(fields: [categoryAttributeId], references: [id])
+
+  @@unique([categoryAttributeId, nameNormalized], map: "cav_attr_name_key")
+  @@unique([categoryAttributeId, valueNormalized], map: "cav_attr_value_key")
+  @@index([categoryAttributeId], map: "cav_attr_idx")
+  @@map("category_allowed_values")
+}
+
+model CategoryAllowedValueLink {
+  categoryAttributeId String   @map("category_attribute_id") @db.VarChar(36)
+  sourceScope         String   @map("source_scope") @db.VarChar(20)
+  sourceValueId       String   @map("source_value_id") @db.VarChar(36)
+  createdAt           DateTime @default(now()) @map("created_at")
+  categoryAttribute   CategoryAttribute @relation(fields: [categoryAttributeId], references: [id])
+
+  @@id([categoryAttributeId, sourceScope, sourceValueId])
+  @@index([sourceValueId])
+  @@map("category_allowed_value_links")
+}
+
+model VerticalAttribute {
+  id               String   @id @default(uuid()) @db.VarChar(36)
+  verticalId       String   @map("vertical_id") @db.VarChar(36)
+  attributeId      String   @map("attribute_id") @db.VarChar(36)
+  isRequired       Boolean? @map("is_required")
+  isMultiValue     Boolean? @map("is_multi_value")
+  minValue         Decimal? @map("min_value") @db.Decimal(18, 4)
+  maxValue         Decimal? @map("max_value") @db.Decimal(18, 4)
+  defaultValueScope String? @map("default_value_scope") @db.VarChar(20)
+  defaultValueId   String?  @map("default_value_id") @db.VarChar(36)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime? @updatedAt @map("updated_at")
+  vertical         Vertical @relation(fields: [verticalId], references: [id])
+  attribute        Attribute @relation(fields: [attributeId], references: [id])
+  allowedValues    VerticalAllowedValue[]
+  allowedValueLinks VerticalAllowedValueLink[]
+
+  @@unique([verticalId, attributeId])
+  @@index([verticalId])
+  @@index([attributeId])
+  @@map("vertical_attributes")
+}
+
+model VerticalAllowedValue {
+  id                 String   @id @default(uuid()) @db.VarChar(36)
+  verticalAttributeId String  @map("vertical_attribute_id") @db.VarChar(36)
+  name               String   @db.VarChar(120)
+  value              String   @db.VarChar(120)
+  nameNormalized     String   @map("name_normalized") @db.VarChar(120)
+  valueNormalized    String   @map("value_normalized") @db.VarChar(120)
+  description        String?  @db.VarChar(255)
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime? @updatedAt @map("updated_at")
+  verticalAttribute  VerticalAttribute @relation(fields: [verticalAttributeId], references: [id])
+
+  @@unique([verticalAttributeId, nameNormalized], map: "vav_attr_name_key")
+  @@unique([verticalAttributeId, valueNormalized], map: "vav_attr_value_key")
+  @@index([verticalAttributeId], map: "vav_attr_idx")
+  @@map("vertical_allowed_values")
+}
+
+model VerticalAllowedValueLink {
+  verticalAttributeId     String   @map("vertical_attribute_id") @db.VarChar(36)
+  attributeAllowedValueId String   @map("attribute_allowed_value_id") @db.VarChar(36)
+  createdAt               DateTime @default(now()) @map("created_at")
+  verticalAttribute       VerticalAttribute @relation(fields: [verticalAttributeId], references: [id])
+  attributeAllowedValue   AttributeAllowedValue @relation(fields: [attributeAllowedValueId], references: [id])
+
+  @@id([verticalAttributeId, attributeAllowedValueId])
+  @@index([attributeAllowedValueId])
+  @@map("vertical_allowed_value_links")
+}
+

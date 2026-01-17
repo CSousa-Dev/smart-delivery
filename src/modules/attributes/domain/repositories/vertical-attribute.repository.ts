@@ -1,0 +1,32 @@
+import { VerticalAttribute } from '../entities/vertical-attribute.entity';
+
+export interface VerticalAttributeRepository {
+  save(verticalAttribute: VerticalAttribute): Promise<void>;
+  existsByVerticalAndAttribute(verticalId: string, attributeId: string): Promise<boolean>;
+  saveSubsetLinks(verticalAttributeId: string, allowedValueIds: string[]): Promise<void>;
+  findByVerticalAndAttribute(
+    verticalId: string,
+    attributeId: string
+  ): Promise<{
+    id: string;
+    isRequired: boolean | null;
+    isMultiValue: boolean | null;
+    minValue: number | null;
+    maxValue: number | null;
+    defaultValueId: string | null;
+    defaultValueScope: string | null;
+  } | null>;
+  listSubsetLinks(verticalAttributeId: string): Promise<string[]>;
+  listByVertical(verticalId: string): Promise<
+    Array<{
+      id: string;
+      attributeId: string;
+      isRequired: boolean | null;
+      isMultiValue: boolean | null;
+      minValue: number | null;
+      maxValue: number | null;
+      defaultValueId: string | null;
+      defaultValueScope: string | null;
+    }>
+  >;
+}

@@ -10,6 +10,9 @@ import { config } from './config/environment';
 import { requestLogger } from './shared/middlewares/requestLogger';
 import { errorHandler } from './shared/middlewares/errorHandler';
 import { notFoundHandler } from './shared/middlewares/notFoundHandler';
+import { bootstrapAttributesModule } from './modules/attributes/infrastructure/di';
+import { bootstrapOrganizationModule } from './modules/organization/infrastructure/di';
+import { bootstrapProductsModule } from './modules/products/infrastructure/di';
 
 /**
  * Cria e configura a aplicação Express
@@ -48,7 +51,12 @@ function createApp(): Application {
 
   // ========================================
   // Load Modules Here
-  // TODO: Adicionar carregamento de módulos quando necessário
+  const { router: attributesRouter } = bootstrapAttributesModule();
+  const { router: organizationRouter } = bootstrapOrganizationModule();
+  const { router: productsRouter } = bootstrapProductsModule();
+  app.use(`${config.apiPrefix}/${config.apiVersion}`, attributesRouter);
+  app.use(`${config.apiPrefix}/${config.apiVersion}`, organizationRouter);
+  app.use(`${config.apiPrefix}/${config.apiVersion}`, productsRouter);
   // ========================================
 
   // ========================================
