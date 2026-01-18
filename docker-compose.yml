@@ -52,7 +52,25 @@ services:
       timeout: 3s
       retries: 10
 
+  mysql-inventory:
+    image: mysql:8.0
+    container_name: smart-delivery-mysql-inventory
+    ports:
+      - "3309:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: inventory_db
+    volumes:
+      - mysql_inventory_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
 volumes:
   mysql_attributes_data:
   mysql_organization_data:
   mysql_products_data:
+  mysql_inventory_data:

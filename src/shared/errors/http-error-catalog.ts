@@ -101,3 +101,186 @@ registerHttpError('MISSING_REQUIRED_ATTRIBUTES', {
   status: 400,
   defaultMessage: 'Missing required product attributes',
 });
+
+// Inventory module
+registerHttpError('ORGANIZATION_NOT_FOUND', {
+  status: 404,
+  defaultMessage: 'Organization not found',
+});
+registerHttpError('UNIT_CODE_ALREADY_EXISTS', {
+  status: 409,
+  defaultMessage: 'Unit code already exists',
+});
+registerHttpError('UNIT_NAME_ALREADY_EXISTS', {
+  status: 409,
+  defaultMessage: 'Unit name already exists',
+});
+registerHttpError('INVALID_UNIT_CODE', {
+  status: 400,
+  defaultMessage: 'Invalid unit code format',
+});
+registerHttpError('INVALID_UNIT_NAME', {
+  status: 400,
+  defaultMessage: 'Invalid unit name',
+});
+registerHttpError('INVALID_UNIT_SYMBOL', {
+  status: 400,
+  defaultMessage: 'Invalid unit symbol',
+});
+registerHttpError('INVALID_UNIT_STATUS', {
+  status: 400,
+  defaultMessage: 'Invalid unit status',
+});
+registerHttpError('NO_UPDATABLE_FIELDS', {
+  status: 400,
+  defaultMessage: 'No updatable fields provided',
+});
+registerHttpError('IMMUTABLE_FIELD_UPDATE', {
+  status: 400,
+  defaultMessage: 'Immutable field update is not allowed',
+});
+
+registerHttpError('BUSINESS_UNIT_NOT_FOUND', {
+  status: 404,
+  defaultMessage: 'Business unit not found',
+});
+registerHttpError('BUSINESS_UNIT_ORG_MISMATCH', {
+  status: 400,
+  defaultMessage: 'Business unit does not belong to organization',
+});
+registerHttpError('UNIT_OF_MEASURE_NOT_FOUND', {
+  status: 404,
+  defaultMessage: 'Unit of measure not found',
+});
+registerHttpError('UNIT_OF_MEASURE_ORG_MISMATCH', {
+  status: 400,
+  defaultMessage: 'Unit of measure does not belong to organization',
+});
+registerHttpError('UNIT_OF_MEASURE_INACTIVE', {
+  status: 400,
+  defaultMessage: 'Unit of measure is inactive',
+});
+registerHttpError('INVENTORY_ITEM_NAME_EXISTS', {
+  status: 409,
+  defaultMessage: 'Inventory item name already exists',
+});
+registerHttpError('INVALID_INVENTORY_ITEM_TYPE', {
+  status: 400,
+  defaultMessage: 'Invalid inventory item type',
+});
+registerHttpError('INVALID_INVENTORY_ITEM_NAME', {
+  status: 400,
+  defaultMessage: 'Invalid inventory item name',
+});
+registerHttpError('MISSING_REQUIRED_FIELDS', {
+  status: 400,
+  defaultMessage: 'Missing required fields',
+});
+registerHttpError('INVALID_REQUIRES_EXPIRATION', {
+  status: 400,
+  defaultMessage: 'Invalid requiresExpiration value',
+});
+
+registerHttpError('PRODUCT_NOT_FOUND', {
+  status: 404,
+  defaultMessage: 'Product not found',
+});
+registerHttpError('INVENTORY_ITEM_NOT_FOUND', {
+  status: 404,
+  defaultMessage: 'Inventory item not found',
+});
+registerHttpError('PRODUCT_ITEM_BUSINESS_UNIT_MISMATCH', {
+  status: 400,
+  defaultMessage: 'Product and item must belong to same business unit',
+});
+registerHttpError('PRODUCT_ALREADY_LINKED', {
+  status: 409,
+  defaultMessage: 'Product already linked',
+});
+registerHttpError('ITEM_ALREADY_LINKED', {
+  status: 409,
+  defaultMessage: 'Item already linked',
+});
+registerHttpError('PRODUCT_ITEM_LINK_NOT_FOUND', {
+  status: 404,
+  defaultMessage: 'Product item link not found',
+});
+registerHttpError('LINK_ALREADY_INACTIVE', {
+  status: 409,
+  defaultMessage: 'Link already inactive',
+});
+
+registerHttpError('LOT_ITEM_CONFLICT', {
+  status: 409,
+  defaultMessage: 'Lot belongs to a different item',
+});
+registerHttpError('LOT_EXPIRATION_MISMATCH', {
+  status: 409,
+  defaultMessage: 'Lot expiration does not match',
+});
+registerHttpError('INVALID_QUANTITY', {
+  status: 400,
+  defaultMessage: 'Invalid quantity',
+});
+registerHttpError('FRACTION_NOT_ALLOWED', {
+  status: 400,
+  defaultMessage: 'Fraction not allowed for unit of measure',
+});
+registerHttpError('MISSING_EXPIRATION', {
+  status: 400,
+  defaultMessage: 'Expiration is required for this item',
+});
+registerHttpError('INVALID_MOVEMENT_SOURCE', {
+  status: 400,
+  defaultMessage: 'Invalid movement source',
+});
+registerHttpError('MISSING_EXTERNAL_ID', {
+  status: 400,
+  defaultMessage: 'External id is required',
+});
+
+registerHttpError('ALLOCATION_SUM_MISMATCH', {
+  status: 400,
+  defaultMessage: 'Allocation sum mismatch',
+});
+registerHttpError('LOT_NOT_FOUND', {
+  status: 404,
+  defaultMessage: 'Lot not found',
+});
+registerHttpError('LOT_ITEM_MISMATCH', {
+  status: 400,
+  defaultMessage: 'Lot does not belong to item',
+});
+registerHttpError('LOT_EXPIRED', {
+  status: 400,
+  defaultMessage: 'Lot is expired',
+});
+registerHttpError('LOT_INSUFFICIENT_BALANCE', {
+  status: 409,
+  defaultMessage: 'Lot has insufficient balance',
+});
+registerHttpError('INSUFFICIENT_STOCK', {
+  status: 409,
+  defaultMessage: 'Insufficient stock',
+});
+registerHttpError('NO_VALID_LOTS', {
+  status: 409,
+  defaultMessage: 'No valid lots for exit',
+});
+
+registerHttpError('INVALID_STOCK_POSITION_QUERY', {
+  status: 400,
+  defaultMessage: 'Invalid stock position query',
+});
+registerHttpError('INVALID_DATE_RANGE', {
+  status: 400,
+  defaultMessage: 'Invalid date range',
+});
+registerHttpError('INVALID_MOVEMENT_TYPE', {
+  status: 400,
+  defaultMessage: 'Invalid movement type',
+});
+registerHttpError('INVALID_PAGINATION', {
+  status: 400,
+  defaultMessage: 'Invalid pagination',
+});

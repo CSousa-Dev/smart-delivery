@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_INVENTORY")
+}
+
+model UnitOfMeasure {
+  id             String    @id @default(uuid()) @db.VarChar(36)
+  organizationId String    @map("organization_id") @db.VarChar(36)
+  code           String    @db.VarChar(10)
+  codeNormalized String    @map("code_normalized") @db.VarChar(10)
+  name           String    @db.VarChar(60)
+  nameNormalized String    @map("name_normalized") @db.VarChar(60)
+  symbol         String    @db.VarChar(10)
+  allowsFraction Boolean   @map("allows_fraction")
+  status         String    @db.VarChar(10)
+  createdBy      String    @map("created_by") @db.VarChar(36)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedBy      String?   @map("updated_by") @db.VarChar(36)
+  updatedAt      DateTime? @updatedAt @map("updated_at")
+
+  inventoryItems InventoryItem[]
+
+  @@unique([organizationId, codeNormalized])
+  @@unique([organizationId, nameNormalized])
+  @@index([organizationId])
+  @@map("unit_of_measures")
+}
+
+model InventoryItem {
+  id                 String        @id @default(uuid()) @db.VarChar(36)
+  organizationId     String        @map("organization_id") @db.VarChar(36)
+  businessUnitId     String        @map("business_unit_id") @db.VarChar(36)
+  name               String        @db.VarChar(120)
+  nameNormalized     String        @map("name_normalized") @db.VarChar(120)
+  type               String        @db.VarChar(20)
+  unitOfMeasureId    String        @map("unit_of_measure_id") @db.VarChar(36)
+  requiresExpiration Boolean       @map("requires_expiration")
+  createdBy          String        @map("created_by") @db.VarChar(36)
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime?     @updatedAt @map("updated_at")
+  unitOfMeasure      UnitOfMeasure @relation(fields: [unitOfMeasureId], references: [id])
+
+  @@unique([businessUnitId, nameNormalized])
+  @@index([organizationId])
+  @@index([businessUnitId])
+  @@index([unitOfMeasureId])
+  @@map("inventory_items")
+}
+
+model ProductItemLink {
+  id             String    @id @default(uuid()) @db.VarChar(36)
+  businessUnitId String    @map("business_unit_id") @db.VarChar(36)
+  productId      String    @map("product_id") @db.VarChar(36)
+  itemId         String    @map("item_id") @db.VarChar(36)
+  status         String    @db.VarChar(10)
+  createdBy      String    @map("created_by") @db.VarChar(36)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedBy      String?   @map("updated_by") @db.VarChar(36)
+  updatedAt      DateTime? @map("updated_at")
+
+  @@unique([businessUnitId, productId])
+  @@unique([businessUnitId, itemId])
+  @@index([businessUnitId])
+  @@map("product_item_links")
+}
+
+model StockLot {
+  id                String    @id @default(uuid()) @db.VarChar(36)
+  businessUnitId    String    @map("business_unit_id") @db.VarChar(36)
+  itemId            String    @map("item_id") @db.VarChar(36)
+  lotNumber         String    @map("lot_number") @db.VarChar(80)
+  expiresAt         DateTime? @map("expires_at")
+  quantityAvailable Decimal   @map("quantity_available") @db.Decimal(18, 4)
+  firstEntryAt      DateTime  @map("first_entry_at")
+
+  @@unique([businessUnitId, lotNumber])
+  @@index([businessUnitId])
+  @@index([itemId])
+  @@map("stock_lots")
+}
+
+model StockMovement {
+  id             String   @id @default(uuid()) @db.VarChar(36)
+  businessUnitId String   @map("business_unit_id") @db.VarChar(36)
+  itemId         String   @map("item_id") @db.VarChar(36)
+  lotNumber      String   @map("lot_number") @db.VarChar(80)
+  type           String   @db.VarChar(10)
+  quantity       Decimal  @db.Decimal(18, 4)
+  movementSource String   @map("movement_source") @db.VarChar(30)
+  externalId     String?  @map("external_id") @db.VarChar(60)
+  occurredAt     DateTime @map("occurred_at")
+  createdBy      String   @map("created_by") @db.VarChar(36)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([businessUnitId])
+  @@index([itemId])
+  @@index([lotNumber])
+  @@map("stock_movements")
+}

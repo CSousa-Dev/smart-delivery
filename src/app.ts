@@ -13,6 +13,7 @@ import { notFoundHandler } from './shared/middlewares/notFoundHandler';
 import { bootstrapAttributesModule } from './modules/attributes/infrastructure/di';
 import { bootstrapOrganizationModule } from './modules/organization/infrastructure/di';
 import { bootstrapProductsModule } from './modules/products/infrastructure/di';
+import { bootstrapInventoryModule } from './modules/inventory/infrastructure/di';
 
 /**
  * Cria e configura a aplicação Express
@@ -54,9 +55,11 @@ function createApp(): Application {
   const { router: attributesRouter } = bootstrapAttributesModule();
   const { router: organizationRouter } = bootstrapOrganizationModule();
   const { router: productsRouter } = bootstrapProductsModule();
+  const { router: inventoryRouter } = bootstrapInventoryModule();
   app.use(`${config.apiPrefix}/${config.apiVersion}`, attributesRouter);
   app.use(`${config.apiPrefix}/${config.apiVersion}`, organizationRouter);
   app.use(`${config.apiPrefix}/${config.apiVersion}`, productsRouter);
+  app.use(`${config.apiPrefix}/${config.apiVersion}`, inventoryRouter);
   // ========================================
 
   // ========================================
