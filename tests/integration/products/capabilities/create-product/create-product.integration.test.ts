@@ -4,6 +4,7 @@ import { createProductsTestPrismaClient } from '../../../../helpers/prisma/produ
 import { BusinessUnitRepository } from '../../../../../src/modules/products/domain/ports/business-unit.repository';
 import { CategoryRepository } from '../../../../../src/modules/products/domain/ports/category.repository';
 import { AttributeValueValidationPort } from '../../../../../src/modules/products/domain/ports/attribute-value-validation.port';
+import { OrganizationRepository } from '../../../../../src/modules/products/domain/ports/organization.repository';
 
 const describeIf = process.env.DATABASE_URL_PRODUCTS_TEST ? describe : describe.skip;
 
@@ -30,7 +31,7 @@ describeIf('Capability Create Product – [CAP-001]', () => {
       findById: jest.fn().mockResolvedValue({
         id: 'bu-1',
         organizationId: 'org-1',
-        enabledVerticalIds: ['vert-1'],
+        activeVerticalIds: ['vert-1'],
       }),
     };
     const categoryRepository: CategoryRepository = {
@@ -45,12 +46,19 @@ describeIf('Capability Create Product – [CAP-001]', () => {
         errors: [],
       }),
     };
+    const organizationRepository: OrganizationRepository = {
+      findById: jest.fn().mockResolvedValue({
+        id: 'org-1',
+        ownerUserId: 'user-1',
+      }),
+    };
 
     const service = new CreateProductService(
       productRepository,
       businessUnitRepository,
       categoryRepository,
-      attributeValueValidationPort
+      attributeValueValidationPort,
+      organizationRepository
     );
 
     const output = await service.execute({

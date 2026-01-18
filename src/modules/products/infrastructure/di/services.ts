@@ -11,7 +11,8 @@ export function createProductsAppServices(repos: Repositories, adapters: Adapter
       repos.productRepository,
       adapters.businessUnitRepository,
       adapters.categoryRepository,
-      adapters.attributeValueValidationPort
+      adapters.attributeValueValidationPort,
+      adapters.organizationRepository
     ),
   };
 }

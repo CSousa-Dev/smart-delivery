@@ -16,6 +16,7 @@ describe('CreateAttributeService', () => {
   const buildService = () => {
     const attributeRepository: AttributeRepository = {
       save: jest.fn(),
+      updateDefaultValue: jest.fn(),
       existsByName: jest.fn().mockResolvedValue(false),
       existsByCode: jest.fn().mockResolvedValue(false),
       findById: jest.fn().mockResolvedValue(null),

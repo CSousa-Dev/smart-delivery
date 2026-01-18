@@ -29,10 +29,11 @@ para **tornar o item vendável reconhecível no ecossistema**.
 ```gherkin
 Scenario: Criar produto com categoria e dados obrigatórios válidos
   Given que a categoria informada existe no módulo de atributos
-  And que a categoria pertence a uma vertical habilitada na unidade de negócio
+  And que a categoria pertence a uma vertical ativa na unidade de negócio
   And que não existe produto com o mesmo code na organização
   And que não existe produto com o mesmo title na unidade de negócio
   And que as imagens possuem exatamente uma principal e no máximo 4 no total
+  And que o createdBy informado é owner da organização
   When o produto é criado com categoryId, code, title, shortDescription, description e imagens
   Then o produto deve ser criado vinculado à organização e à unidade de negócio
   And o sistema deve registrar o autor da criação
@@ -43,12 +44,12 @@ Scenario: Rejeitar criação com categoria inexistente
   Then a criação deve ser rejeitada
   And o sistema deve informar que a categoria não existe
 
-Scenario: Rejeitar criação com categoria fora da vertical da unidade
+Scenario: Rejeitar criação com categoria fora da vertical ativa da unidade
   Given que a categoria informada existe
-  And que a categoria pertence a uma vertical não habilitada na unidade de negócio
+  And que a categoria pertence a uma vertical não ativa na unidade de negócio
   When o produto é criado
   Then a criação deve ser rejeitada
-  And o sistema deve informar que a categoria não pertence à vertical da unidade
+  And o sistema deve informar que a categoria não pertence à vertical ativa da unidade
 
 Scenario: Rejeitar criação com code duplicado na organização
   Given que já existe um produto com o mesmo code na organização
@@ -73,6 +74,13 @@ Scenario: Rejeitar criação com unidade de negócio fora da organização
   When o produto é criado
   Then a criação deve ser rejeitada
   And o sistema deve informar que a unidade de negócio é inválida para a organização
+
+Scenario: Rejeitar criação quando createdBy não é owner da organização
+  Given que a organização informada existe
+  And que o usuário informado em createdBy não é owner da organização
+  When o produto é criado
+  Then a criação deve ser rejeitada
+  And o sistema deve informar que o usuário não é owner da organização
 ```
 
 ---
@@ -116,9 +124,9 @@ Scenario: Rejeitar criação sem atributos obrigatórios
 - **FR-001**: O sistema **DEVE** permitir criar um produto com `organizationId`, `businessUnitId`, `categoryId`, `code`, `title`, `shortDescription`, `description`, `images` e `createdBy`.
 - **FR-002**: A `businessUnitId` **DEVE** pertencer à `organizationId` informada.
 - **FR-003**: O `categoryId` **DEVE** existir no módulo de atributos.
-- **FR-004**: O `categoryId` **DEVE** pertencer a uma vertical habilitada na `businessUnitId`.
+- **FR-004**: O `categoryId` **DEVE** pertencer a uma vertical ativa na `businessUnitId`.
 - **FR-005**: O `categoryId` **PODE** representar categoria ou subcategoria; o módulo **NÃO DEVE** depender de hierarquia.
-- **FR-006**: A vertical do produto **DEVE** ser inferida pela categoria e **NÃO DEVE** ser informada diretamente na criação.
+- **FR-006**: A vertical do produto **DEVE** ser inferida pela categoria e validada contra as verticais ativas da unidade de negócio.
 - **FR-007**: O `code` do produto **DEVE** ser único dentro da organização (case-insensitive).
 - **FR-008**: O `title` do produto **DEVE** ser único dentro da unidade de negócio (case-insensitive).
 - **FR-009**: O `title` **DEVE** ter entre 3 e 120 caracteres.
@@ -130,6 +138,8 @@ Scenario: Rejeitar criação sem atributos obrigatórios
 - **FR-015**: O `order` das imagens **DEVE** ser único e variar entre 1 e 4.
 - **FR-016**: Valores de atributos informados **DEVEM** ser validados contra a configuração da categoria no módulo de atributos.
 - **FR-017**: Se a categoria exigir atributos obrigatórios, o produto **DEVE** informá-los na criação; caso contrário, a criação **DEVE** ser rejeitada.
+- **FR-018**: O `createdBy` **DEVE** ser informado e corresponder ao `ownerUserId` da organização.
+- **FR-019**: Se o `createdBy` não for o owner da organização, a criação **DEVE** ser rejeitada.
 
 ---
 
@@ -149,7 +159,7 @@ Scenario: Rejeitar criação sem atributos obrigatórios
 | `description` | Descrição detalhada | Obrigatório, 10-2000 chars |
 | `images` | Conjunto de imagens do produto | Obrigatório, 1 principal, máximo 4 |
 | `attributes` | Valores de atributos da categoria | Obrigatório quando exigido pela categoria, deve ser válido, inclui marca quando aplicável |
-| `createdBy` | Identificador do autor | Obrigatório |
+| `createdBy` | Identificador do autor | Obrigatório, deve ser owner da organização |
 | `createdAt` | Data de criação | Obrigatório |
 | `updatedAt` | Data da última atualização | Opcional |
 
@@ -180,6 +190,7 @@ Scenario: Rejeitar criação sem atributos obrigatórios
 - **SC-003**: 100% das tentativas com `title` duplicado na unidade são rejeitadas.
 - **SC-004**: 100% das tentativas com imagens inválidas são rejeitadas.
 - **SC-005**: 100% das tentativas com atributos inválidos são rejeitadas.
+- **SC-006**: 100% das tentativas com `createdBy` não owner são rejeitadas.
 
 ---
 

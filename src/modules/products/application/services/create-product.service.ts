@@ -7,6 +7,7 @@ import { ProductRepository } from '../../domain/repositories/product.repository'
 import { BusinessUnitRepository } from '../../domain/ports/business-unit.repository';
 import { CategoryRepository } from '../../domain/ports/category.repository';
 import { AttributeValueValidationPort } from '../../domain/ports/attribute-value-validation.port';
+import { OrganizationRepository } from '../../domain/ports/organization.repository';
 import {
   BusinessUnitNotFoundError,
   BusinessUnitOrganizationMismatchError,
@@ -16,6 +17,7 @@ import {
   MissingRequiredAttributesError,
   ProductCodeAlreadyExistsError,
   ProductTitleAlreadyExistsError,
+  UserNotOwnerError,
 } from '../../domain/errors/product.errors';
 
 export class CreateProductService {
@@ -23,7 +25,8 @@ export class CreateProductService {
     private readonly productRepository: ProductRepository,
     private readonly businessUnitRepository: BusinessUnitRepository,
     private readonly categoryRepository: CategoryRepository,
-    private readonly attributeValueValidationPort: AttributeValueValidationPort
+    private readonly attributeValueValidationPort: AttributeValueValidationPort,
+    private readonly organizationRepository: OrganizationRepository
   ) {}
 
   async execute(input: CreateProductInput): Promise<CreateProductOutput> {
@@ -42,8 +45,13 @@ export class CreateProductService {
     if (!category) {
       throw new CategoryNotFoundError(input.categoryId);
     }
-    if (!businessUnit.enabledVerticalIds.includes(category.verticalId)) {
+    if (!businessUnit.activeVerticalIds.includes(category.verticalId)) {
       throw new CategoryVerticalNotEnabledError(input.categoryId, category.verticalId);
+    }
+
+    const organization = await this.organizationRepository.findById(input.organizationId);
+    if (organization && organization.ownerUserId !== input.createdBy) {
+      throw new UserNotOwnerError(input.createdBy, input.organizationId);
     }
 
     const code = ProductCode.create(input.code);

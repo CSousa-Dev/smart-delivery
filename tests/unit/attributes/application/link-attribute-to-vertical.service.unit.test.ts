@@ -20,6 +20,7 @@ describe('LinkAttributeToVerticalService', () => {
     };
     const attributeRepository: AttributeRepository = {
       save: jest.fn(),
+      updateDefaultValue: jest.fn(),
       existsByName: jest.fn(),
       existsByCode: jest.fn(),
       findById: jest.fn().mockResolvedValue(null),

@@ -6,7 +6,7 @@ describe('OrganizationBusinessUnitAdapter', () => {
       businessUnit: {
         findUnique: jest.fn().mockResolvedValue(null),
       },
-      organizationVertical: {
+      businessUnitVertical: {
         findMany: jest.fn(),
       },
     } as any;
@@ -22,7 +22,7 @@ describe('OrganizationBusinessUnitAdapter', () => {
     });
   });
 
-  it('should return business unit with enabled verticals', async () => {
+  it('should return business unit with active verticals', async () => {
     const prisma = {
       businessUnit: {
         findUnique: jest.fn().mockResolvedValue({
@@ -30,7 +30,7 @@ describe('OrganizationBusinessUnitAdapter', () => {
           organizationId: 'org-1',
         }),
       },
-      organizationVertical: {
+      businessUnitVertical: {
         findMany: jest.fn().mockResolvedValue([
           { verticalId: 'vert-1' },
           { verticalId: 'vert-2' },
@@ -45,7 +45,11 @@ describe('OrganizationBusinessUnitAdapter', () => {
     expect(result).toEqual({
       id: 'bu-1',
       organizationId: 'org-1',
-      enabledVerticalIds: ['vert-1', 'vert-2'],
+      activeVerticalIds: ['vert-1', 'vert-2'],
+    });
+    expect(prisma.businessUnitVertical.findMany).toHaveBeenCalledWith({
+      where: { businessUnitId: 'bu-1', statusId: 'ACTIVE' },
+      select: { verticalId: true },
     });
   });
 });

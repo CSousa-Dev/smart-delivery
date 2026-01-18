@@ -78,6 +78,15 @@ export class CategoryVerticalNotEnabledError extends DomainError {
   }
 }
 
+export class UserNotOwnerError extends DomainError {
+  constructor(userId: string, organizationId: string) {
+    super('User is not owner of organization', 'USER_NOT_OWNER', {
+      userId,
+      organizationId,
+    });
+  }
+}
+
 export class ProductCodeAlreadyExistsError extends DomainError {
   constructor(code: string) {
     super('Product code already exists', 'PRODUCT_CODE_ALREADY_EXISTS', { code });

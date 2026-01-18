@@ -9,7 +9,7 @@
 ## Overview
 
 A capability Create Product cria a identidade comercial do produto com imagens e atributos semanticos.
-O Application Service valida integridade entre organizacao, unidade, categoria e vertical, garante unicidade de code/title, valida imagens e atributos, e persiste o produto em transacao.
+O Application Service valida integridade entre organizacao, unidade, categoria e vertical ativa da unidade, garante unicidade de code/title, valida owner da organizacao, valida imagens e atributos, e persiste o produto em transacao.
 A complexidade e moderada pela orquestracao entre modulos e pelas regras de validacao na criacao.
 
 ---
@@ -32,9 +32,10 @@ A complexidade e moderada pela orquestracao entre modulos e pelas regras de vali
 | Value Object | `ProductImage` | Imagem do produto (url, order, isPrimary) |
 | Value Object | `ProductAttributeValue` | Valor de atributo informado |
 | Repository Interface | `ProductRepository` | Persistencia e consultas de produto |
-| Repository Interface | `BusinessUnitRepository` | Consulta unidade e verticais habilitadas (port) |
+| Repository Interface | `BusinessUnitRepository` | Consulta unidade e verticais ativas (port) |
 | Repository Interface | `CategoryRepository` | Consulta categoria e vertical (port) |
 | Repository Interface | `AttributeValueValidationPort` | Valida atributos no modulo attributes (port) |
+| Repository Interface | `OrganizationRepository` | Consulta organizacao e owner (port) |
 
 ### Application Layer
 
@@ -50,6 +51,7 @@ A complexidade e moderada pela orquestracao entre modulos e pelas regras de vali
 |------|------|------------------|
 | Repository Impl | `PrismaProductRepository` | Implementa `ProductRepository` |
 | Port Adapter | `OrganizationBusinessUnitAdapter` | Implementa `BusinessUnitRepository` |
+| Port Adapter | `OrganizationOwnerAdapter` | Implementa `OrganizationRepository` |
 | Port Adapter | `AttributesCategoryAdapter` | Implementa `CategoryRepository` |
 | Port Adapter | `AttributeValueValidationAdapter` | Implementa `AttributeValueValidationPort` |
 | Mapper | `ProductMapper` | Converte Domain <-> Prisma |
@@ -92,6 +94,7 @@ graph TD
         BU_REPO[BusinessUnitRepository]
         CAT_REPO[CategoryRepository]
         ATTR_PORT[AttributeValueValidationPort]
+        ORG_REPO[OrganizationRepository]
     end
 
     subgraph Infrastructure
@@ -99,6 +102,7 @@ graph TD
         BU_ADAPTER[OrganizationBusinessUnitAdapter]
         CAT_ADAPTER[AttributesCategoryAdapter]
         ATTR_ADAPTER[AttributeValueValidationAdapter]
+        ORG_ADAPTER[OrganizationOwnerAdapter]
         PROD_MAPPER[ProductMapper]
         PRISMA[Prisma Client]
     end
@@ -111,6 +115,7 @@ graph TD
     SVC --> BU_REPO
     SVC --> CAT_REPO
     SVC --> ATTR_PORT
+    SVC --> ORG_REPO
     PROD --> VO_ID
     PROD --> VO_ORG
     PROD --> VO_BU
@@ -125,6 +130,7 @@ graph TD
     BU_ADAPTER -.->|implements| BU_REPO
     CAT_ADAPTER -.->|implements| CAT_REPO
     ATTR_ADAPTER -.->|implements| ATTR_PORT
+    ORG_ADAPTER -.->|implements| ORG_REPO
     PROD_REPO_IMPL --> PROD_MAPPER
     PROD_REPO_IMPL --> PRISMA
 ```
@@ -152,8 +158,13 @@ sequenceDiagram
 
     AppService->>BuRepo: findById(businessUnitId)
     BuRepo->>Database: SELECT
-    Database-->>BuRepo: businessUnit + enabledVerticals
-    AppService->>AppService: valida organizationId e vertical habilitada
+    Database-->>BuRepo: businessUnit + activeVerticals
+    AppService->>AppService: valida organizationId e vertical ativa
+
+    AppService->>OrgRepo: findById(organizationId)
+    OrgRepo->>Database: SELECT
+    Database-->>OrgRepo: organization + ownerUserId
+    AppService->>AppService: valida createdBy == ownerUserId
 
     AppService->>CatRepo: findById(categoryId)
     CatRepo->>Database: SELECT
@@ -269,9 +280,10 @@ classDiagram
 | `ProductRepository.existsByCodeAndOrganizationId(code, organizationId)` | Verifica duplicidade de code | CreateProductService |
 | `ProductRepository.existsByTitleAndBusinessUnitId(title, businessUnitId)` | Verifica duplicidade de title | CreateProductService |
 | `ProductRepository.save(product)` | Persiste produto e relacionamentos | CreateProductService |
-| `BusinessUnitRepository.findById(id)` | Carrega unidade e verticais habilitadas | CreateProductService |
+| `BusinessUnitRepository.findById(id)` | Carrega unidade e verticais ativas | CreateProductService |
 | `CategoryRepository.findById(id)` | Carrega categoria e vertical | CreateProductService |
 | `AttributeValueValidationPort.validate(categoryId, attributes)` | Valida valores por categoria | CreateProductService |
+| `OrganizationRepository.findById(id)` | Carrega organizacao e owner | CreateProductService |
 
 ---
 
@@ -370,6 +382,7 @@ flowchart LR
     CAT404[CategoryNotFoundError] --> H404
     BUORG400[BusinessUnitOrganizationMismatchError] --> H400[400 Bad Request]
     VERT400[CategoryVerticalNotEnabledError] --> H400
+    OWNER403[UserNotOwnerError] --> H403[403 Forbidden]
     CODE409[ProductCodeAlreadyExistsError] --> H409[409 Conflict]
     TITLE409[ProductTitleAlreadyExistsError] --> H409
     CODE400[InvalidProductCodeError] --> H400
@@ -387,6 +400,7 @@ flowchart LR
 | `CategoryNotFoundError` | categoryId inexistente | 404 | `CATEGORY_NOT_FOUND` |
 | `BusinessUnitOrganizationMismatchError` | unidade nao pertence a organizacao | 400 | `BUSINESS_UNIT_ORGANIZATION_MISMATCH` |
 | `CategoryVerticalNotEnabledError` | categoria fora da vertical da unidade | 400 | `CATEGORY_VERTICAL_NOT_ENABLED` |
+| `UserNotOwnerError` | createdBy nao e owner da organizacao | 403 | `USER_NOT_OWNER` |
 | `ProductCodeAlreadyExistsError` | code ja cadastrado na organizacao | 409 | `PRODUCT_CODE_ALREADY_EXISTS` |
 | `ProductTitleAlreadyExistsError` | title ja cadastrado na unidade | 409 | `PRODUCT_TITLE_ALREADY_EXISTS` |
 | `InvalidProductCodeError` | formato de code invalido | 400 | `INVALID_PRODUCT_CODE` |
@@ -431,12 +445,23 @@ flowchart LR
 
 ---
 
+### Decisao 4: Validar owner da organizacao
+
+**Contexto**: Apenas o owner pode criar produtos no escopo atual.
+
+**Decisao**: Consultar a organizacao e comparar `createdBy` com `ownerUserId`.
+
+**Justificativa**: Reaproveita a fonte de ownership do modulo organization sem exigir vinculos adicionais.
+
+---
+
 ## Implementation Notes
 
 - Normalizar `code` e `title` para lowercase antes das verificacoes de duplicidade.
 - Garantir exatamente uma imagem `is_primary = true` e no maximo 4 imagens.
 - Validar `display_order` entre 1 e 4 e sem duplicidade por produto.
 - Rejeitar criacao quando a unidade nao pertence a organizacao informada.
+- Rejeitar criacao quando o createdBy nao for owner da organizacao.
 - Usar o retorno de `AttributeValueValidationPort` para mapear erros de atributos obrigatorios e invalidos.
 - `createdAt` deve ser gerado no momento da criacao e `updatedAt` inicia como NULL.
 

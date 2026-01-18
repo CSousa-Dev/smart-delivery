@@ -61,6 +61,10 @@ registerHttpError('CATEGORY_VERTICAL_NOT_ENABLED', {
   status: 400,
   defaultMessage: 'Category vertical not enabled for business unit',
 });
+registerHttpError('USER_NOT_OWNER', {
+  status: 403,
+  defaultMessage: 'User is not owner of organization',
+});
 registerHttpError('PRODUCT_CODE_ALREADY_EXISTS', {
   status: 409,
   defaultMessage: 'Product code already exists',

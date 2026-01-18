@@ -44,6 +44,13 @@ export class PrismaAttributeRepository implements AttributeRepository {
     });
   }
 
+  async updateDefaultValue(attributeId: string, defaultValueId: string | null): Promise<void> {
+    await this.prisma.attribute.update({
+      where: { id: attributeId },
+      data: { defaultValueId },
+    });
+  }
+
   async existsByName(name: string): Promise<boolean> {
     const count = await this.prisma.attribute.count({
       where: { name },

@@ -1,1 +1,5 @@
-export { createProductsPrismaClient } from './prisma-client';
+export {
+  createProductsPrismaClient,
+  type ProductsDbClient,
+  type ProductsPrismaClient,
+} from './prisma-client';

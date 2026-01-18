@@ -3,6 +3,7 @@ import { ProductRepository } from '../../../../src/modules/products/domain/repos
 import { BusinessUnitRepository } from '../../../../src/modules/products/domain/ports/business-unit.repository';
 import { CategoryRepository } from '../../../../src/modules/products/domain/ports/category.repository';
 import { AttributeValueValidationPort } from '../../../../src/modules/products/domain/ports/attribute-value-validation.port';
+import { OrganizationRepository } from '../../../../src/modules/products/domain/ports/organization.repository';
 import {
   BusinessUnitNotFoundError,
   BusinessUnitOrganizationMismatchError,
@@ -12,6 +13,7 @@ import {
   MissingRequiredAttributesError,
   ProductCodeAlreadyExistsError,
   ProductTitleAlreadyExistsError,
+  UserNotOwnerError,
 } from '../../../../src/modules/products/domain/errors/product.errors';
 
 describe('CreateProductService', () => {
@@ -39,7 +41,7 @@ describe('CreateProductService', () => {
       findById: jest.fn().mockResolvedValue({
         id: 'bu-1',
         organizationId: 'org-1',
-        enabledVerticalIds: ['vert-1'],
+        activeVerticalIds: ['vert-1'],
       }),
     };
 
@@ -57,17 +59,26 @@ describe('CreateProductService', () => {
       }),
     };
 
+    const organizationRepository: OrganizationRepository = {
+      findById: jest.fn().mockResolvedValue({
+        id: 'org-1',
+        ownerUserId: 'user-1',
+      }),
+    };
+
     return {
       service: new CreateProductService(
         productRepository,
         businessUnitRepository,
         categoryRepository,
-        attributeValueValidationPort
+        attributeValueValidationPort,
+        organizationRepository
       ),
       productRepository,
       businessUnitRepository,
       categoryRepository,
       attributeValueValidationPort,
+      organizationRepository,
     };
   };
 
@@ -85,7 +96,7 @@ describe('CreateProductService', () => {
     (businessUnitRepository.findById as jest.Mock).mockResolvedValue({
       id: 'bu-1',
       organizationId: 'org-2',
-      enabledVerticalIds: ['vert-1'],
+      activeVerticalIds: ['vert-1'],
     });
 
     await expect(service.execute(baseInput)).rejects.toBeInstanceOf(
@@ -107,7 +118,7 @@ describe('CreateProductService', () => {
     (businessUnitRepository.findById as jest.Mock).mockResolvedValue({
       id: 'bu-1',
       organizationId: 'org-1',
-      enabledVerticalIds: ['vert-2'],
+      activeVerticalIds: ['vert-2'],
     });
     (categoryRepository.findById as jest.Mock).mockResolvedValue({
       id: 'cat-1',
@@ -117,6 +128,16 @@ describe('CreateProductService', () => {
     await expect(service.execute(baseInput)).rejects.toBeInstanceOf(
       CategoryVerticalNotEnabledError
     );
+  });
+
+  it('should reject when createdBy is not organization owner', async () => {
+    const { service, organizationRepository } = buildService();
+    (organizationRepository.findById as jest.Mock).mockResolvedValue({
+      id: 'org-1',
+      ownerUserId: 'user-2',
+    });
+
+    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(UserNotOwnerError);
   });
 
   it('should reject when product code already exists', async () => {

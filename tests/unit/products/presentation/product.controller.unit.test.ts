@@ -1,6 +1,9 @@
 import { ProductController } from '../../../../src/modules/products/presentation/http/controllers/product.controller';
 import { AppError } from '../../../../src/shared/utils/AppError';
-import { InvalidProductCodeError } from '../../../../src/modules/products/domain/errors/product.errors';
+import {
+  InvalidProductCodeError,
+  UserNotOwnerError,
+} from '../../../../src/modules/products/domain/errors/product.errors';
 
 describe('ProductController', () => {
   const buildController = () => {
@@ -70,5 +73,26 @@ describe('ProductController', () => {
     expect(error).toBeInstanceOf(AppError);
     expect(error.statusCode).toBe(400);
     expect(error.code).toBe('INVALID_PRODUCT_CODE');
+  });
+
+  it('should map owner errors to forbidden', async () => {
+    const { controller, createProductService } = buildController();
+    (createProductService.execute as jest.Mock).mockRejectedValue(
+      new UserNotOwnerError('user-2', 'org-1')
+    );
+
+    const req = { body: { code: 'PROD_1' } } as any;
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    } as any;
+    const next = jest.fn();
+
+    await controller.create(req, res, next);
+
+    const error = next.mock.calls[0][0] as AppError;
+    expect(error).toBeInstanceOf(AppError);
+    expect(error.statusCode).toBe(403);
+    expect(error.code).toBe('USER_NOT_OWNER');
   });
 });

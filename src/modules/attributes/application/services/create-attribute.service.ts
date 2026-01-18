@@ -49,6 +49,9 @@ export class CreateAttributeService {
       type.value === 'option' ? input.allowedValues ?? [] : [];
     this.validateDefaultValue(input, type.value, allowedValuesInput);
 
+    const defaultValueId = input.defaultValueId ?? null;
+    const shouldDeferDefaultValue = defaultValueId !== null && allowedValuesInput.length > 0;
+
     const attribute = Attribute.create({
       name,
       code,
@@ -58,7 +61,7 @@ export class CreateAttributeService {
       isRequired: input.isRequired,
       minValue: limits.minValue,
       maxValue: limits.maxValue,
-      defaultValueId: input.defaultValueId ?? null,
+      defaultValueId: shouldDeferDefaultValue ? null : defaultValueId,
     });
 
     const allowedValues = this.buildAllowedValues(
@@ -72,6 +75,12 @@ export class CreateAttributeService {
 
     if (allowedValues.length > 0) {
       await this.allowedValueRepository.saveAll(allowedValues);
+      if (shouldDeferDefaultValue) {
+        await this.attributeRepository.updateDefaultValue(
+          attribute.getId().value,
+          defaultValueId
+        );
+      }
     }
 
     return {
@@ -84,7 +93,7 @@ export class CreateAttributeService {
       isRequired: attribute.getIsRequired(),
       minValue: attribute.getMinValue(),
       maxValue: attribute.getMaxValue(),
-      defaultValueId: attribute.getDefaultValueId(),
+      defaultValueId,
       createdAt: attribute.getCreatedAt(),
     };
   }

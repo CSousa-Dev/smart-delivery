@@ -8,6 +8,7 @@ import { OrganizationDbClient } from '../../../organization/infrastructure/datab
 import { AttributesCategoryAdapter } from '../external/attributes-category.adapter';
 import { AttributeValueValidationAdapter } from '../external/attribute-value-validation.adapter';
 import { OrganizationBusinessUnitAdapter } from '../external/organization-business-unit.adapter';
+import { OrganizationOwnerAdapter } from '../external/organization-owner.adapter';
 
 export function createProductsAdapters(params: {
   organizationPrisma: OrganizationDbClient;
@@ -26,5 +27,6 @@ export function createProductsAdapters(params: {
       attributeApp.resolveAttributeConfigurationService,
       attributeDomain.attributeValueValidationService
     ),
+    organizationRepository: new OrganizationOwnerAdapter(organizationPrisma),
   };
 }

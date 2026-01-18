@@ -7,6 +7,7 @@ const ERROR_STATUS_BY_CODE: Record<string, (message: string, code: string) => Ap
   CATEGORY_NOT_FOUND: (message, code) => AppError.notFound(message, code),
   BUSINESS_UNIT_ORGANIZATION_MISMATCH: (message, code) => AppError.badRequest(message, code),
   CATEGORY_VERTICAL_NOT_ENABLED: (message, code) => AppError.badRequest(message, code),
+  USER_NOT_OWNER: (message, code) => AppError.forbidden(message, code),
   PRODUCT_CODE_ALREADY_EXISTS: (message, code) => AppError.conflict(message, code),
   PRODUCT_TITLE_ALREADY_EXISTS: (message, code) => AppError.conflict(message, code),
   INVALID_PRODUCT_CODE: (message, code) => AppError.badRequest(message, code),

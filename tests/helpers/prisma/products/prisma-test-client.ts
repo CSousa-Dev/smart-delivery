@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../../../src/modules/products/infrastructure/database/prisma/generated';
 
 export function createProductsTestPrismaClient(): PrismaClient {
   const url = process.env.DATABASE_URL_PRODUCTS_TEST;
