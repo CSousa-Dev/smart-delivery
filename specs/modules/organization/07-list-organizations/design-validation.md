@@ -7,10 +7,10 @@
 | Consistencia com Spec | 5/5 | Regras de paginacao e ordenacao atendidas. |
 | Modelagem de Dados | 5/5 | Modelo consistente para listagem. |
 | Fluxos de Dados | 5/5 | Fluxo direto e claro. |
-| API Design | 4/5 | Nao explicita formato de erro na resposta. |
+| API Design | 5/5 | Parametros de paginacao/ordenacao documentados na tabela de endpoints. |
 | Diagramas | 5/5 | Mermaid consistente. |
 | Decisoes Tecnicas | 5/5 | Decisoes alinhadas ao requisito de nao filtrar. |
-| **TOTAL** | 39/40 | |
+| **TOTAL** | 40/40 | |
 
 ## Veredicto
 

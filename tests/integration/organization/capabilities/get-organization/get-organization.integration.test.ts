@@ -7,6 +7,7 @@ import { PrismaBusinessUnitRepository } from '../../../../../src/modules/organiz
 import { PrismaOrganizationRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization/organization.repository.impl';
 import { PrismaOrganizationVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization-vertical/organization-vertical.repository.impl';
 import { PrismaUserRepository } from '../../../../../src/modules/organization/infrastructure/repositories/user/user.repository.impl';
+import { PrismaVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/vertical/vertical.repository.impl';
 import {
   createOrganizationTestPrismaClient,
   OrganizationPrismaClient,
@@ -28,6 +29,7 @@ describeIf('Capability Get Organization – [CAP-006]', () => {
 
   beforeEach(async () => {
     await prisma.businessUnitAddress.deleteMany();
+    await prisma.businessUnitVertical.deleteMany();
     await prisma.businessUnit.deleteMany();
     await prisma.organizationVertical.deleteMany();
     await prisma.userOrganizationLink.deleteMany();
@@ -41,7 +43,8 @@ describeIf('Capability Get Organization – [CAP-006]', () => {
       new PrismaOrganizationRepository(prisma),
       new PrismaOrganizationVerticalRepository(prisma),
       new PrismaBusinessUnitRepository(prisma),
-      new PrismaUserRepository(prisma)
+      new PrismaUserRepository(prisma),
+      new PrismaVerticalRepository(prisma)
     );
 
   const seedOrganization = async () => {
@@ -64,8 +67,8 @@ describeIf('Capability Get Organization – [CAP-006]', () => {
     });
     await prisma.organizationVertical.createMany({
       data: [
-        { organizationId, verticalId: 'vert-1' },
-        { organizationId, verticalId: 'vert-2' },
+        { organizationId, verticalId: 'vert-1', statusId: 'ACTIVE' },
+        { organizationId, verticalId: 'vert-2', statusId: 'ACTIVE' },
       ],
     });
   };
@@ -76,7 +79,9 @@ describeIf('Capability Get Organization – [CAP-006]', () => {
 
     const output = await service.execute({ organizationId });
 
-    expect(output.verticalIds).toEqual(expect.arrayContaining(['vert-1', 'vert-2']));
+    expect(output.verticals.map((vertical) => vertical.id)).toEqual(
+      expect.arrayContaining(['vert-1', 'vert-2'])
+    );
     expect(output.businessUnits).toBeUndefined();
     expect(output.users).toBeUndefined();
   });

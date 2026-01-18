@@ -88,7 +88,14 @@ describe('OrganizationController', () => {
       legalName: 'Loja X LTDA',
       documentType: 'CNPJ',
       documentNumber: '12345678901234',
-      verticalIds: ['vert-1'],
+      verticals: [
+        {
+          id: 'vert-1',
+          name: 'Restaurante',
+          code: 'FOOD',
+          description: 'Food services',
+        },
+      ],
       ownerUserId: 'user-1',
       status: 'ACTIVE',
       createdAt: new Date(),

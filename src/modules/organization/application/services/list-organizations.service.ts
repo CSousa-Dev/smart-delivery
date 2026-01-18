@@ -1,11 +1,13 @@
 import { ListOrganizationsInput, ListOrganizationsOutput } from '../dtos/list-organizations.dto';
 import { OrganizationRepository } from '../../domain/repositories/organization.repository';
 import { OrganizationVerticalRepository } from '../../domain/repositories/organization-vertical.repository';
+import { VerticalRepository } from '../../domain/repositories/vertical.repository';
 
 export class ListOrganizationsService {
   constructor(
     private readonly organizationRepository: OrganizationRepository,
-    private readonly organizationVerticalRepository: OrganizationVerticalRepository
+    private readonly organizationVerticalRepository: OrganizationVerticalRepository,
+    private readonly verticalRepository: VerticalRepository
   ) {}
 
   async execute(input: ListOrganizationsInput): Promise<ListOrganizationsOutput> {
@@ -25,10 +27,25 @@ export class ListOrganizationsService {
     const verticalLinks = await this.organizationVerticalRepository.listByOrganizationIds(
       organizationIds
     );
-    const verticalsByOrg = new Map<string, string[]>();
+    const allVerticalIds = Array.from(new Set(verticalLinks.map((link) => link.getVerticalId())));
+    const verticals = await this.verticalRepository.listByIds(allVerticalIds);
+    const verticalsById = new Map(verticals.map((vertical) => [vertical.getId(), vertical]));
+    const verticalsByOrg = new Map<
+      string,
+      Array<{ id: string; name: string; code: string; description: string }>
+    >();
     for (const link of verticalLinks) {
+      const vertical = verticalsById.get(link.getVerticalId());
+      if (!vertical) {
+        continue;
+      }
       const list = verticalsByOrg.get(link.getOrganizationId()) ?? [];
-      list.push(link.getVerticalId());
+      list.push({
+        id: vertical.getId(),
+        name: vertical.getName(),
+        code: vertical.getCode(),
+        description: vertical.getDescription(),
+      });
       verticalsByOrg.set(link.getOrganizationId(), list);
     }
 
@@ -38,7 +55,7 @@ export class ListOrganizationsService {
         tradeName: org.getTradeName(),
         documentType: org.getDocumentType(),
         documentNumber: org.getDocumentNumber(),
-        verticalIds: verticalsByOrg.get(org.getId().value) ?? [],
+        verticals: verticalsByOrg.get(org.getId().value) ?? [],
         status: org.getStatus(),
         createdAt: org.getCreatedAt(),
       })),

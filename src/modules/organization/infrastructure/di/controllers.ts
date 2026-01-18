@@ -1,5 +1,7 @@
 import { BusinessUnitController } from '../../presentation/http/controllers/business-unit.controller';
+import { BusinessUnitVerticalController } from '../../presentation/http/controllers/business-unit-vertical.controller';
 import { OrganizationController } from '../../presentation/http/controllers/organization.controller';
+import { OrganizationVerticalController } from '../../presentation/http/controllers/organization-vertical.controller';
 import { UserController } from '../../presentation/http/controllers/user.controller';
 import { createOrganizationAppServices } from './services';
 
@@ -21,6 +23,16 @@ export function createOrganizationControllers(services: AppServices) {
       services.createBusinessUnitService,
       services.getBusinessUnitService,
       services.listBusinessUnitsService
+    ),
+    organizationVerticalController: new OrganizationVerticalController(
+      services.linkOrganizationVerticalService,
+      services.unlinkOrganizationVerticalService,
+      services.listOrganizationVerticalsService
+    ),
+    businessUnitVerticalController: new BusinessUnitVerticalController(
+      services.linkBusinessUnitVerticalService,
+      services.unlinkBusinessUnitVerticalService,
+      services.listBusinessUnitVerticalsService
     ),
   };
 }

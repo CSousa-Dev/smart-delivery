@@ -29,6 +29,7 @@ A persistencia de organizacao, atualizacao do usuario e criacao do vinculo acont
 | Value Object | `DocumentType` | Tipo do documento (CPF, CNPJ) |
 | Value Object | `DocumentNumber` | Documento normalizado (apenas digitos) |
 | Value Object | `VerticalId` | Identificador da vertical |
+| Value Object | `VerticalLinkStatus` | Estado do vinculo (ACTIVE, INACTIVE) |
 | Value Object | `OrganizationStatus` | Status da organizacao (PENDING_BUSINESS_UNIT, ACTIVE) |
 | Value Object | `UserStatus` | Status do usuario (PENDING_ORG_LINK, ORG_LINKED, ACTIVE) |
 | Repository Interface | `OrganizationRepository` | Persistencia e consultas de organizacao |
@@ -91,6 +92,7 @@ graph TD
         VO_DOC_TYPE[DocumentType]
         VO_DOC_NUM[DocumentNumber]
         VO_VERT_ID[VerticalId]
+        VO_LINK_STATUS[VerticalLinkStatus]
         VO_ORG_STATUS[OrganizationStatus]
         VO_USER_STATUS[UserStatus]
         ORG_REPO[OrganizationRepository]
@@ -137,6 +139,7 @@ graph TD
     LINK --> VO_ORG_ID
     ORG_VERT_LINK --> VO_ORG_ID
     ORG_VERT_LINK --> VO_VERT_ID
+    ORG_VERT_LINK --> VO_LINK_STATUS
     ORG_REPO_IMPL -.->|implements| ORG_REPO
     USER_REPO_IMPL -.->|implements| USER_REPO
     LINK_REPO_IMPL -.->|implements| LINK_REPO
@@ -353,11 +356,19 @@ classDiagram
     class OrganizationVerticalLink {
         -OrganizationId organizationId
         -VerticalId verticalId
+        -VerticalLinkStatus status
         +create() OrganizationVerticalLink
+    }
+
+    class VerticalLinkStatus {
+        <<enumeration>>
+        ACTIVE
+        INACTIVE
     }
 
     OrganizationVerticalLink *-- OrganizationId
     OrganizationVerticalLink *-- VerticalId
+    OrganizationVerticalLink *-- VerticalLinkStatus
 ```
 
 **Propriedades:**
@@ -366,12 +377,13 @@ classDiagram
 |-------------|------|----------|--------|
 | `organizationId` | OrganizationId | Nao | Obrigatorio |
 | `verticalId` | VerticalId | Nao | Obrigatorio |
+| `status` | VerticalLinkStatus | Sim | Default ACTIVE |
 
 **Comportamentos:**
 
 | Metodo | Regras |
 |--------|--------|
-| `create` | Gera vinculos para cada vertical informada |
+| `create` | Gera vinculos ativos para cada vertical informada |
 
 ---
 
@@ -408,6 +420,7 @@ erDiagram
         varchar(4) document_type
         varchar(14) document_number UK
         varchar(30) status_id
+        varchar(36) owner_user_id FK
         timestamp created_at
         timestamp updated_at
     }
@@ -415,11 +428,16 @@ erDiagram
     ORGANIZATION_VERTICALS {
         varchar(36) organization_id FK
         varchar(36) vertical_id FK
+        varchar(20) status_id
         timestamp created_at
+        timestamp updated_at
     }
 
     VERTICALS {
         varchar(36) id PK
+        varchar(80) name
+        varchar(40) code
+        varchar(255) description
     }
 
     USER_ORGANIZATION_LINKS {
@@ -430,6 +448,7 @@ erDiagram
     }
 
     USERS ||--o| USER_ORGANIZATION_LINKS : has
+    USERS ||--o| ORGANIZATIONS : owns
     ORGANIZATIONS ||--o{ USER_ORGANIZATION_LINKS : links
     ORGANIZATIONS ||--o{ ORGANIZATION_VERTICALS : links
     VERTICALS ||--o{ ORGANIZATION_VERTICALS : links
@@ -445,6 +464,7 @@ erDiagram
 | `document_type` | VARCHAR(4) | NOT NULL |
 | `document_number` | VARCHAR(14) | NOT NULL, UNIQUE |
 | `status_id` | VARCHAR(30) | NOT NULL |
+| `owner_user_id` | VARCHAR(36) | NOT NULL, FK(users.id), UNIQUE |
 | `created_at` | TIMESTAMP | NOT NULL, DEFAULT now() |
 | `updated_at` | TIMESTAMP | NULL |
 
@@ -454,7 +474,9 @@ erDiagram
 |--------|------|-------------|
 | `organization_id` | VARCHAR(36) | FK(organizations.id), NOT NULL |
 | `vertical_id` | VARCHAR(36) | FK(verticals.id), NOT NULL |
+| `status_id` | VARCHAR(20) | NOT NULL |
 | `created_at` | TIMESTAMP | NOT NULL, DEFAULT now() |
+| `updated_at` | TIMESTAMP | NULL |
 
 ### Tabela: `users`
 
@@ -538,13 +560,25 @@ flowchart LR
 
 ---
 
+### Decisao 4: Fonte de verdade do owner
+
+**Contexto**: O ownership aparece em `organizations.owner_user_id` e no vinculo `user_organization_links`.
+
+**Decisao**: `organizations.owner_user_id` e a fonte de verdade. O `user_organization_links` persiste o vinculo do owner com `is_owner = true` na mesma transacao da criacao.
+
+**Justificativa**: Evita divergencia entre fontes e simplifica validacoes de ownership em outros fluxos.
+
+---
+
 ## Implementation Notes
 
 - Normalizar `documentNumber` para apenas digitos antes das validacoes e consultas.
 - Nao aceitar `statusId` no input do controller; `verticalIds` devem ser informados.
 - Exigir `legalName` quando `documentType` for CNPJ.
 - Validar todos os `verticalIds` no catalogo de verticais antes da persistencia.
-- Garantir indice unico em `organizations.document_number`, `user_organization_links.user_id` e `organization_verticals(organization_id, vertical_id)`.
+- Persistir `organization_verticals` com `status_id = ACTIVE`.
+- Persistir `owner_user_id` na tabela `organizations` e manter consistencia com `user_organization_links.is_owner`.
+- Garantir indice unico em `organizations.document_number`, `organizations.owner_user_id`, `user_organization_links.user_id` e `organization_verticals(organization_id, vertical_id)`.
 - `ownerUserId` deve existir e nao possuir vinculo previo em `user_organization_links`.
 
 ---

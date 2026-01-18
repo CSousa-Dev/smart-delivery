@@ -1,5 +1,6 @@
 import { CreateOrganizationService } from '../../../../src/modules/organization/application/services/create-organization.service';
 import { User } from '../../../../src/modules/organization/domain/entities/user.entity';
+import { Vertical } from '../../../../src/modules/organization/domain/entities/vertical.entity';
 import {
   MissingLegalNameError,
   OwnerUserNotFoundError,
@@ -62,7 +63,17 @@ describe('CreateOrganizationService', () => {
     };
 
     const verticalRepository: VerticalRepository = {
-      existsByIds: jest.fn().mockResolvedValue(true),
+      listByIds: jest.fn(async (ids: string[]) =>
+        ids.map((id, index) =>
+          Vertical.restore({
+            id,
+            name: `Vertical ${index + 1}`,
+            code: `CODE_${index + 1}`,
+            description: `Description ${index + 1}`,
+            createdAt: new Date(),
+          })
+        )
+      ),
     };
 
     const transactionRepositories: OrganizationUnitOfWorkRepositories = {
@@ -74,11 +85,27 @@ describe('CreateOrganizationService', () => {
         list: jest.fn(),
         countAll: jest.fn(),
       },
+      businessUnitVerticalRepository: {
+        saveMany: jest.fn(),
+        save: jest.fn(),
+        listByBusinessUnitId: jest.fn(),
+        findByBusinessUnitAndVerticalId: jest.fn(),
+        findActiveByBusinessUnitAndVerticalId: jest.fn(),
+        updateStatus: jest.fn(),
+        countActiveByBusinessUnitId: jest.fn(),
+      },
       organizationRepository,
       organizationVerticalRepository: {
         saveMany: jest.fn(),
+        save: jest.fn(),
         listByOrganizationId: jest.fn(),
         listByOrganizationIds: jest.fn(),
+        listActiveByOrganizationId: jest.fn(),
+        findByOrganizationAndVerticalId: jest.fn(),
+        findActiveByOrganizationAndVerticalId: jest.fn(),
+        existsActiveByOrganizationAndVerticalId: jest.fn(),
+        updateStatus: jest.fn(),
+        countActiveByOrganizationId: jest.fn(),
       } as OrganizationVerticalRepository,
       userRepository,
       userOrganizationLinkRepository,
@@ -166,7 +193,7 @@ describe('CreateOrganizationService', () => {
 
   it('should reject when vertical is not registered', async () => {
     const { service, verticalRepository } = buildService();
-    (verticalRepository.existsByIds as jest.Mock).mockResolvedValue(false);
+    (verticalRepository.listByIds as jest.Mock).mockResolvedValue([]);
 
     await expect(
       service.execute({

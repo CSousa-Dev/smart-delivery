@@ -5,7 +5,9 @@ export class OrganizationVerticalMapper {
     return {
       organizationId: link.getOrganizationId(),
       verticalId: link.getVerticalId(),
+      statusId: link.getStatus(),
       createdAt: link.getCreatedAt(),
+      updatedAt: link.getUpdatedAt(),
     };
   }
 }

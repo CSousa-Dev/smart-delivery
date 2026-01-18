@@ -8,6 +8,7 @@ import {
 import { OrganizationNotFoundError } from '../../../../src/modules/organization/domain/errors/organization.errors';
 import { UserNotOwnerError } from '../../../../src/modules/organization/domain/errors/business-unit.errors';
 import { Organization } from '../../../../src/modules/organization/domain/entities/organization.entity';
+import { OrganizationVerticalLink } from '../../../../src/modules/organization/domain/entities/organization-vertical-link.entity';
 
 describe('CreateBusinessUnitService', () => {
   const organization = Organization.create({
@@ -43,11 +44,34 @@ describe('CreateBusinessUnitService', () => {
 
     const transactionRepositories: OrganizationUnitOfWorkRepositories = {
       businessUnitRepository,
+      businessUnitVerticalRepository: {
+        saveMany: jest.fn(),
+        save: jest.fn(),
+        listByBusinessUnitId: jest.fn(),
+        findByBusinessUnitAndVerticalId: jest.fn(),
+        findActiveByBusinessUnitAndVerticalId: jest.fn(),
+        updateStatus: jest.fn(),
+        countActiveByBusinessUnitId: jest.fn(),
+      },
       organizationRepository,
       organizationVerticalRepository: {
         saveMany: jest.fn(),
         listByOrganizationId: jest.fn(),
         listByOrganizationIds: jest.fn(),
+        listActiveByOrganizationId: jest.fn().mockResolvedValue([
+          OrganizationVerticalLink.restore({
+            organizationId: 'org-1',
+            verticalId: 'vert-1',
+            status: 'ACTIVE',
+            createdAt: new Date(),
+          }),
+        ]),
+        save: jest.fn(),
+        findByOrganizationAndVerticalId: jest.fn(),
+        findActiveByOrganizationAndVerticalId: jest.fn(),
+        existsActiveByOrganizationAndVerticalId: jest.fn(),
+        updateStatus: jest.fn(),
+        countActiveByOrganizationId: jest.fn(),
       },
       userRepository: {
         save: jest.fn(),
@@ -74,7 +98,9 @@ describe('CreateBusinessUnitService', () => {
     return {
       service: new CreateBusinessUnitService(
         businessUnitRepository,
+        transactionRepositories.businessUnitVerticalRepository as any,
         organizationRepository,
+        transactionRepositories.organizationVerticalRepository as any,
         unitOfWork
       ),
       businessUnitRepository,
@@ -87,6 +113,7 @@ describe('CreateBusinessUnitService', () => {
   const baseInput = {
     organizationId: 'org-1',
     actorUserId: 'user-1',
+    verticalIds: ['vert-1'],
     publicName: 'Loja X',
     phoneNumber: '11999999999',
     phoneHasWhatsapp: true,

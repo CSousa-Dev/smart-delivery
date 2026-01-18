@@ -5,6 +5,10 @@ import {
   InvalidBusinessUnitIdError,
 } from '../../../../src/modules/organization/domain/errors/business-unit.errors';
 import { BusinessUnitRepository } from '../../../../src/modules/organization/domain/repositories/business-unit.repository';
+import { BusinessUnitVerticalRepository } from '../../../../src/modules/organization/domain/repositories/business-unit-vertical.repository';
+import { VerticalRepository } from '../../../../src/modules/organization/domain/repositories/vertical.repository';
+import { BusinessUnitVerticalLink } from '../../../../src/modules/organization/domain/entities/business-unit-vertical-link.entity';
+import { Vertical } from '../../../../src/modules/organization/domain/entities/vertical.entity';
 
 describe('GetBusinessUnitService', () => {
   const unit = BusinessUnit.create({
@@ -37,9 +41,45 @@ describe('GetBusinessUnitService', () => {
       countAll: jest.fn(),
     };
 
+    const businessUnitVerticalRepository: BusinessUnitVerticalRepository = {
+      saveMany: jest.fn(),
+      save: jest.fn(),
+      listByBusinessUnitId: jest.fn().mockResolvedValue([
+        BusinessUnitVerticalLink.restore({
+          businessUnitId: unit.getId().value,
+          organizationId: unit.getOrganizationId(),
+          verticalId: 'vert-1',
+          status: 'ACTIVE',
+          createdAt: new Date(),
+        }),
+      ]),
+      findByBusinessUnitAndVerticalId: jest.fn(),
+      findActiveByBusinessUnitAndVerticalId: jest.fn(),
+      updateStatus: jest.fn(),
+      countActiveByBusinessUnitId: jest.fn(),
+    };
+
+    const verticalRepository: VerticalRepository = {
+      listByIds: jest.fn().mockResolvedValue([
+        Vertical.restore({
+          id: 'vert-1',
+          name: 'Restaurante',
+          code: 'FOOD',
+          description: 'Food services',
+          createdAt: new Date(),
+        }),
+      ]),
+    };
+
     return {
-      service: new GetBusinessUnitService(businessUnitRepository),
+      service: new GetBusinessUnitService(
+        businessUnitRepository,
+        businessUnitVerticalRepository,
+        verticalRepository
+      ),
       businessUnitRepository,
+      businessUnitVerticalRepository,
+      verticalRepository,
     };
   };
 
@@ -73,5 +113,6 @@ describe('GetBusinessUnitService', () => {
 
     expect(output.status).toBe('PENDING_PRODUCTS');
     expect(output.address.postalCode).toBe('01001000');
+    expect(output.verticals.map((vertical) => vertical.id)).toEqual(['vert-1']);
   });
 });

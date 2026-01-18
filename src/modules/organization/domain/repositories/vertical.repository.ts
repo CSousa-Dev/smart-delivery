@@ -1,3 +1,5 @@
+import { Vertical } from '../entities/vertical.entity';
+
 export interface VerticalRepository {
-  existsByIds(ids: string[]): Promise<boolean>;
+  listByIds(ids: string[]): Promise<Vertical[]>;
 }

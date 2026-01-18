@@ -2,7 +2,9 @@ import { CreateBusinessUnitService } from '../../../../../src/modules/organizati
 import { OrganizationNotFoundError } from '../../../../../src/modules/organization/domain/errors/organization.errors';
 import { UserNotOwnerError } from '../../../../../src/modules/organization/domain/errors/business-unit.errors';
 import { PrismaBusinessUnitRepository } from '../../../../../src/modules/organization/infrastructure/repositories/business-unit/business-unit.repository.impl';
+import { PrismaBusinessUnitVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/business-unit-vertical/business-unit-vertical.repository.impl';
 import { PrismaOrganizationRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization/organization.repository.impl';
+import { PrismaOrganizationVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization-vertical/organization-vertical.repository.impl';
 import { PrismaOrganizationUnitOfWork } from '../../../../../src/modules/organization/infrastructure/repositories/organization-unit-of-work/organization-unit-of-work.impl';
 import {
   createOrganizationTestPrismaClient,
@@ -23,23 +25,32 @@ describeIf('Capability Create Business Unit – [CAP-003]', () => {
   });
 
   beforeEach(async () => {
+    await prisma.businessUnitVertical.deleteMany();
     await prisma.businessUnitAddress.deleteMany();
     await prisma.businessUnit.deleteMany();
     await prisma.organizationVertical.deleteMany();
     await prisma.userOrganizationLink.deleteMany();
     await prisma.organization.deleteMany();
     await prisma.user.deleteMany();
+    await prisma.vertical.deleteMany();
   });
 
   const buildService = () =>
     new CreateBusinessUnitService(
       new PrismaBusinessUnitRepository(prisma),
+      new PrismaBusinessUnitVerticalRepository(prisma),
       new PrismaOrganizationRepository(prisma),
+      new PrismaOrganizationVerticalRepository(prisma),
       new PrismaOrganizationUnitOfWork(prisma)
     );
 
-  const createOrganization = async (overrides?: Partial<{ ownerUserId: string; statusId: string }>) =>
-    prisma.organization.create({
+  const createOrganization = async (
+    overrides?: Partial<{ ownerUserId: string; statusId: string }>
+  ) => {
+    await prisma.vertical.create({
+      data: { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
+    });
+    await prisma.organization.create({
       data: {
         id: 'org-1',
         tradeName: 'Loja X',
@@ -50,10 +61,19 @@ describeIf('Capability Create Business Unit – [CAP-003]', () => {
         ownerUserId: overrides?.ownerUserId ?? 'user-1',
       },
     });
+    await prisma.organizationVertical.create({
+      data: {
+        organizationId: 'org-1',
+        verticalId: 'vert-1',
+        statusId: 'ACTIVE',
+      },
+    });
+  };
 
   const baseInput = {
     organizationId: 'org-1',
     actorUserId: 'user-1',
+    verticalIds: ['vert-1'],
     publicName: 'Loja X',
     phoneNumber: '11-99999-9999',
     phoneHasWhatsapp: true,

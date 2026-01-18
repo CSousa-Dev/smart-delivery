@@ -3,6 +3,7 @@ import { BusinessUnitStatusValue } from '../../domain/entities/business-unit.ent
 export interface CreateBusinessUnitInput {
   organizationId: string;
   actorUserId: string;
+  verticalIds: string[];
   publicName: string;
   phoneNumber: string;
   phoneHasWhatsapp: boolean;
@@ -25,6 +26,7 @@ export interface CreateBusinessUnitInput {
 export interface CreateBusinessUnitOutput {
   id: string;
   organizationId: string;
+  verticalIds: string[];
   publicName: string;
   phoneNumber: string;
   phoneHasWhatsapp: boolean;

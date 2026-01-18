@@ -3,9 +3,9 @@
 | Critério | Nota | Observação |
 |----------|------|------------|
 | Estrutura e Completude | 5/5 | Todas as seções do template estão presentes e bem preenchidas. |
-| User Stories | 5/5 | Cenários cobrem fluxo feliz, erros principais e criação de unidade adicional. |
-| Edge Cases | 5/5 | Inclui validações de telefone, CEP, UF e país. |
-| Functional Requirements | 5/5 | Regras claras, numeradas e rastreáveis, incluindo múltiplas unidades. |
+| User Stories | 5/5 | Cenários cobrem fluxo feliz, erros principais, verticais e criação de unidade adicional. |
+| Edge Cases | 5/5 | Inclui validações de telefone, CEP, UF, país e verticais fora da organização. |
+| Functional Requirements | 5/5 | Regras claras, numeradas e rastreáveis, incluindo vínculo de verticais e múltiplas unidades. |
 | Entity | 5/5 | Entidades detalhadas com regras de formato e status. |
 | Success Criteria | 5/5 | Métricas objetivas e verificáveis. |
 | Clareza | 5/5 | Linguagem consistente e sem ambiguidades. |
@@ -25,8 +25,8 @@ Nenhum.
 ## Pontos Fortes
 
 1. Regras de endereço e formatos explícitas.
-2. Cenários cobrem erros e criação de unidade adicional.
-3. Status definidos pela aplicação e múltiplas unidades permitidas.
+2. Validação de verticais da organização e regra de ao menos uma vertical.
+3. Status definidos pela aplicação e criação de múltiplas unidades permitidas.
 
 ## Template de Referência
 Arquivo: `specs/templates/spec-template.md`

@@ -41,3 +41,35 @@ export class BusinessUnitNotFoundError extends DomainError {
     super('Business unit not found', 'BUSINESS_UNIT_NOT_FOUND', { businessUnitId });
   }
 }
+
+export class VerticalRequiredError extends DomainError {
+  constructor() {
+    super('At least one vertical is required', 'VERTICAL_REQUIRED');
+  }
+}
+
+export class VerticalNotInOrganizationError extends DomainError {
+  constructor(organizationId: string, verticalId: string) {
+    super('Vertical not in organization', 'VERTICAL_NOT_IN_ORGANIZATION', {
+      organizationId,
+      verticalId,
+    });
+  }
+}
+
+export class BusinessUnitVerticalNotFoundError extends DomainError {
+  constructor(businessUnitId: string, verticalId: string) {
+    super('Business unit vertical not found', 'BUSINESS_UNIT_VERTICAL_NOT_FOUND', {
+      businessUnitId,
+      verticalId,
+    });
+  }
+}
+
+export class BusinessUnitRequiresActiveVerticalError extends DomainError {
+  constructor(businessUnitId: string) {
+    super('Business unit requires active vertical', 'BUSINESS_UNIT_REQUIRES_ACTIVE_VERTICAL', {
+      businessUnitId,
+    });
+  }
+}

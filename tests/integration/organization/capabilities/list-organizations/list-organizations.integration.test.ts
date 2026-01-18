@@ -1,6 +1,7 @@
 import { ListOrganizationsService } from '../../../../../src/modules/organization/application/services/list-organizations.service';
 import { PrismaOrganizationRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization/organization.repository.impl';
 import { PrismaOrganizationVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization-vertical/organization-vertical.repository.impl';
+import { PrismaVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/vertical/vertical.repository.impl';
 import {
   createOrganizationTestPrismaClient,
   OrganizationPrismaClient,
@@ -20,7 +21,12 @@ describeIf('Capability List Organizations – [CAP-007]', () => {
   });
 
   beforeEach(async () => {
+    await prisma.businessUnitVertical.deleteMany();
+    await prisma.businessUnitAddress.deleteMany();
+    await prisma.businessUnit.deleteMany();
     await prisma.organizationVertical.deleteMany();
+    await prisma.userOrganizationLink.deleteMany();
+    await prisma.user.deleteMany();
     await prisma.organization.deleteMany();
     await prisma.vertical.deleteMany();
   });
@@ -28,7 +34,8 @@ describeIf('Capability List Organizations – [CAP-007]', () => {
   const buildService = () =>
     new ListOrganizationsService(
       new PrismaOrganizationRepository(prisma),
-      new PrismaOrganizationVerticalRepository(prisma)
+      new PrismaOrganizationVerticalRepository(prisma),
+      new PrismaVerticalRepository(prisma)
     );
 
   const seedOrganization = async (id: string, createdAt: Date, verticalIds: string[]) => {
@@ -50,6 +57,7 @@ describeIf('Capability List Organizations – [CAP-007]', () => {
       data: verticalIds.map((verticalId) => ({
         organizationId: id,
         verticalId,
+        statusId: 'ACTIVE',
       })),
     });
   };
@@ -68,7 +76,7 @@ describeIf('Capability List Organizations – [CAP-007]', () => {
     if (!first) {
       throw new Error('Expected at least one organization item');
     }
-    expect(first.verticalIds).toEqual(['vert-1']);
+    expect(first.verticals.map((vertical) => vertical.id)).toEqual(['vert-1']);
   });
 
   it('should return empty list – [SCN-002]', async () => {
@@ -106,6 +114,7 @@ describeIf('Capability List Organizations – [CAP-007]', () => {
       data: orgs.map((org) => ({
         organizationId: org.id,
         verticalId: 'vert-1',
+        statusId: 'ACTIVE',
       })),
     });
 

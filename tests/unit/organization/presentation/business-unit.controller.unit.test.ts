@@ -31,6 +31,7 @@ describe('BusinessUnitController', () => {
     (createBusinessUnitService.execute as jest.Mock).mockResolvedValue({
       id: 'unit-1',
       organizationId: 'org-1',
+      verticalIds: ['vert-1'],
       publicName: 'Loja X',
       phoneNumber: '11999999999',
       phoneHasWhatsapp: true,
@@ -104,6 +105,15 @@ describe('BusinessUnitController', () => {
       instagram: null,
       website: null,
       status: 'PENDING_PRODUCTS',
+      verticals: [
+        {
+          id: 'vert-1',
+          name: 'Restaurante',
+          code: 'FOOD',
+          description: 'Food services',
+          status: 'ACTIVE',
+        },
+      ],
       address: {
         street: 'Rua A',
         number: '123',

@@ -53,6 +53,12 @@ Scenario: Consultar organização com vínculos inexistentes
   Then o sistema deve retornar a organização
   And deve retornar listas vazias para unidades de negócio e usuários
 
+Scenario: Consultar organização com verticais vinculadas
+  Given que a organização informada existe e possui verticais vinculadas
+  When a consulta é realizada
+  Then o sistema deve retornar a organização com suas verticais
+  And cada vertical deve conter seus dados básicos
+
 Scenario: Consultar organização com include inválido
   Given que a organização informada existe
   When a consulta é realizada com `include = businessUnits,foo,users,users`
@@ -85,7 +91,7 @@ Scenario: Rejeitar consulta de organização inexistente
 - **FR-007**: Se vínculos solicitados não existirem, o sistema **DEVE** retornar listas vazias.
 - **FR-008**: O retorno de unidades de negócio e usuários **DEVE** ocorrer apenas quando explicitamente solicitado.
 - **FR-009**: Se a organização não existir, a consulta **DEVE** ser rejeitada com erro `ORGANIZATION_NOT_FOUND`.
-- **FR-010**: Os dados da organização **DEVEM** incluir a lista de `verticalIds` vinculados.
+- **FR-010**: Os dados da organização **DEVEM** incluir as verticais vinculadas com seus dados básicos.
 
 ---
 
@@ -100,7 +106,7 @@ Scenario: Rejeitar consulta de organização inexistente
 | `legalName` | Razão social/nome formal | Obrigatório quando `documentType` = `CNPJ` |
 | `documentType` | Tipo do documento | Obrigatório, valores: `CPF`, `CNPJ` |
 | `documentNumber` | Documento da organização | Obrigatório, somente dígitos, 11 (CPF) ou 14 (CNPJ) |
-| `verticalIds` | Verticais vinculadas | Obrigatório, lista com 1+ ids registrados |
+| `verticals` | Verticais vinculadas | Obrigatório, lista com 1+ itens |
 | `ownerUserId` | Usuário owner da organização | Obrigatório |
 | `statusId` | Identificador do status | Obrigatório |
 | `createdAt` | Data de criação | Obrigatório |
@@ -128,6 +134,15 @@ Scenario: Rejeitar consulta de organização inexistente
 | `phoneNumber` | Celular do usuário | Obrigatório, somente dígitos, máximo 15 caracteres |
 | `statusId` | Identificador do status | Obrigatório |
 
+### VerticalSummary
+
+| Campo | Descrição | Regras |
+| --- | --- | --- |
+| `id` | Identificador único da vertical | Obrigatório |
+| `name` | Nome da vertical | Obrigatório |
+| `code` | Código da vertical | Obrigatório |
+| `description` | Descrição da vertical | Obrigatório |
+
 ---
 
 ## Success Criteria
@@ -145,12 +160,13 @@ Scenario: Rejeitar consulta de organização inexistente
 | Organization | Negócio registrado pelo usuário |
 | Business Unit | Ponto de venda da organização |
 | User | Pessoa física vinculada à organização |
+| Vertical | Categoria de atuação do negócio |
 
 ---
 
 ## Summary
 
-A capability **Get Organization** permite consultar uma organização por id e, quando solicitado, incluir suas unidades de negócio e usuários vinculados.
+A capability **Get Organization** permite consultar uma organização por id e retornar suas verticais vinculadas, além de incluir unidades de negócio e usuários quando solicitado.
 
 Ela dá suporte a operações de gestão e validação do negócio no módulo de organização.
 

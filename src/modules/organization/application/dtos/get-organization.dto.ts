@@ -21,13 +21,20 @@ export interface OrganizationUserSummary {
   status: string;
 }
 
+export interface VerticalSummary {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
+}
+
 export interface GetOrganizationOutput {
   id: string;
   tradeName: string;
   legalName: string | null;
   documentType: string;
   documentNumber: string;
-  verticalIds: string[];
+  verticals: VerticalSummary[];
   ownerUserId: string;
   status: string;
   createdAt: Date;

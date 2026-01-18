@@ -11,6 +11,8 @@ import { OrganizationRepository } from '../../../../src/modules/organization/dom
 import { OrganizationVerticalRepository } from '../../../../src/modules/organization/domain/repositories/organization-vertical.repository';
 import { UserRepository } from '../../../../src/modules/organization/domain/repositories/user.repository';
 import { User } from '../../../../src/modules/organization/domain/entities/user.entity';
+import { VerticalRepository } from '../../../../src/modules/organization/domain/repositories/vertical.repository';
+import { Vertical } from '../../../../src/modules/organization/domain/entities/vertical.entity';
 
 describe('GetOrganizationService', () => {
   const organization = Organization.create({
@@ -37,14 +39,22 @@ describe('GetOrganizationService', () => {
 
     const organizationVerticalRepository: OrganizationVerticalRepository = {
       saveMany: jest.fn(),
+      save: jest.fn(),
       listByOrganizationId: jest.fn().mockResolvedValue([
         OrganizationVerticalLink.restore({
           organizationId: organization.getId().value,
           verticalId: 'vert-1',
+          status: 'ACTIVE',
           createdAt: new Date(),
         }),
       ]),
       listByOrganizationIds: jest.fn(),
+      listActiveByOrganizationId: jest.fn(),
+      findByOrganizationAndVerticalId: jest.fn(),
+      findActiveByOrganizationAndVerticalId: jest.fn(),
+      existsActiveByOrganizationAndVerticalId: jest.fn(),
+      updateStatus: jest.fn(),
+      countActiveByOrganizationId: jest.fn(),
     };
 
     const businessUnitRepository: BusinessUnitRepository = {
@@ -99,17 +109,31 @@ describe('GetOrganizationService', () => {
       ]),
     };
 
+    const verticalRepository: VerticalRepository = {
+      listByIds: jest.fn().mockResolvedValue([
+        Vertical.restore({
+          id: 'vert-1',
+          name: 'Restaurante',
+          code: 'FOOD',
+          description: 'Food services',
+          createdAt: new Date(),
+        }),
+      ]),
+    };
+
     return {
       service: new GetOrganizationService(
         organizationRepository,
         organizationVerticalRepository,
         businessUnitRepository,
-        userRepository
+        userRepository,
+        verticalRepository
       ),
       organizationRepository,
       organizationVerticalRepository,
       businessUnitRepository,
       userRepository,
+      verticalRepository,
     };
   };
 
@@ -139,7 +163,7 @@ describe('GetOrganizationService', () => {
 
     expect(output.businessUnits).toBeUndefined();
     expect(output.users).toBeUndefined();
-    expect(output.verticalIds).toEqual(['vert-1']);
+    expect(output.verticals.map((vertical) => vertical.id)).toEqual(['vert-1']);
   });
 
   it('should return organization with business units and users', async () => {

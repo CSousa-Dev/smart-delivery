@@ -12,6 +12,8 @@ const ERROR_STATUS_BY_CODE: Record<string, (message: string, code: string) => Ap
   INVALID_POSTAL_CODE: (message, code) => AppError.badRequest(message, code),
   INVALID_STATE: (message, code) => AppError.badRequest(message, code),
   INVALID_COUNTRY: (message, code) => AppError.badRequest(message, code),
+  VERTICAL_REQUIRED: (message, code) => AppError.badRequest(message, code),
+  VERTICAL_NOT_IN_ORGANIZATION: (message, code) => AppError.badRequest(message, code),
   INVALID_BUSINESS_UNIT_ID: (message, code) => AppError.badRequest(message, code),
   BUSINESS_UNIT_NOT_FOUND: (message, code) => AppError.notFound(message, code),
 };

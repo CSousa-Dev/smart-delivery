@@ -19,7 +19,7 @@
 ### User Story 1 - Create business unit (P1)
 
 Como **owner da organização**,  
-quero **criar uma unidade de negócio com dados públicos e endereço completo**,  
+quero **criar uma unidade de negócio com dados públicos, endereço completo e ao menos uma vertical da organização**,  
 para **iniciar a operação de venda na plataforma**.
 
 **Por que P1**: Sem unidade de negócio não há ponto de venda disponível para clientes.
@@ -29,7 +29,8 @@ para **iniciar a operação de venda na plataforma**.
 ```gherkin
 Scenario: Criar unidade de negócio com dados válidos
   Given que a organização existe e o usuário é owner da organização
-  When a unidade de negócio é criada com os dados obrigatórios
+  And que a organização possui verticais disponíveis
+  When a unidade de negócio é criada com os dados obrigatórios e ao menos uma vertical da organização
   Then a unidade de negócio deve ser criada com status PENDING_PRODUCTS
   And a unidade de negócio deve ficar vinculada à organização
   And a organização deve ficar com status ACTIVE
@@ -47,10 +48,23 @@ Scenario: Rejeitar criação por usuário não owner
   Then a criação deve ser rejeitada
   And o sistema deve informar que apenas o owner pode criar a unidade de negócio
 
+Scenario: Rejeitar criação sem vertical informada
+  Given que a organização existe e o usuário é owner da organização
+  When a unidade de negócio é criada sem informar verticais
+  Then a criação deve ser rejeitada
+  And o sistema deve informar que ao menos uma vertical é obrigatória
+
+Scenario: Rejeitar criação com vertical fora da organização
+  Given que a organização existe e o usuário é owner da organização
+  And que a vertical informada não pertence à organização
+  When a unidade de negócio é criada
+  Then a criação deve ser rejeitada
+  And o sistema deve informar que a vertical não pertence à organização
+
 Scenario: Criar unidade adicional para organização ativa
   Given que a organização existe e já possui unidade de negócio
   And que o usuário é owner da organização
-  When a unidade de negócio é criada com os dados obrigatórios
+  When a unidade de negócio é criada com os dados obrigatórios e ao menos uma vertical da organização
   Then a unidade de negócio deve ser criada
   And a organização deve permanecer com status ACTIVE
 ```
@@ -76,6 +90,9 @@ Scenario: Criar unidade adicional para organização ativa
 - **FR-015**: Ao criar a primeira unidade de negócio, a organização **DEVE** mudar para status `ACTIVE`.
 - **FR-016**: Uma organização **PODE** ter múltiplas unidades de negócio, sem limite definido no momento.
 - **FR-017**: O status da unidade de negócio **NÃO DEVE** ser informado pelo usuário e **DEVE** ser definido pela aplicação.
+- **FR-018**: A unidade de negócio **DEVE** ser criada com ao menos uma vertical vinculada.
+- **FR-019**: As verticais da unidade de negócio **DEVEM** pertencer e estar ativas na organização informada.
+- **FR-020**: Se alguma vertical informada não pertencer à organização, a criação **DEVE** ser rejeitada.
 
 ---
 
@@ -87,6 +104,7 @@ Scenario: Criar unidade adicional para organização ativa
 | --- | --- | --- |
 | `id` | Identificador único da unidade de negócio | Obrigatório, único |
 | `organizationId` | Organização vinculada | Obrigatório |
+| `verticalIds` | Verticais vinculadas à unidade | Obrigatório, lista com 1+ ids pertencentes à organização |
 | `publicName` | Nome público exibido aos compradores | Obrigatório |
 | `phoneNumber` | Telefone de contato | Obrigatório, somente dígitos, máximo 15 caracteres |
 | `phoneHasWhatsapp` | Indica se o telefone possui WhatsApp | Obrigatório |
@@ -132,12 +150,13 @@ Scenario: Criar unidade adicional para organização ativa
 | --- | --- |
 | Business Unit | Ponto de venda da organização |
 | Owner | Usuário responsável pela organização |
+| Vertical | Categoria de atuação do negócio |
 
 ---
 
 ## Summary
 
-A capability **Create Business Unit** registra o ponto de venda da organização com dados públicos e endereço completo.
+A capability **Create Business Unit** registra o ponto de venda da organização com dados públicos, endereço completo e vínculo com verticais da organização.
 
 Ela habilita a organização para operar, mantendo a unidade de negócio em estado pendente até o cadastro de produtos.
 

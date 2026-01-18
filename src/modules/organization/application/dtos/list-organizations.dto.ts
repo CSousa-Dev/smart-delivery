@@ -4,12 +4,19 @@ export interface ListOrganizationsInput {
   sortDirection?: string;
 }
 
+export interface VerticalSummary {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
+}
+
 export interface OrganizationListItem {
   id: string;
   tradeName: string;
   documentType: string;
   documentNumber: string;
-  verticalIds: string[];
+  verticals: VerticalSummary[];
   status: string;
   createdAt: Date;
 }

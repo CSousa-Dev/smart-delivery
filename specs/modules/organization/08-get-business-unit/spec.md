@@ -38,6 +38,12 @@ Scenario: Consultar unidade de negócio com status pendente
   Then o sistema deve retornar os dados da unidade de negócio
   And o statusId deve refletir o estado PENDING_PRODUCTS
 
+Scenario: Consultar unidade de negócio com verticais vinculadas
+  Given que a unidade de negócio informada existe e possui verticais vinculadas
+  When a consulta é realizada pelo id da unidade de negócio
+  Then o sistema deve retornar os dados da unidade de negócio
+  And deve retornar as verticais vinculadas com seus dados básicos e status do vínculo
+
 Scenario: Rejeitar consulta com businessUnitId inválido
   Given que o businessUnitId informado é inválido
   When a consulta é realizada
@@ -61,6 +67,7 @@ Scenario: Rejeitar consulta de unidade de negócio inexistente
 - **FR-004**: Se a unidade de negócio não existir, a consulta **DEVE** ser rejeitada com erro `BUSINESS_UNIT_NOT_FOUND`.
 - **FR-005**: A consulta **DEVE** retornar dados da unidade de negócio independentemente do status; o `statusId` **DEVE** refletir o estado atual.
 - **FR-006**: A consulta **DEVE** ser rejeitada quando o solicitante não tiver permissão, com erro `FORBIDDEN`.
+- **FR-007**: Os dados da unidade de negócio **DEVEM** incluir as verticais vinculadas com seus dados básicos e o status do vínculo.
 
 ---
 
@@ -94,6 +101,7 @@ A resposta de erro **DEVE** seguir o padrão:
 | `instagram` | Instagram do negócio | Opcional |
 | `website` | Site ou link público do negócio | Opcional |
 | `statusId` | Identificador do status | Obrigatório |
+| `verticals` | Verticais vinculadas | Obrigatório, lista com 1+ itens com status |
 | `address` | Endereço completo | Obrigatório |
 | `createdAt` | Data de criação | Obrigatório |
 | `updatedAt` | Data da última atualização | Opcional |
@@ -112,6 +120,16 @@ A resposta de erro **DEVE** seguir o padrão:
 | `country` | País | Obrigatório, valor esperado: `BR` |
 | `referencePoint` | Ponto de referência | Obrigatório |
 
+### VerticalSummary
+
+| Campo | Descrição | Regras |
+| --- | --- | --- |
+| `id` | Identificador único da vertical | Obrigatório |
+| `name` | Nome da vertical | Obrigatório |
+| `code` | Código da vertical | Obrigatório |
+| `description` | Descrição da vertical | Obrigatório |
+| `statusId` | Status do vínculo | Obrigatório |
+
 ---
 
 ## Success Criteria
@@ -127,12 +145,13 @@ A resposta de erro **DEVE** seguir o padrão:
 | --- | --- |
 | Business Unit | Ponto de venda da organização |
 | Organization | Negócio registrado pelo usuário |
+| Vertical | Categoria de atuação do negócio |
 
 ---
 
 ## Summary
 
-A capability **Get Business Unit** permite consultar uma unidade de negócio por id e retornar seus dados completos.
+A capability **Get Business Unit** permite consultar uma unidade de negócio por id e retornar seus dados completos, incluindo as verticais vinculadas.
 
 Ela dá suporte a operações de manutenção e validação de pontos de venda no módulo de organização.
 

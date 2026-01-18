@@ -3,6 +3,7 @@ import {
   GetOrganizationInput,
   GetOrganizationOutput,
   OrganizationUserSummary,
+  VerticalSummary,
 } from '../dtos/get-organization.dto';
 import { OrganizationId } from '../../domain/entities/organization.entity';
 import {
@@ -13,13 +14,15 @@ import { BusinessUnitRepository } from '../../domain/repositories/business-unit.
 import { OrganizationRepository } from '../../domain/repositories/organization.repository';
 import { OrganizationVerticalRepository } from '../../domain/repositories/organization-vertical.repository';
 import { UserRepository } from '../../domain/repositories/user.repository';
+import { VerticalRepository } from '../../domain/repositories/vertical.repository';
 
 export class GetOrganizationService {
   constructor(
     private readonly organizationRepository: OrganizationRepository,
     private readonly organizationVerticalRepository: OrganizationVerticalRepository,
     private readonly businessUnitRepository: BusinessUnitRepository,
-    private readonly userRepository: UserRepository
+    private readonly userRepository: UserRepository,
+    private readonly verticalRepository: VerticalRepository
   ) {}
 
   async execute(input: GetOrganizationInput): Promise<GetOrganizationOutput> {
@@ -43,6 +46,17 @@ export class GetOrganizationService {
       input.organizationId
     );
     const verticalIds = verticalLinks.map((link) => link.getVerticalId());
+    const verticals = await this.verticalRepository.listByIds(verticalIds);
+    const verticalsById = new Map(verticals.map((vertical) => [vertical.getId(), vertical]));
+    const verticalSummaries: VerticalSummary[] = verticalLinks
+      .map((link) => verticalsById.get(link.getVerticalId()))
+      .filter((vertical): vertical is NonNullable<typeof vertical> => Boolean(vertical))
+      .map((vertical) => ({
+        id: vertical.getId(),
+        name: vertical.getName(),
+        code: vertical.getCode(),
+        description: vertical.getDescription(),
+      }));
 
     let businessUnits: BusinessUnitSummary[] | undefined;
     if (includeSet.has('businessUnits')) {
@@ -76,7 +90,7 @@ export class GetOrganizationService {
       legalName: organization.getLegalName(),
       documentType: organization.getDocumentType(),
       documentNumber: organization.getDocumentNumber(),
-      verticalIds,
+      verticals: verticalSummaries,
       ownerUserId: organization.getOwnerUserId(),
       status: organization.getStatus(),
       createdAt: organization.getCreatedAt(),

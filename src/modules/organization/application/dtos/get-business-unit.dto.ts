@@ -1,6 +1,15 @@
+import { VerticalLinkStatusValue } from '../../domain/entities/vertical-link-status';
+
 export interface GetBusinessUnitInput {
   businessUnitId: string;
   actorUserId: string;
+}
+export interface VerticalSummary {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
+  status: VerticalLinkStatusValue;
 }
 
 export interface GetBusinessUnitOutput {
@@ -13,6 +22,7 @@ export interface GetBusinessUnitOutput {
   instagram: string | null;
   website: string | null;
   status: string;
+  verticals: VerticalSummary[];
   address: {
     street: string;
     number: string;

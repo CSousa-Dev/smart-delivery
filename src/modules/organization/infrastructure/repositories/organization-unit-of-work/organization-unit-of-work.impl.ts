@@ -4,6 +4,7 @@ import {
   OrganizationUnitOfWorkRepositories,
 } from '../../../domain/repositories/organization-unit-of-work';
 import { PrismaBusinessUnitRepository } from '../business-unit/business-unit.repository.impl';
+import { PrismaBusinessUnitVerticalRepository } from '../business-unit-vertical/business-unit-vertical.repository.impl';
 import { PrismaOrganizationRepository } from '../organization/organization.repository.impl';
 import { PrismaOrganizationVerticalRepository } from '../organization-vertical/organization-vertical.repository.impl';
 import { PrismaUserRepository } from '../user/user.repository.impl';
@@ -18,6 +19,7 @@ export class PrismaOrganizationUnitOfWork implements OrganizationUnitOfWork {
     return this.prisma.$transaction(async (tx) => {
       const repositories: OrganizationUnitOfWorkRepositories = {
         businessUnitRepository: new PrismaBusinessUnitRepository(tx),
+        businessUnitVerticalRepository: new PrismaBusinessUnitVerticalRepository(tx),
         organizationRepository: new PrismaOrganizationRepository(tx),
         organizationVerticalRepository: new PrismaOrganizationVerticalRepository(tx),
         userRepository: new PrismaUserRepository(tx),

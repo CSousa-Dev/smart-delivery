@@ -38,6 +38,7 @@ model Organization {
   updatedAt      DateTime? @updatedAt @map("updated_at")
   organizationLinks UserOrganizationLink[]
   organizationVerticals OrganizationVertical[]
+  businessUnitVerticals BusinessUnitVertical[]
   businessUnits    BusinessUnit[]
 
   @@map("organizations")
@@ -63,6 +64,7 @@ model Vertical {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
   organizationVerticals OrganizationVertical[]
+  businessUnitVerticals BusinessUnitVertical[]
 
   @@map("verticals")
 }
@@ -70,7 +72,9 @@ model Vertical {
 model OrganizationVertical {
   organizationId String   @map("organization_id") @db.VarChar(36)
   verticalId     String   @map("vertical_id") @db.VarChar(36)
+  statusId       String   @map("status_id") @db.VarChar(20)
   createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime? @updatedAt @map("updated_at")
   organization   Organization @relation(fields: [organizationId], references: [id])
   vertical       Vertical @relation(fields: [verticalId], references: [id])
 
@@ -93,6 +97,7 @@ model BusinessUnit {
   updatedAt        DateTime? @updatedAt @map("updated_at")
   organization     Organization @relation(fields: [organizationId], references: [id])
   address          BusinessUnitAddress?
+  businessUnitVerticals BusinessUnitVertical[]
 
   @@index([organizationId])
   @@map("business_units")
@@ -112,4 +117,21 @@ model BusinessUnitAddress {
   businessUnit   BusinessUnit @relation(fields: [businessUnitId], references: [id])
 
   @@map("business_unit_addresses")
+}
+
+model BusinessUnitVertical {
+  businessUnitId String   @map("business_unit_id") @db.VarChar(36)
+  organizationId String   @map("organization_id") @db.VarChar(36)
+  verticalId     String   @map("vertical_id") @db.VarChar(36)
+  statusId       String   @map("status_id") @db.VarChar(20)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime? @updatedAt @map("updated_at")
+  businessUnit   BusinessUnit @relation(fields: [businessUnitId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  vertical       Vertical @relation(fields: [verticalId], references: [id])
+
+  @@id([businessUnitId, verticalId])
+  @@index([organizationId])
+  @@index([verticalId])
+  @@map("business_unit_verticals")
 }

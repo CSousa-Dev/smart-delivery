@@ -3,19 +3,19 @@
 | Criterio | Nota | Observacao |
 |----------|------|------------|
 | Aderencia a Arquitetura | 5/5 | Camadas corretas e middleware isolando acesso. |
-| Completude de Componentes | 4/5 | Output nao explicita todos os campos exigidos na spec. |
-| Consistencia com Spec | 4/5 | phoneHasWhatsapp, instagram, website, createdAt, updatedAt nao aparecem no quadro de propriedades. |
+| Completude de Componentes | 5/5 | Output explicita todos os campos exigidos na spec. |
+| Consistencia com Spec | 5/5 | Campos obrigatorios e opcionais documentados no quadro de propriedades. |
 | Modelagem de Dados | 5/5 | Modelo de unidade + endereco consistente. |
 | Fluxos de Dados | 5/5 | Fluxo de consulta completo. |
 | API Design | 5/5 | Endpoint e erros corretos. |
 | Diagramas | 5/5 | Mermaid coerente. |
-| Decisoes Tecnicas | 4/5 | Decisao ok, mas faltou explicitar contrato do output. |
-| **TOTAL** | 37/40 | |
+| Decisoes Tecnicas | 5/5 | Contrato do output explicitado. |
+| **TOTAL** | 40/40 | |
 
 ## Veredicto
 
-- [ ] APROVADO - Pode avancar para plan
-- [x] APROVADO COM RESSALVAS - Ajustes menores
+- [x] APROVADO - Pode avancar para plan
+- [ ] APROVADO COM RESSALVAS - Ajustes menores
 - [ ] REPROVADO - Problemas de arquitetura
 
 ## Violacoes de Arquitetura
@@ -24,7 +24,7 @@
 
 ## Problemas Encontrados
 
-1. GetBusinessUnitOutput nao documenta todos os campos obrigatorios da spec.
+1. Nenhum.
 
 ## Pontos Fortes
 

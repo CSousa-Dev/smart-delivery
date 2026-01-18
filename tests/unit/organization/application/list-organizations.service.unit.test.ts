@@ -3,6 +3,8 @@ import { Organization } from '../../../../src/modules/organization/domain/entiti
 import { OrganizationVerticalLink } from '../../../../src/modules/organization/domain/entities/organization-vertical-link.entity';
 import { OrganizationRepository } from '../../../../src/modules/organization/domain/repositories/organization.repository';
 import { OrganizationVerticalRepository } from '../../../../src/modules/organization/domain/repositories/organization-vertical.repository';
+import { VerticalRepository } from '../../../../src/modules/organization/domain/repositories/vertical.repository';
+import { Vertical } from '../../../../src/modules/organization/domain/entities/vertical.entity';
 
 describe('ListOrganizationsService', () => {
   const buildOrganization = (id: string, createdAt: Date) =>
@@ -31,11 +33,31 @@ describe('ListOrganizationsService', () => {
 
     const organizationVerticalRepository: OrganizationVerticalRepository = {
       saveMany: jest.fn(),
+      save: jest.fn(),
       listByOrganizationId: jest.fn(),
       listByOrganizationIds: jest.fn().mockResolvedValue([
         OrganizationVerticalLink.restore({
           organizationId: 'org-1',
           verticalId: 'vert-1',
+          status: 'ACTIVE',
+          createdAt: new Date(),
+        }),
+      ]),
+      listActiveByOrganizationId: jest.fn(),
+      findByOrganizationAndVerticalId: jest.fn(),
+      findActiveByOrganizationAndVerticalId: jest.fn(),
+      existsActiveByOrganizationAndVerticalId: jest.fn(),
+      updateStatus: jest.fn(),
+      countActiveByOrganizationId: jest.fn(),
+    };
+
+    const verticalRepository: VerticalRepository = {
+      listByIds: jest.fn().mockResolvedValue([
+        Vertical.restore({
+          id: 'vert-1',
+          name: 'Restaurante',
+          code: 'FOOD',
+          description: 'Food services',
           createdAt: new Date(),
         }),
       ]),
@@ -44,10 +66,12 @@ describe('ListOrganizationsService', () => {
     return {
       service: new ListOrganizationsService(
         organizationRepository,
-        organizationVerticalRepository
+        organizationVerticalRepository,
+        verticalRepository
       ),
       organizationRepository,
       organizationVerticalRepository,
+      verticalRepository,
     };
   };
 
@@ -69,7 +93,7 @@ describe('ListOrganizationsService', () => {
     if (!first) {
       throw new Error('Expected at least one organization item');
     }
-    expect(first.verticalIds).toEqual(['vert-1']);
+    expect(first.verticals.map((vertical) => vertical.id)).toEqual(['vert-1']);
     expect(output.totalItems).toBe(1);
   });
 

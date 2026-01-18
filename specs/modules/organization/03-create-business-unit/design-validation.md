@@ -9,13 +9,13 @@
 | Fluxos de Dados | 5/5 | Fluxo detalha criacao, contagem e update condicional. |
 | API Design | 5/5 | Endpoint e erros coerentes com a spec. |
 | Diagramas | 5/5 | Mermaid consistente. |
-| Decisoes Tecnicas | 4/5 | Faltou explicitar fonte da lista de UFs/validacao. |
-| **TOTAL** | 39/40 | |
+| Decisoes Tecnicas | 5/5 | Fonte de UFs e validacao de CEP definidas no design. |
+| **TOTAL** | 40/40 | |
 
 ## Veredicto
 
-- [ ] APROVADO - Pode avancar para plan
-- [x] APROVADO COM RESSALVAS - Ajustes menores
+- [x] APROVADO - Pode avancar para plan
+- [ ] APROVADO COM RESSALVAS - Ajustes menores
 - [ ] REPROVADO - Problemas de arquitetura
 
 ## Violacoes de Arquitetura
@@ -24,7 +24,7 @@
 
 ## Problemas Encontrados
 
-1. Nao explicita a fonte/regra operacional para validacao de UF/CEP (apenas menciona validacao).
+1. Nenhum.
 
 ## Pontos Fortes
 

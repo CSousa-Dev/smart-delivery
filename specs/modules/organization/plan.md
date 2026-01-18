@@ -1,6 +1,8 @@
 # Plan: Organization Module
 
 **Created**: 2026-01-16  
+**Status**: IMPLEMENTADO  
+**Superseded by**: [./plan-verticals.md](./plan-verticals.md)  
 **Spec**: [./organization.md](./organization.md)  
 **Design**: [./01-create-user/design.md](./01-create-user/design.md), [./02-create-organization/design.md](./02-create-organization/design.md), [./03-create-business-unit/design.md](./03-create-business-unit/design.md), [./04-get-user/design.md](./04-get-user/design.md), [./05-list-users/design.md](./05-list-users/design.md), [./06-get-organization/design.md](./06-get-organization/design.md), [./07-list-organizations/design.md](./07-list-organizations/design.md), [./08-get-business-unit/design.md](./08-get-business-unit/design.md), [./09-list-business-units/design.md](./09-list-business-units/design.md)  
 **Project**: [../../project.md](../../project.md)

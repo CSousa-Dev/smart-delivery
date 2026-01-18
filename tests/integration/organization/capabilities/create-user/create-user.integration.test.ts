@@ -29,6 +29,7 @@ describeIf('Capability Create User – [CAP-001]', () => {
 
   beforeEach(async () => {
     await prisma.businessUnitAddress.deleteMany();
+    await prisma.businessUnitVertical.deleteMany();
     await prisma.businessUnit.deleteMany();
     await prisma.organizationVertical.deleteMany();
     await prisma.userOrganizationLink.deleteMany();

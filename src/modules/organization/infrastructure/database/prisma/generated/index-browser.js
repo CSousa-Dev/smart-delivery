@@ -168,7 +168,9 @@ exports.Prisma.VerticalScalarFieldEnum = {
 exports.Prisma.OrganizationVerticalScalarFieldEnum = {
   organizationId: 'organizationId',
   verticalId: 'verticalId',
-  createdAt: 'createdAt'
+  statusId: 'statusId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.BusinessUnitScalarFieldEnum = {
@@ -198,6 +200,15 @@ exports.Prisma.BusinessUnitAddressScalarFieldEnum = {
   referencePoint: 'referencePoint'
 };
 
+exports.Prisma.BusinessUnitVerticalScalarFieldEnum = {
+  businessUnitId: 'businessUnitId',
+  organizationId: 'organizationId',
+  verticalId: 'verticalId',
+  statusId: 'statusId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -216,7 +227,8 @@ exports.Prisma.ModelName = {
   Vertical: 'Vertical',
   OrganizationVertical: 'OrganizationVertical',
   BusinessUnit: 'BusinessUnit',
-  BusinessUnitAddress: 'BusinessUnitAddress'
+  BusinessUnitAddress: 'BusinessUnitAddress',
+  BusinessUnitVertical: 'BusinessUnitVertical'
 };
 
 /**

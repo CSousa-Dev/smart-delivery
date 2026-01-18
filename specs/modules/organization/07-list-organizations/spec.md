@@ -31,6 +31,7 @@ Scenario: Listar organizações existentes
   Given que existem organizações cadastradas
   When a listagem é solicitada
   Then o sistema deve retornar as organizações cadastradas
+  And cada organização deve retornar suas verticais
 
 Scenario: Listagem vazia
   Given que não existem organizações cadastradas
@@ -71,7 +72,7 @@ Scenario: Ajustar direção de ordenação inválida
 - **FR-004**: O sistema **DEVE** retornar metadados de paginação: `page`, `pageSize`, `totalItems`, `totalPages`.
 - **FR-005**: O sistema **DEVE** permitir ordenação por `createdAt` com direção `asc` ou `desc`, com padrão `desc`; valores inválidos **DEVEM** usar o padrão `desc`.
 - **FR-006**: A listagem **NÃO DEVE** aplicar filtros além de paginação e ordenação.
-- **FR-007**: Cada organização listada **DEVE** incluir a lista de `verticalIds` vinculados.
+- **FR-007**: Cada organização listada **DEVE** incluir as verticais vinculadas com seus dados básicos.
 
 ---
 
@@ -95,9 +96,18 @@ Scenario: Ajustar direção de ordenação inválida
 | `tradeName` | Nome fantasia da organização | Obrigatório |
 | `documentType` | Tipo do documento | Obrigatório, valores: `CPF`, `CNPJ` |
 | `documentNumber` | Documento da organização | Obrigatório, somente dígitos, 11 (CPF) ou 14 (CNPJ) |
-| `verticalIds` | Verticais vinculadas | Obrigatório, lista com 1+ ids registrados |
+| `verticals` | Verticais vinculadas | Obrigatório, lista com 1+ itens |
 | `statusId` | Identificador do status | Obrigatório |
 | `createdAt` | Data de criação | Obrigatório |
+
+### VerticalSummary
+
+| Campo | Descrição | Regras |
+| --- | --- | --- |
+| `id` | Identificador único da vertical | Obrigatório |
+| `name` | Nome da vertical | Obrigatório |
+| `code` | Código da vertical | Obrigatório |
+| `description` | Descrição da vertical | Obrigatório |
 
 ---
 
@@ -113,12 +123,13 @@ Scenario: Ajustar direção de ordenação inválida
 | Termo | Definição |
 | --- | --- |
 | Organization | Negócio registrado pelo usuário |
+| Vertical | Categoria de atuação do negócio |
 
 ---
 
 ## Summary
 
-A capability **List Organizations** retorna a lista de organizações cadastradas para facilitar a navegação e seleção.
+A capability **List Organizations** retorna a lista de organizações cadastradas com suas verticais para facilitar a navegação e seleção.
 
 Ela habilita o acesso rápido à consulta individual de cada organização.
 

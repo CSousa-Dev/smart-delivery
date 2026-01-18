@@ -8,9 +8,9 @@
 
 ## Overview
 
-A capability Create Business Unit no contexto Organization cria a unidade de negocio com dados publicos e endereco completo.
-A orquestracao ocorre no Application Service, que valida organizacao e owner, normaliza dados, cria BusinessUnit com status inicial PENDING_PRODUCTS e persiste em transacao.
-A complexidade e moderada por validacoes de endereco Brasil e pelo update condicional do status da organizacao.
+A capability Create Business Unit no contexto Organization cria a unidade de negocio com dados publicos, endereco completo e vincula verticais da organizacao.
+A orquestracao ocorre no Application Service, que valida organizacao e owner, confirma verticais ativas, cria BusinessUnit com status inicial PENDING_PRODUCTS e persiste em transacao com seus vinculos.
+A complexidade e moderada por validacoes de endereco Brasil, verificacao das verticais e pelo update condicional do status da organizacao.
 
 ---
 
@@ -22,14 +22,20 @@ A complexidade e moderada por validacoes de endereco Brasil e pelo update condic
 |------|------|------------------|
 | Entity | `BusinessUnit` | Unidade de negocio com dados publicos e status |
 | Entity | `Organization` | Organizacao usada para validar owner e status |
+| Entity | `BusinessUnitVerticalLink` | Vinculo entre unidade de negocio e vertical |
+| Entity | `OrganizationVerticalLink` | Vinculo entre organizacao e vertical |
 | Value Object | `BusinessUnitId` | Identificador unico da unidade |
 | Value Object | `OrganizationId` | Identificador unico da organizacao |
+| Value Object | `VerticalId` | Identificador da vertical |
 | Value Object | `BusinessUnitAddress` | Endereco completo com validacoes BR |
 | Value Object | `BusinessUnitStatus` | Estado da unidade (PENDING_PRODUCTS, ACTIVE) |
+| Value Object | `VerticalLinkStatus` | Estado do vinculo (ACTIVE, INACTIVE) |
 | Value Object | `PhoneNumber` | Telefone normalizado (apenas digitos) |
 | Value Object | `EmailAddress` | Email validado quando informado |
 | Repository Interface | `BusinessUnitRepository` | Persistencia e consultas por organizacao |
+| Repository Interface | `BusinessUnitVerticalRepository` | Persistencia de vinculos unidade-vertical |
 | Repository Interface | `OrganizationRepository` | Consulta e atualizacao de organizacao |
+| Repository Interface | `OrganizationVerticalRepository` | Consulta de verticais da organizacao |
 
 ### Application Layer
 
@@ -44,8 +50,12 @@ A complexidade e moderada por validacoes de endereco Brasil e pelo update condic
 | Tipo | Nome | Responsabilidade |
 |------|------|------------------|
 | Repository Impl | `PrismaBusinessUnitRepository` | Implementa `BusinessUnitRepository` |
+| Repository Impl | `PrismaBusinessUnitVerticalRepository` | Implementa `BusinessUnitVerticalRepository` |
 | Repository Impl | `PrismaOrganizationRepository` | Implementa `OrganizationRepository` |
+| Repository Impl | `PrismaOrganizationVerticalRepository` | Implementa `OrganizationVerticalRepository` |
 | Mapper | `BusinessUnitMapper` | Converte Domain ↔ Prisma |
+| Mapper | `BusinessUnitVerticalMapper` | Converte Domain ↔ Prisma |
+| Mapper | `OrganizationVerticalMapper` | Converte Domain ↔ Prisma |
 
 ### Presentation Layer
 
@@ -72,20 +82,30 @@ graph TD
     subgraph Domain
         BU[BusinessUnit]
         ORG[Organization]
+        BU_VERT_LINK[BusinessUnitVerticalLink]
+        ORG_VERT_LINK[OrganizationVerticalLink]
         VO_ID[BusinessUnitId]
         VO_ORG[OrganizationId]
+        VO_VERT_ID[VerticalId]
         VO_ADDR[BusinessUnitAddress]
         VO_PHONE[PhoneNumber]
         VO_EMAIL[EmailAddress]
         VO_STATUS[BusinessUnitStatus]
+        VO_LINK_STATUS[VerticalLinkStatus]
         BU_REPO[BusinessUnitRepository]
+        BU_VERT_REPO[BusinessUnitVerticalRepository]
         ORG_REPO[OrganizationRepository]
+        ORG_VERT_REPO[OrganizationVerticalRepository]
     end
 
     subgraph Infrastructure
         BU_REPO_IMPL[PrismaBusinessUnitRepository]
+        BU_VERT_REPO_IMPL[PrismaBusinessUnitVerticalRepository]
         ORG_REPO_IMPL[PrismaOrganizationRepository]
+        ORG_VERT_REPO_IMPL[PrismaOrganizationVerticalRepository]
         BU_MAPPER[BusinessUnitMapper]
+        BU_VERT_MAPPER[BusinessUnitVerticalMapper]
+        ORG_VERT_MAPPER[OrganizationVerticalMapper]
         PRISMA[Prisma Client]
     end
 
@@ -95,18 +115,36 @@ graph TD
     SVC --> BU
     SVC --> ORG
     SVC --> BU_REPO
+    SVC --> BU_VERT_REPO
     SVC --> ORG_REPO
+    SVC --> ORG_VERT_REPO
     BU --> VO_ID
     BU --> VO_ORG
+    BU --> VO_VERT_ID
     BU --> VO_ADDR
     BU --> VO_PHONE
     BU --> VO_EMAIL
     BU --> VO_STATUS
+    BU_VERT_LINK --> VO_ID
+    BU_VERT_LINK --> VO_ORG
+    BU_VERT_LINK --> VO_VERT_ID
+    BU_VERT_LINK --> VO_LINK_STATUS
+    ORG_VERT_LINK --> VO_ORG
+    ORG_VERT_LINK --> VO_VERT_ID
+    ORG_VERT_LINK --> VO_LINK_STATUS
     BU_REPO_IMPL -.->|implements| BU_REPO
+    BU_VERT_REPO_IMPL -.->|implements| BU_VERT_REPO
     ORG_REPO_IMPL -.->|implements| ORG_REPO
+    ORG_VERT_REPO_IMPL -.->|implements| ORG_VERT_REPO
     BU_REPO_IMPL --> BU_MAPPER
+    BU_VERT_REPO_IMPL --> BU_VERT_MAPPER
+    ORG_VERT_REPO_IMPL --> ORG_VERT_MAPPER
     BU_REPO_IMPL --> PRISMA
+    BU_VERT_REPO_IMPL --> PRISMA
     ORG_REPO_IMPL --> PRISMA
+    ORG_VERT_REPO_IMPL --> PRISMA
+    BU_VERT_MAPPER --> BU_VERT_LINK
+    ORG_VERT_MAPPER --> ORG_VERT_LINK
 ```
 
 ---
@@ -121,8 +159,11 @@ sequenceDiagram
     participant Controller
     participant AppService
     participant OrgRepo
+    participant OrgVertRepo
     participant BuRepo
+    participant BuVertRepo
     participant BusinessUnit
+    participant BuVertLink
     participant Database
 
     Client->>Controller: POST /organization/business-units
@@ -135,16 +176,26 @@ sequenceDiagram
     AppService->>AppService: valida owner (organization.ownerUserId)
     AppService->>AppService: normaliza telefone e CEP
 
+    AppService->>OrgVertRepo: listActiveByOrganizationId(organizationId)
+    OrgVertRepo->>Database: SELECT organization_verticals (status=ACTIVE)
+    Database-->>OrgVertRepo: OrganizationVerticalLink[]
+
+    AppService->>AppService: valida verticalIds informadas (subconjunto das ativas)
+
     AppService->>BuRepo: countByOrganizationId(organizationId)
     BuRepo->>Database: SELECT COUNT
     Database-->>BuRepo: total
 
     AppService->>BusinessUnit: BusinessUnit.create(status=PENDING_PRODUCTS)
+    AppService->>BuVertLink: BusinessUnitVerticalLink.createMany(status=ACTIVE)
 
     Note over AppService,Database: Persistencia em transacao
     AppService->>BuRepo: save(BusinessUnit)
     BuRepo->>Database: INSERT business_units + address
     Database-->>BuRepo: OK
+    AppService->>BuVertRepo: saveMany(BusinessUnitVerticalLink[])
+    BuVertRepo->>Database: INSERT business_unit_verticals
+    Database-->>BuVertRepo: OK
 
     alt primeira unidade (count == 0)
         AppService->>OrgRepo: updateStatus(organizationId, ACTIVE)
@@ -161,8 +212,8 @@ sequenceDiagram
 | Etapa | De | Para |
 |-------|----|----- |
 | Controller → AppService | JSON body + actorUserId | CreateBusinessUnitInput |
-| AppService → Domain | DTO | BusinessUnit |
-| Domain → Infra | Entity | Prisma Models |
+| AppService → Domain | DTO | BusinessUnit, BusinessUnitVerticalLink |
+| Domain → Infra | Entities | Prisma Models |
 
 ---
 
@@ -175,6 +226,7 @@ classDiagram
     class BusinessUnit {
         -BusinessUnitId id
         -OrganizationId organizationId
+        -VerticalId[] verticalIds
         -string publicName
         -PhoneNumber phoneNumber
         -boolean phoneHasWhatsapp
@@ -208,10 +260,21 @@ classDiagram
         ACTIVE
     }
 
+    class VerticalId {
+        -string value
+    }
+
+    class VerticalLinkStatus {
+        <<enumeration>>
+        ACTIVE
+        INACTIVE
+    }
+
     BusinessUnit *-- BusinessUnitAddress
     BusinessUnit *-- BusinessUnitStatus
     BusinessUnit *-- PhoneNumber
     BusinessUnit *-- EmailAddress
+    BusinessUnit *-- VerticalId
 ```
 
 **Propriedades:**
@@ -220,6 +283,7 @@ classDiagram
 |-------------|------|----------|--------|
 | `id` | BusinessUnitId | Nao | Gerado internamente |
 | `organizationId` | OrganizationId | Nao | Obrigatorio |
+| `verticalIds` | VerticalId[] | Nao | 1+ ids ativos na organizacao |
 | `publicName` | string | Nao | Obrigatorio |
 | `phoneNumber` | PhoneNumber | Nao | Apenas digitos, max 15 |
 | `phoneHasWhatsapp` | boolean | Nao | Obrigatorio |
@@ -253,6 +317,33 @@ classDiagram
 |--------|--------|
 | `create` | Valida dados obrigatorios, UF e pais BR |
 
+### BusinessUnitVerticalLink
+
+```mermaid
+classDiagram
+    class BusinessUnitVerticalLink {
+        -BusinessUnitId businessUnitId
+        -OrganizationId organizationId
+        -VerticalId verticalId
+        -VerticalLinkStatus status
+        +create() BusinessUnitVerticalLink
+    }
+
+    BusinessUnitVerticalLink *-- BusinessUnitId
+    BusinessUnitVerticalLink *-- OrganizationId
+    BusinessUnitVerticalLink *-- VerticalId
+    BusinessUnitVerticalLink *-- VerticalLinkStatus
+```
+
+**Propriedades:**
+
+| Propriedade | Tipo | Mutavel? | Regras |
+|-------------|------|----------|--------|
+| `businessUnitId` | BusinessUnitId | Nao | Obrigatorio |
+| `organizationId` | OrganizationId | Nao | Obrigatorio |
+| `verticalId` | VerticalId | Nao | Obrigatorio |
+| `status` | VerticalLinkStatus | Sim | Default ACTIVE |
+
 ---
 
 ## Repository Operations
@@ -263,6 +354,8 @@ classDiagram
 | `BusinessUnitRepository.countByOrganizationId(orgId)` | Conta unidades da organizacao | CreateBusinessUnitService |
 | `OrganizationRepository.findById(id)` | Carrega organizacao e owner | CreateBusinessUnitService |
 | `OrganizationRepository.updateStatus(id, status)` | Atualiza status da organizacao | CreateBusinessUnitService |
+| `OrganizationVerticalRepository.listActiveByOrganizationId(orgId)` | Lista verticais ativas da organizacao | CreateBusinessUnitService |
+| `BusinessUnitVerticalRepository.saveMany(links)` | Persiste vinculos unidade-vertical | CreateBusinessUnitService |
 
 ---
 
@@ -274,6 +367,14 @@ erDiagram
         varchar(36) id PK
         varchar(36) owner_user_id
         varchar(20) status_id
+    }
+
+    ORGANIZATION_VERTICALS {
+        varchar(36) organization_id FK
+        varchar(36) vertical_id FK
+        varchar(20) status_id
+        timestamp created_at
+        timestamp updated_at
     }
 
     BUSINESS_UNITS {
@@ -303,8 +404,29 @@ erDiagram
         varchar(120) reference_point
     }
 
+    BUSINESS_UNIT_VERTICALS {
+        varchar(36) business_unit_id FK
+        varchar(36) organization_id FK
+        varchar(36) vertical_id FK
+        varchar(20) status_id
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    VERTICALS {
+        varchar(36) id PK
+        varchar(80) name
+        varchar(40) code
+        varchar(255) description
+    }
+
     ORGANIZATIONS ||--o{ BUSINESS_UNITS : has
     BUSINESS_UNITS ||--|| BUSINESS_UNIT_ADDRESSES : address
+    ORGANIZATIONS ||--o{ ORGANIZATION_VERTICALS : links
+    VERTICALS ||--o{ ORGANIZATION_VERTICALS : links
+    BUSINESS_UNITS ||--o{ BUSINESS_UNIT_VERTICALS : links
+    ORGANIZATIONS ||--o{ BUSINESS_UNIT_VERTICALS : links
+    VERTICALS ||--o{ BUSINESS_UNIT_VERTICALS : links
 ```
 
 ### Tabela: `business_units`
@@ -338,6 +460,27 @@ erDiagram
 | `country` | VARCHAR(2) | NOT NULL |
 | `reference_point` | VARCHAR(120) | NOT NULL |
 
+### Tabela: `organization_verticals`
+
+| Coluna | Tipo | Constraints |
+|--------|------|-------------|
+| `organization_id` | VARCHAR(36) | FK(organizations.id), NOT NULL |
+| `vertical_id` | VARCHAR(36) | FK(verticals.id), NOT NULL |
+| `status_id` | VARCHAR(20) | NOT NULL |
+| `created_at` | TIMESTAMP | NOT NULL, DEFAULT now() |
+| `updated_at` | TIMESTAMP | NULL |
+
+### Tabela: `business_unit_verticals`
+
+| Coluna | Tipo | Constraints |
+|--------|------|-------------|
+| `business_unit_id` | VARCHAR(36) | FK(business_units.id), NOT NULL |
+| `organization_id` | VARCHAR(36) | FK(organizations.id), NOT NULL |
+| `vertical_id` | VARCHAR(36) | FK(verticals.id), NOT NULL |
+| `status_id` | VARCHAR(20) | NOT NULL |
+| `created_at` | TIMESTAMP | NOT NULL, DEFAULT now() |
+| `updated_at` | TIMESTAMP | NULL |
+
 ### Tabela: `organizations`
 
 | Coluna | Tipo | Constraints |
@@ -367,6 +510,8 @@ flowchart LR
     CEP400[InvalidPostalCodeError] --> H400
     UF400[InvalidStateError] --> H400
     COUNTRY400[InvalidCountryError] --> H400
+    VREQ400[VerticalRequiredError] --> H400
+    VORG400[VerticalNotInOrganizationError] --> H400
 ```
 
 | Erro de Dominio | Quando Ocorre | HTTP Status | Codigo |
@@ -378,6 +523,8 @@ flowchart LR
 | `InvalidPostalCodeError` | CEP invalido | 400 | `INVALID_POSTAL_CODE` |
 | `InvalidStateError` | UF invalida | 400 | `INVALID_STATE` |
 | `InvalidCountryError` | pais diferente de BR | 400 | `INVALID_COUNTRY` |
+| `VerticalRequiredError` | nenhuma vertical informada | 400 | `VERTICAL_REQUIRED` |
+| `VerticalNotInOrganizationError` | vertical nao vinculada ou inativa na organizacao | 400 | `VERTICAL_NOT_IN_ORGANIZATION` |
 
 ---
 
@@ -413,12 +560,34 @@ flowchart LR
 
 ---
 
+### Decisao 4: Validar verticais pela organizacao e criar vinculos da unidade
+
+**Contexto**: A unidade de negocio deve ser criada com verticais pertencentes e ativas na organizacao.
+
+**Decisao**: Carregar as verticais ativas da organizacao via `OrganizationVerticalRepository` e validar que `verticalIds` informadas sao subconjunto, criando `BusinessUnitVerticalLink` como ACTIVE.
+
+**Justificativa**: Garante consistencia entre organizacao e unidades sem depender do catalogo global no fluxo de criacao.
+
+---
+
+### Decisao 5: Validacao de UF e CEP por regras locais
+
+**Contexto**: O endereco precisa validar UF e CEP conforme regras BR.
+
+**Decisao**: Validar UF usando lista fixa de UFs no dominio e validar CEP com regex `^\\d{8}$`, sem consulta externa.
+
+**Justificativa**: Mantem validacao deterministica e evita dependencia de servicos externos.
+
+---
+
 ## Implementation Notes
 
 - Normalizar `phoneNumber` e `postalCode` para apenas digitos antes da validacao.
 - Rejeitar `state` fora da lista de UFs e `country` diferente de `BR`.
 - Definir `status` como `PENDING_PRODUCTS` sempre na criacao.
+- Rejeitar criacao sem `verticalIds` ou com ids fora das verticais ativas da organizacao.
+- Persistir `business_unit_verticals` como ACTIVE na mesma transacao da unidade.
 - Atualizar `organizations.status_id` para `ACTIVE` apenas quando `countByOrganizationId` for 0.
-- Usar transacao unica para `business_units`, `business_unit_addresses` e update de organizacao.
+- Usar transacao unica para `business_units`, `business_unit_addresses`, `business_unit_verticals` e update de organizacao.
 
 ---

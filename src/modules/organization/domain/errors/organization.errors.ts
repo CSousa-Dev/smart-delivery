@@ -35,3 +35,20 @@ export class VerticalNotRegisteredError extends DomainError {
     super('Vertical not registered', 'VERTICAL_NOT_REGISTERED', { verticalIds });
   }
 }
+
+export class OrganizationVerticalNotFoundError extends DomainError {
+  constructor(organizationId: string, verticalId: string) {
+    super('Organization vertical not found', 'ORGANIZATION_VERTICAL_NOT_FOUND', {
+      organizationId,
+      verticalId,
+    });
+  }
+}
+
+export class OrganizationRequiresActiveVerticalError extends DomainError {
+  constructor(organizationId: string) {
+    super('Organization requires active vertical', 'ORGANIZATION_REQUIRES_ACTIVE_VERTICAL', {
+      organizationId,
+    });
+  }
+}

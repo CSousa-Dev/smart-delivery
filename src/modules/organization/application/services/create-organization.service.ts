@@ -52,8 +52,8 @@ export class CreateOrganizationService {
       throw new VerticalNotRegisteredError(input.verticalIds);
     }
 
-    const verticalsRegistered = await this.verticalRepository.existsByIds(input.verticalIds);
-    if (!verticalsRegistered) {
+    const verticalsRegistered = await this.verticalRepository.listByIds(input.verticalIds);
+    if (verticalsRegistered.length !== input.verticalIds.length) {
       throw new VerticalNotRegisteredError(input.verticalIds);
     }
 
