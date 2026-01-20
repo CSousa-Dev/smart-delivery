@@ -2,7 +2,7 @@
 
 **Created**: 2026-01-17  
 **Spec**: [./inventory.md](./inventory.md)  
-**Design**: [./01-create-item/design.md](./01-create-item/design.md), [./02-link-product-to-item/design.md](./02-link-product-to-item/design.md), [./03-register-stock-entry/design.md](./03-register-stock-entry/design.md), [./04-register-stock-exit/design.md](./04-register-stock-exit/design.md), [./05-get-stock-position/design.md](./05-get-stock-position/design.md), [./06-list-stock-movements/design.md](./06-list-stock-movements/design.md), [./07-create-unit-of-measure/design.md](./07-create-unit-of-measure/design.md), [./08-update-deactivate-unit-of-measure/design.md](./08-update-deactivate-unit-of-measure/design.md), [./09-unlink-product-from-item/design.md](./09-unlink-product-from-item/design.md)  
+**Design**: [./01-create-item/design.md](./01-create-item/design.md), [./03-register-stock-entry/design.md](./03-register-stock-entry/design.md), [./04-register-stock-exit/design.md](./04-register-stock-exit/design.md), [./05-get-stock-position/design.md](./05-get-stock-position/design.md), [./06-list-stock-movements/design.md](./06-list-stock-movements/design.md), [./07-create-unit-of-measure/design.md](./07-create-unit-of-measure/design.md), [./08-update-deactivate-unit-of-measure/design.md](./08-update-deactivate-unit-of-measure/design.md)  
 **Project**: [../../project.md](../../project.md)
 
 ---
@@ -107,22 +107,14 @@
 
 ---
 
-## Phase 5: Capability 02 - Link Product to Item
+## Phase 5: Capability 02 - Link Product to Item (fora de escopo)
 
-**Objetivo**: Vincular produto e item (relacao 1:1 com status)
+**Objetivo**: Registrar a mudanca de escopo para o modulo de producao.
 
-| ID | Task | Verificacao |
-|----|------|-------------|
-| T030 | Criar migration e modelo Prisma para `product_item_links` (indices unicos por produto e item + `createdBy`, `updatedBy`, `createdAt`, `updatedAt`) | `npx prisma migrate dev --schema src/modules/inventory/infrastructure/database/prisma/schema.prisma` executa sem erro |
-| T031 | Implementar `ProductItemLink` + VOs (`ProductItemLinkId`, `ProductId`, `InventoryItemId`, `BusinessUnitId`, `LinkStatus`) e audit fields com testes unitarios | Testes unitarios passam |
-| T032 | Definir/atualizar interfaces `ProductItemLinkRepository`, `ProductRepository` (port) e `InventoryItemRepository` (findById) | TypeScript compila |
-| T033 | Implementar `LinkProductToItemService` + DTOs com testes unitarios (reativacao com `updatedBy`, idempotencia sem alterar `updatedBy/updatedAt`, unicidade 1:1) | Testes unitarios cobrem idempotencia e audit fields |
-| T034 | Implementar `ProductItemLinkMapper` e `PrismaProductItemLinkRepository` (finds, save, updateStatus) incluindo audit fields + teste de integracao da capability | Teste de integracao passa |
-| T035 | Implementar `ProductCatalogAdapter` (port) com testes unitarios | Testes unitarios passam |
-| T036 | Implementar `ProductItemLinkController` e rota POST `/inventory/product-item-links` com mapeamento de erros + teste unitario | Teste unitario passa |
-| T037 | Atualizar catalogo HTTP central com erros da capability Link Product to Item | Catalogo central contem os codigos do modulo inventory |
+Esta capability foi movida para o modulo de producao para manter o inventory agnostico de produto.
+Nao ha tarefas neste plano para essa capability.
 
-**Checkpoint**: Link Product to Item funcional e testado
+**Checkpoint**: N/A (capability movida para producao)
 
 ---
 
@@ -195,20 +187,14 @@
 
 ---
 
-## Phase 10: Capability 09 - Unlink Product from Item
+## Phase 10: Capability 09 - Unlink Product from Item (fora de escopo)
 
-**Objetivo**: Desativar vinculo entre produto e item
+**Objetivo**: Registrar a mudanca de escopo para o modulo de producao.
 
-| ID | Task | Verificacao |
-|----|------|-------------|
-| T063 | Estender `ProductItemLink` com desativacao e erros (link inexistente/inativo, `updatedBy` opcional) com testes unitarios | Testes unitarios passam |
-| T064 | Estender `ProductItemLinkRepository` (findByProductAndItem) no Prisma com testes unitarios | Testes unitarios passam |
-| T065 | Implementar `UnlinkProductFromItemService` + DTOs com testes unitarios (`updatedBy` opcional) | Testes unitarios cobrem audit fields e idempotencia |
-| T066 | Implementar rota POST `/inventory/product-item-links/deactivate` no `ProductItemLinkController` com mapeamento de erros + teste unitario | Teste unitario passa |
-| T067 | Implementar testes de integracao da capability Unlink Product from Item | Teste de integracao passa |
-| T068 | Atualizar catalogo HTTP central com erros da capability Unlink Product from Item | Catalogo central contem os codigos do modulo inventory |
+Esta capability foi movida para o modulo de producao para manter o inventory agnostico de produto.
+Nao ha tarefas neste plano para essa capability.
 
-**Checkpoint**: Unlink Product from Item funcional e testado
+**Checkpoint**: N/A (capability movida para producao)
 
 ---
 
@@ -246,13 +232,10 @@ graph TD
     P2 --> P3[Phase 3: Create Inventory Item]
     P2 --> P4[Phase 4: Update/Deactivate Unit of Measure]
     P3 --> P4
-    P3 --> P5[Phase 5: Link Product to Item]
     P3 --> P6[Phase 6: Register Stock Entry]
     P6 --> P7[Phase 7: Register Stock Exit]
     P6 --> P8[Phase 8: Get Stock Position]
     P6 --> P9[Phase 9: List Stock Movements]
-    P5 --> P10[Phase 10: Unlink Product from Item]
-    P10 --> P11[Phase 11: DI & Integration]
     P7 --> P11
     P8 --> P11
     P9 --> P11
