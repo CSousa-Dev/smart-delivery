@@ -1,7 +1,5 @@
 # inventory
 
-**Nota de escopo**: O modulo inventory e agnostico de produto. O vinculo entre item e produto pertence ao modulo de producao e nao faz parte deste contexto.
-
 ## 01-create-item
 
 ### spec
@@ -240,10 +238,191 @@ Arquivo: `specs/modules/inventory/01-create-item/spec.md`
 
 ## 02-link-product-to-item
 
-**Status**: Fora de escopo no inventory.
+### spec
+# Capability: Link Product to Inventory Item
 
-O vinculo entre item de estoque e produto foi movido para o modulo de producao.
-O inventory permanece agnostico de produto e nao expõe entidades ou endpoints de vinculo.
+**Created**: 2026-01-12  
+**Project**: `specs/project.md`
+
+---
+
+<!--
+  ╔═══════════════════════════════════════════════════════════════════════════╗
+  ║  SPEC DE NEGÓCIO - Define O QUÊ a capability faz                          ║
+  ║                                                                           ║
+  ║  Este documento é agnóstico de tecnologia. Decisões técnicas              ║
+  ║  ficam no design.md da capability.                                        ║
+  ╚═══════════════════════════════════════════════════════════════════════════╝
+-->
+
+## User Stories
+
+### User Story 1 - Vincular produto a item de estoque (P1)
+
+Como **responsável pela operação da unidade**,  
+quero **vincular um produto a um item de estoque**,  
+para **garantir que movimentações físicas reflitam vendas e produções do produto**.
+
+**Por que P1**: Sem vínculo não há rastreabilidade entre produto e estoque.
+
+#### Acceptance Criteria
+
+```gherkin
+Scenario: Vincular produto e item válidos na mesma unidade
+  Given que o produto existe na unidade de negócio
+  And que o item de estoque existe na mesma unidade de negócio
+  When o vínculo é criado com productId e itemId
+  Then o vínculo deve ser registrado
+  And o sistema deve registrar o autor da criação
+
+Scenario: Rejeitar vínculo com produto inexistente
+  Given que o produto informado não existe
+  When o vínculo é criado
+  Then a criação deve ser rejeitada
+  And o sistema deve informar que o produto não existe
+
+Scenario: Rejeitar vínculo com item inexistente
+  Given que o item informado não existe
+  When o vínculo é criado
+  Then a criação deve ser rejeitada
+  And o sistema deve informar que o item não existe
+
+Scenario: Rejeitar vínculo entre unidades diferentes
+  Given que o produto pertence a uma unidade de negócio
+  And que o item pertence a outra unidade de negócio
+  When o vínculo é criado
+  Then a criação deve ser rejeitada
+  And o sistema deve informar que produto e item devem estar na mesma unidade
+
+Scenario: Rejeitar vínculo quando o produto já está vinculado
+  Given que o produto já possui vínculo ativo com outro item
+  When o vínculo é criado
+  Then a criação deve ser rejeitada
+  And o sistema deve informar que o produto já está vinculado
+
+Scenario: Rejeitar vínculo quando o item já está vinculado
+  Given que o item já possui vínculo ativo com outro produto
+  When o vínculo é criado
+  Then a criação deve ser rejeitada
+  And o sistema deve informar que o item já está vinculado
+
+Scenario: Vincular produto e item já vinculados (idempotente)
+  Given que já existe um vínculo ACTIVE entre o produto e o item
+  When o vínculo é criado novamente
+  Then o vínculo deve permanecer ACTIVE
+  And o sistema não deve criar um novo registro
+
+Scenario: Reativar vínculo inativo existente
+  Given que já existe um vínculo INACTIVE entre o produto e o item
+  When o vínculo é criado novamente
+  Then o vínculo deve ser reativado com status ACTIVE
+  And o sistema deve registrar o autor da atualização
+```
+
+---
+
+## Functional Requirements
+
+- **FR-001**: O sistema **DEVE** permitir criar um vínculo com `productId`, `itemId`, `businessUnitId` e `createdBy`.
+- **FR-002**: O `productId` **DEVE** existir no módulo de produtos.
+- **FR-003**: O `itemId` **DEVE** existir no módulo de estoque.
+- **FR-004**: O produto e o item **DEVEM** pertencer à mesma `businessUnitId`.
+- **FR-005**: Um produto **NÃO DEVE** possuir mais de um vínculo ativo com itens de estoque.
+- **FR-006**: Um item de estoque **NÃO DEVE** possuir mais de um vínculo ativo com produtos.
+- **FR-007**: A relação entre produto e item **DEVE** ser 1:1 dentro da unidade de negócio.
+- **FR-008**: O sistema **DEVE** impedir duplicidade de vínculo para o mesmo `productId` e `itemId`.
+- **FR-009**: O vínculo **DEVE** possuir `status` com valores `ACTIVE` e `INACTIVE`.
+- **FR-010**: Ao criar um vínculo, o status **DEVE** iniciar como `ACTIVE`.
+- **FR-011**: Se já existir vínculo `INACTIVE` para o mesmo `productId` e `itemId`, a criação **DEVE** reativá-lo.
+- **FR-012**: Na reativação, o sistema **DEVE** atualizar `updatedAt` e `updatedBy` e **NÃO DEVE** alterar `createdAt` e `createdBy`.
+- **FR-013**: Se já existir vínculo `ACTIVE` para o mesmo `productId` e `itemId`, a criação **DEVE** ser idempotente e **NÃO DEVE** alterar `updatedAt` e `updatedBy`.
+
+---
+
+## Entity
+
+### ProductItemLink
+
+| Campo | Descrição | Regras |
+| --- | --- | --- |
+| `id` | Identificador único do vínculo | Obrigatório, único |
+| `businessUnitId` | Unidade de negócio do vínculo | Obrigatório |
+| `productId` | Produto vinculado | Obrigatório |
+| `itemId` | Item de estoque vinculado | Obrigatório, par `productId` + `itemId` único por unidade de negócio |
+| `status` | Estado do vínculo | Obrigatório, `ACTIVE`, `INACTIVE` |
+| `createdBy` | Autor do vínculo | Obrigatório |
+| `createdAt` | Data de criação | Obrigatório |
+| `updatedBy` | Autor da atualização | Opcional |
+| `updatedAt` | Data da atualização | Opcional |
+
+**Relacionamentos**: Um vínculo conecta um produto do módulo de produtos a um item do módulo de estoque, dentro da mesma unidade de negócio.
+
+---
+
+## Success Criteria
+
+- **SC-001**: 100% dos vínculos criados referenciam produto e item válidos.
+- **SC-002**: 0% dos produtos possuem mais de um vínculo ativo simultâneo.
+- **SC-003**: 100% dos vínculos registram autor e unidade de negócio.
+- **SC-004**: 100% das reativações atualizam `updatedAt` e `updatedBy` sem alterar `createdAt` e `createdBy`.
+- **SC-005**: 100% das tentativas de criar vínculo já ACTIVE são idempotentes e não geram novo registro.
+
+---
+
+## Glossary
+
+| Termo | Definição |
+| --- | --- |
+| Vínculo produto-item | Associação entre produto comercial e item físico de estoque |
+
+---
+
+## Summary
+
+A capability **Link Product to Inventory Item** associa um produto do catálogo a um item físico do estoque dentro da mesma unidade de negócio e pode reativar um vínculo previamente desativado.
+
+Ela garante que apenas um vínculo ativo exista por produto e item, preservando histórico e rastreabilidade de movimentações físicas.
+
+---
+
+### spec-validation
+## Avaliação da Spec: Link Product to Inventory Item
+
+| Critério | Nota | Observação |
+|----------|------|------------|
+| Estrutura e Completude | 5/5 | Todas as seções do template estão presentes. |
+| User Stories | 5/5 | Fluxos principais, idempotência e reativação bem cobertos. |
+| Edge Cases | 5/5 | Cenários de duplicidade e unidade divergente bem definidos. |
+| Functional Requirements | 5/5 | Regras claras e completas, com idempotência e reativação. |
+| Entity | 5/5 | Entidade consistente com unicidade do par e status. |
+| Success Criteria | 4/5 | Métricas objetivas, mas não abordam idempotência/reativação. |
+| Clareza | 5/5 | Texto claro e bem estruturado. |
+| Implementabilidade | 5/5 | Detalhamento suficiente para implementação direta. |
+| **TOTAL** | 39/40 | |
+
+## Veredicto
+
+- [x] ✅ APROVADA - Pode avançar para design
+- [ ] 🟡 APROVADA COM RESSALVAS - Ajustes menores necessários
+- [ ] 🔴 REPROVADA - Problemas bloqueantes
+
+## Problemas Encontrados
+
+1. Success Criteria não contempla métricas específicas para idempotência/reativação (FR-012/FR-013).
+
+## Pontos Fortes
+
+1. Idempotência e reativação formalizadas nos critérios e FRs.
+2. Regras 1:1 entre produto e item bem definidas.
+3. Entidade alinhada às restrições de unicidade e status.
+
+## Template de Referência
+Arquivo: `specs/templates/spec-template.md`
+
+PERSISTIR O RESULTADO NO MESMO DIRETÓRIO DA SPEC AVALIADA COM NOME spec-validation.md
+
+## Spec a Validar
+Arquivo: `specs/modules/inventory/02-link-product-to-item/spec.md`
 
 ## 03-register-stock-entry
 
@@ -1489,7 +1668,166 @@ Arquivo: `specs/modules/inventory/08-update-deactivate-unit-of-measure/spec.md`
 
 ## 09-unlink-product-from-item
 
-**Status**: Fora de escopo no inventory.
+### spec
+# Capability: Unlink Product from Inventory Item
 
-O desvinculo entre item de estoque e produto foi movido para o modulo de producao.
-O inventory permanece agnostico de produto e nao expõe entidades ou endpoints de vinculo.
+**Created**: 2026-01-12  
+**Project**: `specs/project.md`
+
+---
+
+<!--
+  ╔═══════════════════════════════════════════════════════════════════════════╗
+  ║  SPEC DE NEGÓCIO - Define O QUÊ a capability faz                          ║
+  ║                                                                           ║
+  ║  Este documento é agnóstico de tecnologia. Decisões técnicas              ║
+  ║  ficam no design.md da capability.                                        ║
+  ╚═══════════════════════════════════════════════════════════════════════════╝
+-->
+
+## User Stories
+
+### User Story 1 - Desvincular produto de item (P1)
+
+Como **responsável pela operação da unidade**,  
+quero **desvincular um produto de um item de estoque**,  
+para **impedir novos usos sem perder o histórico do vínculo**.
+
+**Por que P1**: Permite ajustes operacionais sem excluir registros já utilizados.
+
+#### Acceptance Criteria
+
+```gherkin
+Scenario: Desvincular vínculo ativo
+  Given que existe um vínculo ACTIVE entre o produto e o item
+  When a desativação é solicitada
+  Then o vínculo deve ser marcado como INACTIVE
+  And o sistema deve registrar o autor da atualização
+
+Scenario: Rejeitar desativação de vínculo inexistente
+  Given que não existe vínculo entre o produto e o item
+  When a desativação é solicitada
+  Then a desativação deve ser rejeitada
+  And o sistema deve informar que o vínculo não existe
+
+Scenario: Rejeitar desativação com produto inexistente
+  Given que o produto informado não existe na unidade de negócio
+  When a desativação é solicitada
+  Then a desativação deve ser rejeitada
+  And o sistema deve informar que o produto não existe
+
+Scenario: Rejeitar desativação com item inexistente
+  Given que o item informado não existe na unidade de negócio
+  When a desativação é solicitada
+  Then a desativação deve ser rejeitada
+  And o sistema deve informar que o item não existe
+
+Scenario: Rejeitar desativação de vínculo já inativo
+  Given que o vínculo entre o produto e o item está INACTIVE
+  When a desativação é solicitada
+  Then a desativação deve ser rejeitada
+  And o sistema deve informar que o vínculo já está inativo
+
+Scenario: Rejeitar desativação de vínculo de outra unidade
+  Given que existe um vínculo entre o produto e o item em outra unidade de negócio
+  When a desativação é solicitada com uma businessUnitId diferente
+  Then a desativação deve ser rejeitada
+  And o sistema deve informar que o vínculo não pertence à unidade informada
+```
+
+---
+
+## Functional Requirements
+
+- **FR-001**: O sistema **DEVE** permitir desativar um vínculo com `productId`, `itemId`, `businessUnitId` e `updatedBy`.
+- **FR-002**: O vínculo **DEVE** existir e pertencer à `businessUnitId` informada.
+- **FR-003**: Apenas vínculos com `status = ACTIVE` **PODEM** ser desativados.
+- **FR-004**: A desativação **DEVE** alterar o `status` para `INACTIVE` sem remover o registro.
+- **FR-005**: A desativação **NÃO DEVE** alterar dados do produto ou do item.
+- **FR-006**: O vínculo desativado **DEVE** permanecer disponível para reativação futura.
+- **FR-007**: Se existir vínculo para o mesmo `productId` e `itemId` em outra `businessUnitId`, a desativação **DEVE** ser rejeitada com erro de unidade divergente.
+- **FR-008**: O `productId` **DEVE** existir na `businessUnitId` informada.
+- **FR-009**: O `itemId` **DEVE** existir na `businessUnitId` informada.
+
+---
+
+## Entity
+
+### ProductItemLink
+
+| Campo | Descrição | Regras |
+| --- | --- | --- |
+| `id` | Identificador único do vínculo | Obrigatório, único |
+| `businessUnitId` | Unidade de negócio do vínculo | Obrigatório |
+| `productId` | Produto vinculado | Obrigatório |
+| `itemId` | Item de estoque vinculado | Obrigatório |
+| `status` | Estado do vínculo | Obrigatório, `ACTIVE`, `INACTIVE` |
+| `createdBy` | Autor do vínculo | Obrigatório |
+| `createdAt` | Data de criação | Obrigatório |
+| `updatedBy` | Autor da atualização | Opcional |
+| `updatedAt` | Data da atualização | Opcional |
+
+---
+
+## Success Criteria
+
+- **SC-001**: 100% dos vínculos desativados permanecem preservados para histórico.
+- **SC-002**: 100% das desativações registram autor e data de atualização.
+- **SC-003**: 0% das desativações removem o vínculo do sistema.
+
+---
+
+## Glossary
+
+| Termo | Definição |
+| --- | --- |
+| Desvincular | Alterar o vínculo para INACTIVE sem excluir o registro |
+
+---
+
+## Summary
+
+A capability **Unlink Product from Inventory Item** desativa vínculos entre produto e item sem excluir registros, preservando o histórico.
+
+Ela impede novos usos do vínculo e permite reativação futura quando necessário.
+
+---
+
+### spec-validation
+## Avaliação da Spec: Unlink Product from Inventory Item
+
+| Critério | Nota | Observação |
+|----------|------|------------|
+| Estrutura e Completude | 5/5 | Todas as seções do template estão presentes. |
+| User Stories | 5/5 | Fluxos principais e rejeições bem cobertos. |
+| Edge Cases | 4/5 | Boa cobertura, mas não diferencia produto/item inexistente vs vínculo inexistente. |
+| Functional Requirements | 5/5 | Regras claras para desativação e unidade divergente. |
+| Entity | 5/5 | Entidade consistente com o vínculo. |
+| Success Criteria | 5/5 | Métricas objetivas e verificáveis. |
+| Clareza | 5/5 | Texto claro e direto. |
+| Implementabilidade | 5/5 | Especificação pronta para implementação. |
+| **TOTAL** | 39/40 | |
+
+## Veredicto
+
+- [x] ✅ APROVADA - Pode avançar para design
+- [ ] 🟡 APROVADA COM RESSALVAS - Ajustes menores necessários
+- [ ] 🔴 REPROVADA - Problemas bloqueantes
+
+## Problemas Encontrados
+
+1. Não há distinção explícita entre produto/item inexistente e vínculo inexistente nos cenários de erro.
+
+## Pontos Fortes
+
+1. Regras claras de desativação com preservação de histórico.
+2. Cenário de unidade divergente bem definido.
+3. FRs e Entity alinhados ao comportamento esperado.
+
+## Template de Referência
+Arquivo: `specs/templates/spec-template.md`
+
+PERSISTIR O RESULTADO NO MESMO DIRETÓRIO DA SPEC AVALIADA COM NOME spec-validation.md
+
+## Spec a Validar
+Arquivo: `specs/modules/inventory/09-unlink-product-from-item/spec.md`
