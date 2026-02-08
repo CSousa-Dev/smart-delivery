@@ -44,11 +44,34 @@ Scenario: Rejeitar criação com referência externa duplicada
   Then a criação deve ser rejeitada
   And o sistema deve informar que a combinação externa já existe
 
+Scenario: Rejeitar criação com referência externa incompleta
+  Given que apenas externalOrderId ou apenas externalSource foi informado
+  When o pedido é criado
+  Then a criação deve ser rejeitada
+  And o sistema deve informar que a referência externa deve estar completa
+
 Scenario: Rejeitar criação sem dados obrigatórios
   Given que clientId, addressId, organizationId, businessUnitId ou products não foram informados
   When o pedido é criado
   Then a criação deve ser rejeitada
   And o sistema deve informar que existem campos obrigatórios ausentes
+
+Scenario: Rejeitar criação com produto inválido
+  Given que products contém um productId inválido
+  When o pedido é criado
+  Then a criação deve ser rejeitada
+  And o sistema deve informar que o produto é inválido
+
+Scenario: Rejeitar criação com quantidade inválida
+  Given que products contém um item com quantity menor ou igual a zero
+  When o pedido é criado
+  Then a criação deve ser rejeitada
+  And o sistema deve informar que a quantidade é inválida
+
+Scenario: Permitir criação com productId duplicado
+  Given que products contém itens com o mesmo productId
+  When o pedido é criado
+  Then o pedido deve manter os itens duplicados como informados
 ```
 
 ---
@@ -61,10 +84,13 @@ Scenario: Rejeitar criação sem dados obrigatórios
 - **FR-004**: `products` **DEVE** conter ao menos um produto.
 - **FR-005**: Cada produto **DEVE** conter `productId` e `quantity`.
 - **FR-006**: `quantity` **DEVE** ser maior que zero.
-- **FR-007**: `observation` **PODE** ser informado por produto como texto livre.
-- **FR-008**: `externalOrderId` e `externalSource` **PODEM** ser informados e são strings opcionais.
-- **FR-009**: Quando `externalOrderId` e `externalSource` forem informados, a combinação **DEVE** ser única.
-- **FR-010**: Apenas sistemas internos autorizados ou usuários vinculados à organização e unidade de negócio **PODEM** criar pedidos.
+- **FR-007**: `productId` **DEVE** referenciar um produto válido; caso contrário, a criação **DEVE** ser rejeitada.
+- **FR-008**: Quando houver `productId` duplicado em `products`, o sistema **DEVE** manter os itens como informados, sem agregação.
+- **FR-009**: `observation` **PODE** ser informado por produto como texto livre.
+- **FR-010**: `externalOrderId` e `externalSource` **PODEM** ser informados, mas **DEVEM** ser enviados juntos.
+- **FR-011**: `externalSource` **DEVE** ser um dos valores: `MARKETPLACE_99`, `MARKETPLACE_IFOOD`.
+- **FR-012**: Quando `externalOrderId` e `externalSource` forem informados, a combinação **DEVE** ser única.
+- **FR-013**: Apenas sistemas internos autorizados ou usuários vinculados à organização e unidade de negócio **PODEM** criar pedidos.
 
 ---
 
@@ -79,8 +105,8 @@ Scenario: Rejeitar criação sem dados obrigatórios
 | `businessUnitId` | Unidade de negócio do pedido | Obrigatório |
 | `clientId` | Cliente do pedido | Obrigatório |
 | `addressId` | Endereço do pedido | Obrigatório |
-| `externalOrderId` | Identificador externo do pedido | Opcional |
-| `externalSource` | Fonte externa do pedido | Opcional |
+| `externalOrderId` | Identificador externo do pedido | Opcional; se informado, `externalSource` também deve ser informado |
+| `externalSource` | Fonte externa do pedido | Opcional; se informado, `externalOrderId` também deve ser informado; valores permitidos: `MARKETPLACE_99`, `MARKETPLACE_IFOOD` |
 | `status` | Estado do pedido | Obrigatório, default `PENDING` |
 | `createdAt` | Data de criação | Obrigatório |
 | `updatedAt` | Data da última atualização | Opcional |
@@ -94,7 +120,7 @@ Scenario: Rejeitar criação sem dados obrigatórios
 | `quantity` | Quantidade do produto | Obrigatório, maior que zero |
 | `observation` | Observação do produto | Opcional |
 
-**Relacionamentos**: Um pedido possui uma lista de produtos relacionados.
+**Relacionamentos**: Um pedido possui uma lista de produtos relacionados, podendo conter `productId` duplicado.
 
 ---
 

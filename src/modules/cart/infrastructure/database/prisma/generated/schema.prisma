@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_CART")
+}
+
+model Cart {
+  id                  String              @id @db.VarChar(36)
+  customerId          String              @map("customer_id") @db.VarChar(36)
+  verticalId          String              @map("vertical_id") @db.VarChar(36)
+  businessUnitId      String              @map("business_unit_id") @db.VarChar(36)
+  status              String              @db.VarChar(32)
+  openedAt            DateTime            @map("opened_at") @db.Timestamp(0)
+  lastMovementAt      DateTime            @map("last_movement_at") @db.Timestamp(0)
+  closedAt            DateTime?           @map("closed_at") @db.Timestamp(0)
+  paymentMethod       String?             @map("payment_method") @db.VarChar(32)
+  paymentId           String?             @map("payment_id") @db.VarChar(36)
+  paymentObservation  String?             @map("payment_observation") @db.VarChar(512)
+  paymentPreferenceId String?             @map("payment_preference_id") @db.VarChar(64)
+  quoteId             String?             @map("quote_id") @db.VarChar(64)
+  deliveryPlanId      String?             @map("delivery_plan_id") @db.VarChar(64)
+  deliveryAddressId   String?             @map("delivery_address_id") @db.VarChar(36)
+  deliveryPrice       Float?              @map("delivery_price")
+  items               Json?               @map("items")
+  coupons             Json?               @map("coupons")
+  statusHistory       CartStatusHistory[]
+  createdAt           DateTime            @default(now()) @map("created_at")
+  updatedAt           DateTime?           @updatedAt @map("updated_at")
+
+  @@map("carts")
+}
+
+model CartStatusHistory {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  cartId     String   @map("cart_id") @db.VarChar(36)
+  status     String   @db.VarChar(32)
+  changedAt  DateTime @map("changed_at") @db.Timestamp(0)
+  durationMs Int?     @map("duration_ms")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  cart Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  @@index([cartId, changedAt])
+  @@map("cart_status_history")
+}

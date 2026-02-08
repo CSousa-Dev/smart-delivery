@@ -21,6 +21,7 @@ export function errorHandler(
       error: {
         message: error.message,
         code: error.code,
+        ...(error.payload && { ...error.payload }),
         ...(config.nodeEnv === 'development' && { stack: error.stack }),
       },
     });
@@ -31,8 +32,8 @@ export function errorHandler(
   res.status(500).json({
     success: false,
     error: {
-      message: config.nodeEnv === 'development' 
-        ? error.message 
+      message: config.nodeEnv === 'development'
+        ? error.message
         : 'Internal Server Error',
       ...(config.nodeEnv === 'development' && { stack: error.stack }),
     },

@@ -2,7 +2,7 @@
 
 **Created**: 2026-01-17  
 **Spec**: [./inventory.md](./inventory.md)  
-**Design**: [./01-create-item/design.md](./01-create-item/design.md), [./03-register-stock-entry/design.md](./03-register-stock-entry/design.md), [./04-register-stock-exit/design.md](./04-register-stock-exit/design.md), [./05-get-stock-position/design.md](./05-get-stock-position/design.md), [./06-list-stock-movements/design.md](./06-list-stock-movements/design.md), [./07-create-unit-of-measure/design.md](./07-create-unit-of-measure/design.md), [./08-update-deactivate-unit-of-measure/design.md](./08-update-deactivate-unit-of-measure/design.md)  
+**Design**: [./01-create-item/design.md](./01-create-item/design.md), [./03-register-stock-entry/design.md](./03-register-stock-entry/design.md), [./04-register-stock-exit/design.md](./04-register-stock-exit/design.md), [./05-get-stock-position/design.md](05-get-stock-position/design.md), [./06-list-stock-movements/design.md](./06-list-stock-movements/design.md), [./07-create-unit-of-measure/design.md](./07-create-unit-of-measure/design.md), [./08-update-deactivate-unit-of-measure/design.md](./08-update-deactivate-unit-of-measure/design.md)  
 **Project**: [../../project.md](../../project.md)
 
 ---

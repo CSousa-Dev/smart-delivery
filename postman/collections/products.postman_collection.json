@@ -1,0 +1,77 @@
+{
+  "info": {
+    "name": "Products Module",
+    "description": "Requests to validate products module use cases from specs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Product",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}{{apiPrefix}}/{{apiVersion}}/products",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"businessUnitId\": \"{{businessUnitId}}\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"code\": \"PIZZA-MARG-{{$timestamp}}\",\n  \"title\": \"Pizza Margherita\",\n  \"shortDescription\": \"Pizza tradicional\",\n  \"description\": \"Pizza margherita com tomate e manjericao.\",\n  \"images\": [\n    {\n      \"url\": \"https://example.com/images/pizza-margherita.jpg\",\n      \"order\": 1,\n      \"altText\": \"Pizza margherita\",\n      \"isPrimary\": true\n    }\n  ],\n  \"attributes\": [\n    {\n      \"attributeId\": \"{{attributeId}}\",\n      \"value\": \"Tradicional\"\n    }\n  ],\n  \"createdBy\": \"{{actorUserId}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('response success true', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.success).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "apiPrefix",
+      "value": "/api"
+    },
+    {
+      "key": "apiVersion",
+      "value": "v1"
+    },
+    {
+      "key": "organizationId",
+      "value": ""
+    },
+    {
+      "key": "businessUnitId",
+      "value": ""
+    },
+    {
+      "key": "categoryId",
+      "value": ""
+    },
+    {
+      "key": "attributeId",
+      "value": ""
+    },
+    {
+      "key": "actorUserId",
+      "value": ""
+    }
+  ]
+}

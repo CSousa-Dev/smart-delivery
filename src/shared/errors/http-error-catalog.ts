@@ -5,16 +5,11 @@ export type HttpErrorCatalogEntry = {
 
 const httpErrorCatalog = new Map<string, HttpErrorCatalogEntry>();
 
-export function registerHttpError(
-  code: string,
-  entry: HttpErrorCatalogEntry
-): void {
+export function registerHttpError(code: string, entry: HttpErrorCatalogEntry): void {
   httpErrorCatalog.set(code, entry);
 }
 
-export function getHttpError(
-  code: string
-): HttpErrorCatalogEntry | undefined {
+export function getHttpError(code: string): HttpErrorCatalogEntry | undefined {
   return httpErrorCatalog.get(code);
 }
 
@@ -75,31 +70,61 @@ registerHttpError('PRODUCT_TITLE_ALREADY_EXISTS', {
 });
 registerHttpError('INVALID_PRODUCT_CODE', {
   status: 400,
-  defaultMessage: 'Invalid product code format',
+  defaultMessage: 'Invalid product-api code format',
 });
 registerHttpError('INVALID_PRODUCT_TITLE', {
   status: 400,
-  defaultMessage: 'Invalid product title',
+  defaultMessage: 'Invalid product-api title',
 });
 registerHttpError('INVALID_PRODUCT_SHORT_DESCRIPTION', {
   status: 400,
-  defaultMessage: 'Invalid product short description',
+  defaultMessage: 'Invalid product-api short description',
 });
 registerHttpError('INVALID_PRODUCT_DESCRIPTION', {
   status: 400,
-  defaultMessage: 'Invalid product description',
+  defaultMessage: 'Invalid product-api description',
 });
 registerHttpError('INVALID_PRODUCT_IMAGES', {
   status: 400,
-  defaultMessage: 'Invalid product images configuration',
+  defaultMessage: 'Invalid product-api images configuration',
 });
 registerHttpError('INVALID_PRODUCT_ATTRIBUTES', {
   status: 400,
-  defaultMessage: 'Invalid product attributes',
+  defaultMessage: 'Invalid product-api attributes',
 });
 registerHttpError('MISSING_REQUIRED_ATTRIBUTES', {
   status: 400,
-  defaultMessage: 'Missing required product attributes',
+  defaultMessage: 'Missing required product-api attributes',
+});
+
+// Cart module
+registerHttpError('INVALID_BUSINESS_CONTEXT', {
+  status: 400,
+  defaultMessage: 'CustomerId, verticalId and businessUnitId are required and must be non-empty',
+});
+registerHttpError('CART_NOT_FOUND', {
+  status: 404,
+  defaultMessage: 'Cart not found',
+});
+registerHttpError('CART_ALREADY_OPEN_FOR_CUSTOMER', {
+  status: 409,
+  defaultMessage: 'There is already an open cart in purchase flow for this customer',
+});
+registerHttpError('CUSTOMER_CONTEXT_INVALID', {
+  status: 400,
+  defaultMessage: 'Customer context is invalid for the given business unit',
+});
+registerHttpError('VERTICAL_CONTEXT_INVALID', {
+  status: 400,
+  defaultMessage: 'Vertical context is invalid for the given business unit',
+});
+registerHttpError('IMMUTABLE_CART_VIOLATION', {
+  status: 400,
+  defaultMessage: 'Cannot modify cart in current status',
+});
+registerHttpError('ONLINE_PAYMENT_REQUIRED_FOR_WAITING_PAYMENT', {
+  status: 400,
+  defaultMessage: 'Online payment method is required to wait for payment',
 });
 
 // Inventory module

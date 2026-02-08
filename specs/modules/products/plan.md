@@ -60,7 +60,7 @@
 | T007 | Criar migration e modelos Prisma para `products`, `product_images`, `product_attribute_values` (campos normalizados e indices unicos) | `npx prisma migrate dev --schema src/modules/products/infrastructure/database/prisma/schema.prisma` executa sem erro |
 | T008 | Implementar VOs (`ProductId`, `OrganizationId`, `BusinessUnitId`, `CategoryId`, `ProductCode`, `ProductTitle`, `ProductShortDescription`, `ProductDescription`) e erros de dominio com testes unitarios de regras de formato/limites | Testes unitarios passam |
 | T009 | Implementar `Product` + VOs (`ProductImage`, `ProductAttributeValue`) com testes unitarios (imagem principal, max 4, order unico, atributos obrigatorios) | Testes unitarios passam |
-| T010 | Definir interfaces `ProductRepository`, `BusinessUnitRepository`, `CategoryRepository`, `AttributeValueValidationPort` e tipos de retorno conforme design | TypeScript compila |
+| T010 | Definir interfaces `ProductService`, `BusinessUnitRepository`, `CategoryRepository`, `AttributeValueValidationPort` e tipos de retorno conforme design | TypeScript compila |
 | T011 | Implementar `CreateProductService` + DTOs com testes unitarios (unicidade code/title, validacao BU/categoria/vertical, validacao de atributos) | Testes unitarios passam |
 | T012 | Implementar `ProductMapper` e `PrismaProductRepository` (save transacional + existsByCode/Title) e testes de integracao da capability Create Product | Teste de integracao passa |
 | T013 | Implementar adapters `OrganizationBusinessUnitAdapter`, `AttributesCategoryAdapter`, `AttributeValueValidationAdapter` com testes unitarios | Testes unitarios passam |

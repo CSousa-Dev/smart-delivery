@@ -14,6 +14,8 @@ import { bootstrapAttributesModule } from './modules/attributes/infrastructure/d
 import { bootstrapOrganizationModule } from './modules/organization/infrastructure/di';
 import { bootstrapProductsModule } from './modules/products/infrastructure/di';
 import { bootstrapInventoryModule } from './modules/inventory/infrastructure/di';
+import { bootstrapCartModule } from './modules/cart/infrastructure/di';
+import { bootstrapAuthModule } from './modules/auth/infrastructure/di';
 
 /**
  * Cria e configura a aplicação Express
@@ -56,10 +58,13 @@ function createApp(): Application {
   const { router: organizationRouter } = bootstrapOrganizationModule();
   const { router: productsRouter } = bootstrapProductsModule();
   const { router: inventoryRouter } = bootstrapInventoryModule();
+  const { authenticateRequestService } = bootstrapAuthModule();
+  const { router: cartRouter } = bootstrapCartModule({ authenticateRequestService });
   app.use(`${config.apiPrefix}/${config.apiVersion}`, attributesRouter);
   app.use(`${config.apiPrefix}/${config.apiVersion}`, organizationRouter);
   app.use(`${config.apiPrefix}/${config.apiVersion}`, productsRouter);
   app.use(`${config.apiPrefix}/${config.apiVersion}`, inventoryRouter);
+  app.use(`${config.apiPrefix}/${config.apiVersion}`, cartRouter);
   // ========================================
 
   // ========================================

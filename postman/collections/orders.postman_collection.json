@@ -1,0 +1,72 @@
+{
+  "info": {
+    "name": "Orders Module",
+    "description": "Spec-driven request for creating orders. Endpoint path inferred as /orders.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}{{apiPrefix}}/{{apiVersion}}/orders",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"businessUnitId\": \"{{businessUnitId}}\",\n  \"clientId\": \"{{clientId}}\",\n  \"addressId\": \"{{addressId}}\",\n  \"products\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 2,\n      \"observation\": \"Sem cebola\"\n    }\n  ],\n  \"externalOrderId\": \"EXT-{{$timestamp}}\",\n  \"externalSource\": \"MARKETPLACE_99\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "apiPrefix",
+      "value": "/api"
+    },
+    {
+      "key": "apiVersion",
+      "value": "v1"
+    },
+    {
+      "key": "organizationId",
+      "value": ""
+    },
+    {
+      "key": "businessUnitId",
+      "value": ""
+    },
+    {
+      "key": "clientId",
+      "value": ""
+    },
+    {
+      "key": "addressId",
+      "value": ""
+    },
+    {
+      "key": "productId",
+      "value": ""
+    }
+  ]
+}

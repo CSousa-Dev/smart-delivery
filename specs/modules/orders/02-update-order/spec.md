@@ -50,6 +50,23 @@ Scenario: Rejeitar atualização de pedido cancelado
   When o pedido é atualizado
   Then a atualização deve ser rejeitada
   And o sistema deve informar que pedidos cancelados não podem ser alterados
+
+Scenario: Rejeitar atualização com produto inválido
+  Given que products contém um productId inválido
+  When o pedido é atualizado
+  Then a atualização deve ser rejeitada
+  And o sistema deve informar que o produto é inválido
+
+Scenario: Rejeitar atualização com quantidade inválida
+  Given que products contém um item com quantity menor ou igual a zero
+  When o pedido é atualizado
+  Then a atualização deve ser rejeitada
+  And o sistema deve informar que a quantidade é inválida
+
+Scenario: Permitir atualização com productId duplicado
+  Given que products contém itens com o mesmo productId
+  When o pedido é atualizado
+  Then o pedido deve manter os itens duplicados como informados
 ```
 
 ---
@@ -62,7 +79,9 @@ Scenario: Rejeitar atualização de pedido cancelado
 - **FR-004**: Após a atualização, o pedido **DEVE** conter ao menos um produto.
 - **FR-005**: Cada produto atualizado **DEVE** conter `productId` e `quantity`.
 - **FR-006**: `quantity` **DEVE** ser maior que zero.
-- **FR-007**: Apenas sistemas internos autorizados ou usuários vinculados à organização e unidade de negócio **PODEM** atualizar pedidos.
+- **FR-007**: `productId` **DEVE** referenciar um produto válido; caso contrário, a atualização **DEVE** ser rejeitada.
+- **FR-008**: Quando houver `productId` duplicado em `products`, o sistema **DEVE** manter os itens como informados, sem agregação.
+- **FR-009**: Apenas sistemas internos autorizados ou usuários vinculados à organização e unidade de negócio **PODEM** atualizar pedidos.
 
 ---
 
@@ -89,7 +108,7 @@ Scenario: Rejeitar atualização de pedido cancelado
 | `quantity` | Quantidade do produto | Obrigatório, maior que zero |
 | `observation` | Observação do produto | Opcional |
 
-**Relacionamentos**: Um pedido possui uma lista de produtos relacionados.
+**Relacionamentos**: Um pedido possui uma lista de produtos relacionados, podendo conter `productId` duplicado.
 
 ---
 

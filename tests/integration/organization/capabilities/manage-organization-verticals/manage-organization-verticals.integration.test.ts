@@ -31,6 +31,10 @@ describeIf('Capability Manage Organization Verticals – [CAP-010]', () => {
 
   beforeEach(async () => {
     await prisma.organizationVertical.deleteMany();
+    await prisma.businessUnitVertical.deleteMany();
+    await prisma.businessUnitAddress.deleteMany();
+    await prisma.businessUnit.deleteMany();
+    await prisma.userOrganizationLink.deleteMany();
     await prisma.organization.deleteMany();
     await prisma.vertical.deleteMany();
   });

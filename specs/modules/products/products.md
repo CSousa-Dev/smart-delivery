@@ -36,7 +36,7 @@ A complexidade e moderada pela orquestracao entre modulos e pelas regras de vali
 | Value Object | `ProductDescription` | Descricao validada |
 | Value Object | `ProductImage` | Imagem do produto (url, order, isPrimary) |
 | Value Object | `ProductAttributeValue` | Valor de atributo informado |
-| Repository Interface | `ProductRepository` | Persistencia e consultas de produto |
+| Repository Interface | `ProductService` | Persistencia e consultas de produto |
 | Repository Interface | `BusinessUnitRepository` | Consulta unidade e verticais habilitadas (port) |
 | Repository Interface | `CategoryRepository` | Consulta categoria e vertical (port) |
 | Repository Interface | `AttributeValueValidationPort` | Valida atributos no modulo attributes (port) |
@@ -53,7 +53,7 @@ A complexidade e moderada pela orquestracao entre modulos e pelas regras de vali
 
 | Tipo | Nome | Responsabilidade |
 |------|------|------------------|
-| Repository Impl | `PrismaProductRepository` | Implementa `ProductRepository` |
+| Repository Impl | `PrismaProductRepository` | Implementa `ProductService` |
 | Port Adapter | `OrganizationBusinessUnitAdapter` | Implementa `BusinessUnitRepository` |
 | Port Adapter | `AttributesCategoryAdapter` | Implementa `CategoryRepository` |
 | Port Adapter | `AttributeValueValidationAdapter` | Implementa `AttributeValueValidationPort` |
@@ -93,7 +93,7 @@ graph TD
         VO_DESC[ProductDescription]
         IMG[ProductImage]
         ATTR[ProductAttributeValue]
-        PROD_REPO[ProductRepository]
+        PROD_REPO[ProductService]
         BU_REPO[BusinessUnitRepository]
         CAT_REPO[CategoryRepository]
         ATTR_PORT[AttributeValueValidationPort]
@@ -271,9 +271,9 @@ classDiagram
 
 | Operacao | Descricao | Usada por |
 |----------|-----------|-----------|
-| `ProductRepository.existsByCodeAndOrganizationId(code, organizationId)` | Verifica duplicidade de code | CreateProductService |
-| `ProductRepository.existsByTitleAndBusinessUnitId(title, businessUnitId)` | Verifica duplicidade de title | CreateProductService |
-| `ProductRepository.save(product)` | Persiste produto e relacionamentos | CreateProductService |
+| `ProductService.existsByCodeAndOrganizationId(code, organizationId)` | Verifica duplicidade de code | CreateProductService |
+| `ProductService.existsByTitleAndBusinessUnitId(title, businessUnitId)` | Verifica duplicidade de title | CreateProductService |
+| `ProductService.save(product)` | Persiste produto e relacionamentos | CreateProductService |
 | `BusinessUnitRepository.findById(id)` | Carrega unidade e verticais habilitadas | CreateProductService |
 | `CategoryRepository.findById(id)` | Carrega categoria e vertical | CreateProductService |
 | `AttributeValueValidationPort.validate(categoryId, attributes)` | Valida valores por categoria | CreateProductService |

@@ -86,9 +86,7 @@ describe('CreateProductService', () => {
     const { service, businessUnitRepository } = buildService();
     (businessUnitRepository.findById as jest.Mock).mockResolvedValue(null);
 
-    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(
-      BusinessUnitNotFoundError
-    );
+    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(BusinessUnitNotFoundError);
   });
 
   it('should reject when business unit does not belong to organization', async () => {
@@ -108,9 +106,7 @@ describe('CreateProductService', () => {
     const { service, categoryRepository } = buildService();
     (categoryRepository.findById as jest.Mock).mockResolvedValue(null);
 
-    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(
-      CategoryNotFoundError
-    );
+    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(CategoryNotFoundError);
   });
 
   it('should reject when category vertical is not enabled', async () => {
@@ -140,22 +136,18 @@ describe('CreateProductService', () => {
     await expect(service.execute(baseInput)).rejects.toBeInstanceOf(UserNotOwnerError);
   });
 
-  it('should reject when product code already exists', async () => {
+  it('should reject when product-api code already exists', async () => {
     const { service, productRepository } = buildService();
     (productRepository.existsByCodeAndOrganizationId as jest.Mock).mockResolvedValue(true);
 
-    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(
-      ProductCodeAlreadyExistsError
-    );
+    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(ProductCodeAlreadyExistsError);
   });
 
-  it('should reject when product title already exists', async () => {
+  it('should reject when product-api title already exists', async () => {
     const { service, productRepository } = buildService();
     (productRepository.existsByTitleAndBusinessUnitId as jest.Mock).mockResolvedValue(true);
 
-    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(
-      ProductTitleAlreadyExistsError
-    );
+    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(ProductTitleAlreadyExistsError);
   });
 
   it('should reject when required attributes are missing', async () => {
@@ -165,9 +157,7 @@ describe('CreateProductService', () => {
       errors: [{ attributeId: 'attr-1', reason: 'REQUIRED_VALUE_MISSING' }],
     });
 
-    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(
-      MissingRequiredAttributesError
-    );
+    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(MissingRequiredAttributesError);
   });
 
   it('should reject when attribute values are invalid', async () => {
@@ -177,12 +167,10 @@ describe('CreateProductService', () => {
       errors: [{ attributeId: 'attr-1', reason: 'INVALID_ALLOWED_VALUE', value: 'x' }],
     });
 
-    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(
-      InvalidProductAttributesError
-    );
+    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(InvalidProductAttributesError);
   });
 
-  it('should create product when data is valid', async () => {
+  it('should create product-api when data is valid', async () => {
     const { service, productRepository } = buildService();
 
     const output = await service.execute(baseInput);

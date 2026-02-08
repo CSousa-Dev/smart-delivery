@@ -7,7 +7,8 @@ export class AppError extends Error {
   constructor(
     public readonly message: string,
     public readonly statusCode: number = 500,
-    public readonly code?: string
+    public readonly code?: string,
+    public readonly payload?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'AppError';
@@ -15,8 +16,8 @@ export class AppError extends Error {
   }
 
   // Factory methods para erros comuns
-  static badRequest(message: string, code?: string): AppError {
-    return new AppError(message, 400, code || 'BAD_REQUEST');
+  static badRequest(message: string, code?: string, payload?: Record<string, unknown>): AppError {
+    return new AppError(message, 400, code || 'BAD_REQUEST', payload);
   }
 
   static unauthorized(message: string = 'Unauthorized', code?: string): AppError {

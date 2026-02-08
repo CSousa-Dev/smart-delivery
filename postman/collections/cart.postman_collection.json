@@ -1,0 +1,82 @@
+{
+  "info": {
+    "name": "Cart Module",
+    "description": "Requests to validate cart module use cases (open cart, etc.).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Open Cart",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}{{apiPrefix}}/{{apiVersion}}/carts/open",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"verticalId\": \"{{verticalId}}\",\n  \"businessUnitId\": \"{{businessUnitId}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('response success true', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.success).to.eql(true);",
+              "});",
+              "",
+              "pm.test('response has cartId', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.data).to.have.property('cartId');",
+              "  pm.expect(json.data.cartId).to.be.a('string');",
+              "  if (json.data.cartId) {",
+              "    pm.collectionVariables.set('cartId', json.data.cartId);",
+              "  }",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "apiPrefix",
+      "value": "/api"
+    },
+    {
+      "key": "apiVersion",
+      "value": "v1"
+    },
+    {
+      "key": "customerId",
+      "value": "customer-1"
+    },
+    {
+      "key": "verticalId",
+      "value": "vertical-1"
+    },
+    {
+      "key": "businessUnitId",
+      "value": "business-unit-1"
+    },
+    {
+      "key": "cartId",
+      "value": ""
+    }
+  ]
+}

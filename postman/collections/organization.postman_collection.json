@@ -1,0 +1,57 @@
+{
+  "info": {
+    "name": "Organization Module",
+    "description": "Requests to validate organization module use cases from specs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}{{apiPrefix}}/{{apiVersion}}/organization/users",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Maria\",\n  \"lastName\": \"Silva\",\n  \"documentType\": \"CPF\",\n  \"documentNumber\": \"12345678901\",\n  \"email\": \"maria.silva+{{$timestamp}}@example.com\",\n  \"phoneNumber\": \"5511999999999\",\n  \"emailOptIn\": true,\n  \"phoneOptIn\": true\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('response success true', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.success).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "apiPrefix",
+      "value": "/api"
+    },
+    {
+      "key": "apiVersion",
+      "value": "v1"
+    }
+  ]
+}

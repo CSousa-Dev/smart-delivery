@@ -512,7 +512,7 @@ Os logs são centralizados através da **Grafana Stack**:
 | Value Object | Dentro da entity | `product.entity.ts` (exporta VO junto) |
 | Domain Service | `[name].service.ts` | `inventory-validation.service.ts` |
 | App Service | `[name].service.ts` | `create-order.service.ts` |
-| Repository Interface | `[name].repository.ts` | `product.repository.ts` |
+| Repository Interface | `[name].repository.ts` | `product.service.ts` |
 | Repository Impl | `[name].repository.impl.ts` | `product.repository.impl.ts` |
 | Mapper | `[name].mapper.ts` | `product.mapper.ts` |
 | Controller | `[name].controller.ts` | `product.controller.ts` |

@@ -187,7 +187,7 @@ erDiagram
         varchar(36) item_id
         varchar(80) lot_number
         date expires_at
-        decimal(18,4) quantity_available
+        decimal(4) quantity_available
         timestamp first_entry_at
     }
 ```

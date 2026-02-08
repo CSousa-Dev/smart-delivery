@@ -2,19 +2,19 @@ import { DomainError } from './domain.error';
 
 export class InvalidProductCodeError extends DomainError {
   constructor(code: string) {
-    super('Invalid product code format', 'INVALID_PRODUCT_CODE', { code });
+    super('Invalid product-api code format', 'INVALID_PRODUCT_CODE', { code });
   }
 }
 
 export class InvalidProductTitleError extends DomainError {
   constructor(title: string) {
-    super('Invalid product title', 'INVALID_PRODUCT_TITLE', { title });
+    super('Invalid product-api title', 'INVALID_PRODUCT_TITLE', { title });
   }
 }
 
 export class InvalidProductShortDescriptionError extends DomainError {
   constructor(shortDescription: string) {
-    super('Invalid product short description', 'INVALID_PRODUCT_SHORT_DESCRIPTION', {
+    super('Invalid product-api short description', 'INVALID_PRODUCT_SHORT_DESCRIPTION', {
       shortDescription,
     });
   }
@@ -22,7 +22,7 @@ export class InvalidProductShortDescriptionError extends DomainError {
 
 export class InvalidProductDescriptionError extends DomainError {
   constructor(description: string) {
-    super('Invalid product description', 'INVALID_PRODUCT_DESCRIPTION', {
+    super('Invalid product-api description', 'INVALID_PRODUCT_DESCRIPTION', {
       description,
     });
   }
@@ -30,19 +30,19 @@ export class InvalidProductDescriptionError extends DomainError {
 
 export class InvalidProductImagesError extends DomainError {
   constructor() {
-    super('Invalid product images configuration', 'INVALID_PRODUCT_IMAGES');
+    super('Invalid product-api images configuration', 'INVALID_PRODUCT_IMAGES');
   }
 }
 
 export class InvalidProductAttributesError extends DomainError {
   constructor() {
-    super('Invalid product attributes', 'INVALID_PRODUCT_ATTRIBUTES');
+    super('Invalid product-api attributes', 'INVALID_PRODUCT_ATTRIBUTES');
   }
 }
 
 export class MissingRequiredAttributesError extends DomainError {
   constructor() {
-    super('Missing required product attributes', 'MISSING_REQUIRED_ATTRIBUTES');
+    super('Missing required product-api attributes', 'MISSING_REQUIRED_ATTRIBUTES');
   }
 }
 
@@ -60,21 +60,19 @@ export class CategoryNotFoundError extends DomainError {
 
 export class BusinessUnitOrganizationMismatchError extends DomainError {
   constructor(businessUnitId: string, organizationId: string) {
-    super(
-      'Business unit does not belong to organization',
-      'BUSINESS_UNIT_ORGANIZATION_MISMATCH',
-      { businessUnitId, organizationId }
-    );
+    super('Business unit does not belong to organization', 'BUSINESS_UNIT_ORGANIZATION_MISMATCH', {
+      businessUnitId,
+      organizationId,
+    });
   }
 }
 
 export class CategoryVerticalNotEnabledError extends DomainError {
   constructor(categoryId: string, verticalId: string) {
-    super(
-      'Category vertical not enabled for business unit',
-      'CATEGORY_VERTICAL_NOT_ENABLED',
-      { categoryId, verticalId }
-    );
+    super('Category vertical not enabled for business unit', 'CATEGORY_VERTICAL_NOT_ENABLED', {
+      categoryId,
+      verticalId,
+    });
   }
 }
 

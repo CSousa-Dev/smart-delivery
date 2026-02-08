@@ -16,7 +16,7 @@ const baseProps = {
 };
 
 describe('Product Entity', () => {
-  it('should create product with valid images', () => {
+  it('should create product-api with valid images', () => {
     const product = Product.create({
       ...baseProps,
       images: [

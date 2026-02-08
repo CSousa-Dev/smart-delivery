@@ -36,4 +36,3 @@ Um Plan define **QUANDO** fazer cada task de implementação.
 
 
 ## Design de Referência
-

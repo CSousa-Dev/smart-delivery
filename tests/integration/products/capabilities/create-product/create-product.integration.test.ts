@@ -25,7 +25,7 @@ describeIf('Capability Create Product – [CAP-001]', () => {
     await prisma.product.deleteMany();
   });
 
-  it('should create product with images and attributes – [SCN-001]', async () => {
+  it('should create product-api with images and attributes – [SCN-001]', async () => {
     const productRepository = new PrismaProductRepository(prisma);
     const businessUnitRepository: BusinessUnitRepository = {
       findById: jest.fn().mockResolvedValue({
