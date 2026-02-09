@@ -1,9 +1,6 @@
 import { CartRepository } from '../../domain/repository/cart.repository';
 import { ReadCartInputDTO } from '../dtos/read-cart.input.dto';
-import {
-  CartReadOutputDTO,
-  CartItemOutputDTO,
-} from '../dtos/cart-read.output.dto';
+import { CartReadOutputDTO, CartItemOutputDTO } from '../dtos/cart-read.output.dto';
 import { CartItem } from '../../domain/entities/cart-item.entity';
 import { CartNotFoundError } from '../errors/cart-not-found.error';
 import { CartOwnerMismatchError } from '../errors/cart-owner-mismatch.error';
@@ -50,7 +47,9 @@ export class ReadCartService {
       addons: item.addons.map((addon) => ({
         id: addon.id.get(),
         sku: addon.sku,
-        ...(addon.additionalDescription !== undefined && { additionalDescription: addon.additionalDescription }),
+        ...(addon.additionalDescription !== undefined && {
+          additionalDescription: addon.additionalDescription,
+        }),
         quantity: addon.quantity,
       })),
       removals: item.removals.map((removal) => ({
@@ -61,5 +60,4 @@ export class ReadCartService {
       categories: item.categories,
     };
   }
-
 }

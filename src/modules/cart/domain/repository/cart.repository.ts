@@ -9,6 +9,12 @@ export interface CartRepository {
   findById(cartId: string): Promise<Cart | null>;
   findByQuoteId(quoteId: string): Promise<Cart | null>;
   save(cart: Cart): Promise<void>;
+  saveMany(carts: Cart[]): Promise<void>;
+  findInactiveInProgressBatch(
+    cutoffDate: Date,
+    limit: number,
+    afterId?: string
+  ): Promise<Cart[]>;
   /** Returns true if customer has any cart in purchase flow (OPEN, WAITING_PAYMENT, PAYMENT_CONFIRMED, PAYMENT_MISMATCH). Abandoned/Ordered do not block. */
   existsOpenCartForCustomer(customerId: string): Promise<boolean>;
   /** Returns the active cart for customer if any (OPEN, WAITING_PAYMENT, PAYMENT_CONFIRMED, PAYMENT_MISMATCH). */

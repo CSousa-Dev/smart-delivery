@@ -1,9 +1,10 @@
 import { ProductService } from '../../domain/ports/product.service';
 import { OperationsService } from '../../domain/ports/operations.service';
-import type { ProductValidationPayload } from '../../domain/product-validation';
+import type { ProductValidationPayload, ProductValidationResult } from '../../domain/product-validation';
 import { CartItem } from '../../domain/entities/cart-item.entity';
 import { ValidationErrorsError } from '../errors/validation-errors.error';
 import { AddCartItemOperationsValidationError } from '../errors/operations-validation.error';
+import type { ValidationResult } from '../../domain/validation-result';
 
 /**
  * Serviço compartilhado: valida um item (produto + operações) antes de adicionar ou atualizar no carrinho.
@@ -16,16 +17,28 @@ export class ValidateCartItemService {
   ) {}
 
   public async execute(item: CartItem): Promise<void> {
-    const payload = this.toProductValidationPayload(item);
+    const [productResult, operationsResult] = await this.validateItemSources(item);
+    this.ensureProductIsValid(productResult);
+    this.ensureOperationsAreValid(operationsResult);
+  }
 
-    const [productResult, operationsResult] = await Promise.all([
+  private async validateItemSources(
+    item: CartItem
+  ): Promise<[ProductValidationResult, ValidationResult]> {
+    const payload = this.toProductValidationPayload(item);
+    return Promise.all([
       this.productService.validateProduct(item.businessUnitId, payload),
       this.operationsService.checkSaleFeasibility(item),
     ]);
+  }
 
+  private ensureProductIsValid(productResult: ProductValidationResult): void {
     if (!productResult.isValid) {
       throw new ValidationErrorsError(productResult.productValidationErrors);
     }
+  }
+
+  private ensureOperationsAreValid(operationsResult: ValidationResult): void {
     if (!operationsResult.isValid) {
       throw new AddCartItemOperationsValidationError(
         operationsResult.reason ?? 'Operations validation failed'

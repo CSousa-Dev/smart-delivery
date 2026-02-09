@@ -5,7 +5,6 @@ export type CartCreatedDTO = {
   status: CartStatus;
 };
 
-export type CartStatusOutputDTO = {
-  cartId: string;
-  status: CartStatus;
+export type CartIdDTO = {
+  id: string;
 };

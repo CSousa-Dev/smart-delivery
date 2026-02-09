@@ -1,7 +1,6 @@
 import { CartRepository } from '../../domain/repository/cart.repository';
 import { Cart } from '../../domain/entities/cart.entity';
 import { PaymentService } from '../../domain/ports/payment.service';
-import { PaymentReceipt } from '../../domain/value-objects/payment-receipt.vo';
 import { OrderService } from '../../domain/ports/order.service';
 import { OrderPaymentReference } from '../../domain/value-objects/order-payment-reference.vo';
 import { CartEventPublisher } from '../ports/cart-event.publisher';
@@ -32,13 +31,6 @@ export class ProcessCartPaymentService {
 
     const receipt = await this.paymentService.getReceipt(cart.id.get(), input.paymentId);
 
-    if (receipt.cartId !== cart.id.get() || receipt.paymentId !== input.paymentId) {
-      cart.failPayment('Payment does not match cart.', input.paymentId);
-      await this.cartRepository.save(cart);
-      await this.publishCartEvents(cart);
-      return;
-    }
-
     if (!receipt.approved) {
       cart.failPayment('Payment not approved.', input.paymentId);
       await this.cartRepository.save(cart);
@@ -46,23 +38,12 @@ export class ProcessCartPaymentService {
       return;
     }
 
-    const confirmedReceipt = this.cloneReceipt(receipt);
-    cart.confirmPayment(confirmedReceipt);
-    const payment = new OrderPaymentReference(cart.quoteId!, confirmedReceipt.paymentId);
+    cart.confirmPayment(input.paymentId);
+    const payment = new OrderPaymentReference(cart.quoteId!, input.paymentId);
     await this.orderService.createOrderFromCart(cart, payment);
     cart.markOrdered();
     await this.cartRepository.save(cart);
     await this.publishCartEvents(cart);
-  }
-
-  private cloneReceipt(receipt: PaymentReceipt): PaymentReceipt {
-    return new PaymentReceipt(
-      receipt.cartId,
-      receipt.paymentId,
-      receipt.amount,
-      receipt.approved,
-      receipt.paidAt
-    );
   }
 
   private async publishCartEvents(cart: Cart): Promise<void> {

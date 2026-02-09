@@ -10,10 +10,12 @@ import { CartOrderValidationContext, CartStatusState } from './states/cart-statu
 import { CartStatusStateFactory } from './states/cart-status-state.factory';
 import { CartPaymentConfirmedEvent } from '../events/cart-payment-confirmed.event';
 import { CartPaymentFailedEvent } from '../events/cart-payment-failed.event';
-import { PaymentReceipt } from '../value-objects/payment-receipt.vo';
+import { CartAbandonedEvent } from '../events/cart-abandoned.event';
 import { AggregateRoot } from '../../../../shared/contracts/commons/aggregate-root';
 import { CartDomainEvent } from '../events/cart-domain-event';
 import { CartItemRemovedEvent } from '../events/cart-item-removed.event';
+import { CartItemAddedEvent } from '../events/cart-item-added.event';
+import { CartCreatedEvent } from '../events/cart-created.event';
 import { BusinessContext } from '../value-objects/business-context.vo';
 import { PaymentContext } from '../value-objects/payment-context.vo';
 import { DeliveryPlan } from './delivery-plan.entity';
@@ -26,6 +28,7 @@ export class Cart extends AggregateRoot<CartDomainEvent> {
   private readonly _statusHistory: CartStatusChange[];
   private readonly _cartItems: CartItemList;
   private readonly _businessContext: BusinessContext;
+  private _addressId: string | null;
   private _deliveryPlan: DeliveryPlan | null;
   private readonly _coupons: CartCoupon[];
   private _paymentContext: PaymentContext;
@@ -46,6 +49,7 @@ export class Cart extends AggregateRoot<CartDomainEvent> {
     openedAt: Date = new Date(),
     lastMovementAt: Date = new Date(),
     closedAt?: Date,
+    addressId?: string | null,
     deliveryPlan?: DeliveryPlan | null,
     coupons: CartCoupon[] = [],
     statusHistory?: CartStatusChange[]
@@ -63,6 +67,7 @@ export class Cart extends AggregateRoot<CartDomainEvent> {
     this._paymentContext = paymentContext;
     this._paymentPreferenceId = paymentPreferenceId;
     this._quoteId = quoteId;
+    this._addressId = addressId ?? deliveryPlan?.addressId ?? null;
     this._deliveryPlan = deliveryPlan ?? null;
     this._coupons = coupons;
     this._openedAt = openedAt;
@@ -76,6 +81,9 @@ export class Cart extends AggregateRoot<CartDomainEvent> {
     this._state.ensureCanAddItem();
 
     this._cartItems.addItem(item);
+    this.addDomainEvent(
+      new CartItemAddedEvent(this._id.get(), item.id.get(), item.sku, item.quantity)
+    );
     this.touch();
   }
 
@@ -94,10 +102,38 @@ export class Cart extends AggregateRoot<CartDomainEvent> {
     this.addItem(item);
   }
 
+  public registerCreated(): void {
+    this.addDomainEvent(
+      new CartCreatedEvent(
+        this._id.get(),
+        this.customerId,
+        this.verticalId,
+        this.businessUnitId,
+        this._status
+      )
+    );
+  }
+
   public setDeliveryPlan(deliveryPlan: DeliveryPlan): void {
     this._state.ensureCanSetAddress();
 
+    this._addressId = deliveryPlan.addressId;
     this._deliveryPlan = deliveryPlan;
+    this.touch();
+  }
+
+  public clearDeliveryPlan(): void {
+    this._state.ensureCanSetAddress();
+
+    this._deliveryPlan = null;
+    this.touch();
+  }
+
+  public setAddress(addressId: string): void {
+    this._state.ensureCanSetAddress();
+
+    this._addressId = addressId;
+    this._deliveryPlan = null;
     this.touch();
   }
 
@@ -142,19 +178,12 @@ export class Cart extends AggregateRoot<CartDomainEvent> {
     this.touch();
   }
 
-  public markPaymentProcessed(paymentId: string): void {
+  public confirmPayment(paymentId: string): void {
     this._state.ensureCanRegisterPayment();
 
     this._paymentContext = this._paymentContext.withPaymentId(paymentId);
-    this.touch();
-  }
-
-  public confirmPayment(receipt: PaymentReceipt): void {
-    this._state.ensureCanRegisterPayment();
-
-    this._paymentContext = this._paymentContext.withPaymentId(receipt.paymentId);
     this.transitionTo(CartStatus.PAYMENT_CONFIRMED);
-    this.addDomainEvent(new CartPaymentConfirmedEvent(this._id.get(), receipt));
+    this.addDomainEvent(new CartPaymentConfirmedEvent(this._id.get(), paymentId));
   }
 
   public startCheckout(): void {
@@ -168,9 +197,7 @@ export class Cart extends AggregateRoot<CartDomainEvent> {
   public failPayment(reason?: string, paymentId?: string): void {
     const observation = reason ?? 'Payment failed.';
     const pid = paymentId ?? this._paymentContext.paymentId ?? 'unknown';
-    this._paymentContext = this._paymentContext
-      .withObservation(observation)
-      .withPaymentId(pid);
+    this._paymentContext = this._paymentContext.withObservation(observation).withPaymentId(pid);
     this.transitionTo(CartStatus.PAYMENT_MISMATCH);
     this.addDomainEvent(new CartPaymentFailedEvent(this._id.get(), pid, observation));
   }
@@ -198,24 +225,22 @@ export class Cart extends AggregateRoot<CartDomainEvent> {
     }
   }
 
-  public retryPayment(): void {
-    if (this._status === CartStatus.PAYMENT_MISMATCH) {
-      this.clearQuote();
-    }
-    this.transitionTo(CartStatus.OPEN);
-  }
-
   private transitionTo(status: CartStatus): void {
     if (!this._state.canTransitionTo(status)) {
       throw new InvalidCartStatusTransitionError(this._status, status);
     }
 
+    const previousStatus = this._status;
     const nextState = CartStatusStateFactory.create(status);
     nextState.validateOrder(this.getOrderValidationContext(this._status));
     this._status = status;
     this._state = nextState;
     this.recordStatusChange(status, new Date());
     this.touch();
+
+    if (status === CartStatus.ABANDONED) {
+      this.addDomainEvent(new CartAbandonedEvent(this._id.get(), previousStatus));
+    }
   }
 
   private getOrderValidationContext(previousStatus: CartStatus | null): CartOrderValidationContext {
@@ -264,17 +289,8 @@ export class Cart extends AggregateRoot<CartDomainEvent> {
     return this._statusHistory;
   }
 
-  public getCurrentStatusChange(): CartStatusChange | null {
-    const lastStatus = this._statusHistory[this._statusHistory.length - 1];
-    return lastStatus ?? null;
-  }
-
   get cartItems(): CartItem[] {
     return this._cartItems.getItens();
-  }
-
-  get businessContext(): BusinessContext {
-    return this._businessContext;
   }
 
   get verticalId(): string {
@@ -289,12 +305,8 @@ export class Cart extends AggregateRoot<CartDomainEvent> {
     return this._businessContext.customerId;
   }
 
-  get deliveryPlan(): DeliveryPlan | null {
-    return this._deliveryPlan;
-  }
-
   get addressId(): string | null {
-    return this._deliveryPlan?.addressId ?? null;
+    return this._addressId;
   }
 
   get deliveryPlanId(): string | null {
@@ -315,10 +327,6 @@ export class Cart extends AggregateRoot<CartDomainEvent> {
 
   get coupons(): CartCoupon[] {
     return this._coupons;
-  }
-
-  get paymentContext(): PaymentContext {
-    return this._paymentContext;
   }
 
   get paymentMethod(): PaymentContext['method'] {
@@ -344,5 +352,4 @@ export class Cart extends AggregateRoot<CartDomainEvent> {
   get lastMovementAt(): Date {
     return this._lastMovementAt;
   }
-
 }

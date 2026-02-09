@@ -1,10 +1,10 @@
 import { CartRepository } from '../../domain/repository/cart.repository';
 import { PaymentService } from '../../domain/ports/payment.service';
+import { CartPaymentMethod } from '../../domain/entities/cart-payment-method.enum';
 import { SetCartPaymentPreferenceInputDTO } from '../dtos/set-cart-payment-preference.input.dto';
-import { SetCartPaymentPreferenceOutputDTO } from '../dtos/set-cart-payment-preference.output.dto';
-import { CartNotFoundError } from '../errors/cart-not-found.error';
 import { InvalidPaymentPreferenceError } from '../../domain/errors/invalid-payment-preference.error';
-import { CartOwnerMismatchError } from '../errors/cart-owner-mismatch.error';
+import { loadCartForActor } from './helpers/cart-guard';
+import { Cart } from '../../domain/entities/cart.entity';
 
 export class SetCartPaymentPreferenceService {
   constructor(
@@ -12,32 +12,32 @@ export class SetCartPaymentPreferenceService {
     private readonly paymentService: PaymentService
   ) {}
 
-  public async execute(
-    input: SetCartPaymentPreferenceInputDTO
-  ): Promise<SetCartPaymentPreferenceOutputDTO> {
-    const cart = await this.cartRepository.findById(input.cartId);
-    if (!cart) {
-      throw new CartNotFoundError(input.cartId);
-    }
-    if (cart.customerId !== input.actorUserId) {
-      throw new CartOwnerMismatchError(input.actorUserId, cart.id.get());
-    }
+  public async execute(input: SetCartPaymentPreferenceInputDTO): Promise<void> {
+    const cart = await loadCartForActor(this.cartRepository, input.cartId, input.actorUserId);
+    const method = await this.validatePaymentPreference(cart, input.paymentPreferenceId);
+    await this.applyPaymentPreference(cart, input.paymentPreferenceId, method);
+  }
 
+  private async validatePaymentPreference(
+    cart: Cart,
+    paymentPreferenceId: string
+  ): Promise<CartPaymentMethod> {
     const validation = await this.paymentService.validatePaymentPreference(
       cart.customerId,
-      input.paymentPreferenceId
+      paymentPreferenceId
     );
     if (!validation.isValid || !validation.method) {
-      throw new InvalidPaymentPreferenceError(input.paymentPreferenceId, validation.reason);
+      throw new InvalidPaymentPreferenceError(paymentPreferenceId, validation.reason);
     }
+    return validation.method;
+  }
 
-    cart.setPaymentPreference(input.paymentPreferenceId, validation.method);
+  private async applyPaymentPreference(
+    cart: Cart,
+    paymentPreferenceId: string,
+    method: CartPaymentMethod
+  ): Promise<void> {
+    cart.setPaymentPreference(paymentPreferenceId, method);
     await this.cartRepository.save(cart);
-
-    return {
-      cartId: cart.id.get(),
-      paymentPreferenceId: input.paymentPreferenceId,
-      paymentMethod: validation.method,
-    };
   }
 }

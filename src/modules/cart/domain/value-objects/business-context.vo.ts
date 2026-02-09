@@ -7,9 +7,7 @@ export class BusinessContext {
     public readonly businessUnitId: string
   ) {
     if (!customerId || !verticalId || !businessUnitId) {
-      throw new InvalidBusinessContextError(
-        'CustomerId, verticalId and businessUnitId are required and must be non-empty.'
-      );
+      throw new InvalidBusinessContextError();
     }
   }
 }

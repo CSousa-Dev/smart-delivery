@@ -2,8 +2,7 @@ import { CartRepository } from '../../domain/repository/cart.repository';
 import { PaymentService } from '../../domain/ports/payment.service';
 import { ReopenCartInputDTO } from '../dtos/reopen-cart.input.dto';
 import { ReopenCartOutputDTO } from '../dtos/reopen-cart.output.dto';
-import { CartNotFoundError } from '../errors/cart-not-found.error';
-import { CartOwnerMismatchError } from '../errors/cart-owner-mismatch.error';
+import { clearQuoteIfExists, loadCartForActor } from './helpers/cart-guard';
 
 export class ReopenCartService {
   constructor(
@@ -12,19 +11,11 @@ export class ReopenCartService {
   ) {}
 
   public async execute(input: ReopenCartInputDTO): Promise<ReopenCartOutputDTO> {
-    const cart = await this.cartRepository.findById(input.cartId);
-    if (!cart) {
-      throw new CartNotFoundError(input.cartId);
-    }
-    if (cart.customerId !== input.actorUserId) {
-      throw new CartOwnerMismatchError(input.actorUserId, cart.id.get());
-    }
+    const cart = await loadCartForActor(this.cartRepository, input.cartId, input.actorUserId);
 
-    if (cart.quoteId) {
-      await this.paymentService.deleteQuote(cart.quoteId);
-      cart.clearQuote();
-    }
+    await clearQuoteIfExists(cart, this.paymentService);
 
+    cart.clearDeliveryPlan();
     cart.reopen();
     await this.cartRepository.save(cart);
     return { cartId: cart.id.get(), status: cart.status };

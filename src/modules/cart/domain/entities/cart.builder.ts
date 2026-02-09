@@ -1,13 +1,13 @@
 import { Cart } from './cart.entity';
 import { CartStatus } from './cart-status.enum';
 import { CartItemList } from './cart.item.list.entity';
-import { CartPaymentMethod } from './cart-payment-method.enum';
 import { Id } from '../../../../shared/contracts/commons/value-objects/id.vo';
 import { BusinessContext } from '../value-objects/business-context.vo';
 import { PaymentContext } from '../value-objects/payment-context.vo';
 import { DeliveryPlan } from './delivery-plan.entity';
 import { CartStatusChange } from './cart-status-change.vo';
 import { CartCoupon } from '../value-objects/cart-coupon.vo';
+import { InvalidBusinessContextError } from '../errors/invalid-business-context.error';
 
 export class CartBuilder {
   private _cartId = Id.create().get();
@@ -20,14 +20,19 @@ export class CartBuilder {
   private _openedAt?: Date;
   private _lastMovementAt?: Date;
   private _closedAt?: Date | null;
+  private _addressId: string | null = null;
   private _deliveryPlan: DeliveryPlan | null = null;
   private _statusHistory?: CartStatusChange[];
   private _coupons: CartCoupon[] = [];
+  private _emitCreationEvent = false;
 
   static openCart(customerId: string, verticalId: string, businessUnitId: string): CartBuilder {
     return new CartBuilder()
       .withStatus(CartStatus.OPEN)
-      .withBusinessContext(new BusinessContext(customerId, verticalId, businessUnitId));
+      .withOpenedAt(new Date())
+      .withLastMovementAt(new Date())
+      .withBusinessContext(new BusinessContext(customerId, verticalId, businessUnitId))
+      .emitCreationEvent();
   }
 
   withCartId(cartId: string): this {
@@ -50,42 +55,6 @@ export class CartBuilder {
     return this;
   }
 
-  withCustomerId(customerId: string): this {
-    if (!this._businessContext) {
-      throw new Error('BusinessContext must be set before setting individual fields.');
-    }
-    this._businessContext = new BusinessContext(
-      customerId,
-      this._businessContext.verticalId,
-      this._businessContext.businessUnitId
-    );
-    return this;
-  }
-
-  withVerticalId(verticalId: string): this {
-    if (!this._businessContext) {
-      throw new Error('BusinessContext must be set before setting individual fields.');
-    }
-    this._businessContext = new BusinessContext(
-      this._businessContext.customerId,
-      verticalId,
-      this._businessContext.businessUnitId
-    );
-    return this;
-  }
-
-  withBusinessUnitId(businessUnitId: string): this {
-    if (!this._businessContext) {
-      throw new Error('BusinessContext must be set before setting individual fields.');
-    }
-    this._businessContext = new BusinessContext(
-      this._businessContext.customerId,
-      this._businessContext.verticalId,
-      businessUnitId
-    );
-    return this;
-  }
-
   withPaymentContext(paymentContext: PaymentContext): this {
     this._paymentContext = paymentContext;
     return this;
@@ -101,15 +70,19 @@ export class CartBuilder {
     return this;
   }
 
-  withPaymentMethod(paymentMethod: CartPaymentMethod | null): this {
-    this._paymentContext = paymentMethod
-      ? PaymentContext.withMethod(paymentMethod)
-      : PaymentContext.empty();
+  withDeliveryPlan(deliveryPlan: DeliveryPlan | null): this {
+    this._deliveryPlan = deliveryPlan;
+    if (deliveryPlan) {
+      this._addressId = deliveryPlan.addressId;
+    }
     return this;
   }
 
-  withDeliveryPlan(deliveryPlan: DeliveryPlan | null): this {
-    this._deliveryPlan = deliveryPlan;
+  withAddressId(addressId: string | null): this {
+    this._addressId = addressId;
+    if (addressId === null) {
+      this._deliveryPlan = null;
+    }
     return this;
   }
 
@@ -118,8 +91,8 @@ export class CartBuilder {
     return this;
   }
 
-  withStatusHistory(statusHistory: CartStatusChange[] | undefined): this {
-    this._statusHistory = statusHistory;
+  withStatusHistory(statusHistory?: CartStatusChange[]): this {
+    this._statusHistory = statusHistory ?? [];
     return this;
   }
 
@@ -138,12 +111,17 @@ export class CartBuilder {
     return this;
   }
 
+  emitCreationEvent(): this {
+    this._emitCreationEvent = true;
+    return this;
+  }
+
   build(): Cart {
     if (!this._businessContext) {
-      throw new Error('BusinessContext is required to build a cart.');
+      throw new InvalidBusinessContextError();
     }
 
-    return new Cart(
+    const cart = new Cart(
       this._cartId,
       this._status,
       this._cartItems,
@@ -154,9 +132,14 @@ export class CartBuilder {
       this._openedAt,
       this._lastMovementAt,
       this._closedAt ?? undefined,
+      this._addressId,
       this._deliveryPlan,
       this._coupons,
       this._statusHistory
     );
+    if (this._emitCreationEvent) {
+      cart.registerCreated();
+    }
+    return cart;
   }
 }

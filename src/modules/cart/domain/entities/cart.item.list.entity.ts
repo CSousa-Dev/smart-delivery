@@ -26,15 +26,6 @@ export class CartItemList {
     this.items.splice(index, 1);
   }
 
-  public updateItem(item: CartItem): void {
-    const index = this.items.findIndex((existingItem) => existingItem.id.equals(item.id));
-    if (index === -1) {
-      throw new ItemNotFoundInCartViolationError(item.id.get());
-    }
-    this.validateQuantity(item);
-    this.items[index] = item;
-  }
-
   private validateQuantity(itemDTO: CartItem): void {
     if (itemDTO.quantity <= 0) {
       throw new ItemQuantityViolationError(itemDTO, 'Quantity must be greater than zero.');

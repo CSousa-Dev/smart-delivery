@@ -1,10 +1,9 @@
 import { CartRepository } from '../../domain/repository/cart.repository';
 import { CartBuilder } from '../../domain/entities/cart.builder';
-import { CartStatus } from '../../domain/entities/cart-status.enum';
+import { Cart } from '../../domain/entities/cart.entity';
 import { OpenCartInputDTO } from '../dtos/open-cart.input.dto';
 import { OpenCartOutputDTO } from '../dtos/open-cart.output.dto';
 import { CartEventPublisher } from '../ports/cart-event.publisher';
-import { CartCreatedEvent } from '../../domain/events/cart-created.event';
 import { CartAlreadyOpenForCustomerError } from '../../domain/errors/cart-already-open-for-customer.error';
 import { CustomerService } from '../../domain/ports/customer.service';
 import { OrganizationService } from '../../domain/ports/organization.service';
@@ -23,40 +22,23 @@ export class OpenCartService {
 
   public async execute(input: OpenCartInputDTO): Promise<OpenCartOutputDTO> {
     new BusinessContext(input.customerId, input.verticalId, input.businessUnitId);
-    if (input.customerId !== input.actorUserId) {
-      throw new CartOwnerMismatchError(input.actorUserId);
-    }
-    await this.validateCartContext(input);
 
-    const existing = await this.cartRepository.findOpenCartForCustomer(input.customerId!);
-    if (existing) {
-      return { cartId: existing.id.get() };
-    }
+    if (input.customerId !== input.actorUserId) throw new CartOwnerMismatchError(input.actorUserId);
 
-    const cart = CartBuilder.openCart(input.customerId, input.verticalId, input.businessUnitId)
-      .withStatus(CartStatus.OPEN)
-      .build();
+    const existingCartId = await this.findExistingCartAfterValidation(input);
 
-    // May throw CartAlreadyOpenForCustomerError if unique_active_cart_per_customer constraint is violated (e.g. concurrent open).
-    try {
-      await this.cartRepository.insertCartEnforcingOneActivePerCustomer(cart);
-    } catch (error) {
-      if (error instanceof CartAlreadyOpenForCustomerError) {
-        const concurrent = await this.cartRepository.findOpenCartForCustomer(input.customerId!);
-        if (concurrent) {
-          return { cartId: concurrent.id.get() };
-        }
-      }
-      throw error;
-    }
-    const event = new CartCreatedEvent(
-      cart.id.get(),
-      cart.customerId,
-      cart.verticalId,
-      cart.businessUnitId,
-      cart.status
-    );
-    await this.eventPublisher.publish([event]);
+    if (existingCartId) return { cartId: existingCartId };
+
+    const cart = CartBuilder.openCart(
+      input.customerId,
+      input.verticalId,
+      input.businessUnitId
+    ).build();
+
+    const concurrentCartId = await this.insertCartOrReturnConcurrentId(cart);
+
+    if (concurrentCartId) return { cartId: concurrentCartId };
+    await this.publishCartEvents(cart);
     return { cartId: cart.id.get() };
   }
 
@@ -75,6 +57,37 @@ export class OpenCartService {
 
     if (!verticalValid) {
       throw new VerticalContextInvalidError(input.verticalId, input.businessUnitId);
+    }
+  }
+
+  private async findExistingCartAfterValidation(input: OpenCartInputDTO): Promise<string | null> {
+    const [, existing] = await Promise.all([
+      this.validateCartContext(input),
+      this.cartRepository.findOpenCartForCustomer(input.customerId!),
+    ]);
+
+    return existing?.id.get() ?? null;
+  }
+
+  private async insertCartOrReturnConcurrentId(cart: Cart): Promise<string | null> {
+    // May throw CartAlreadyOpenForCustomerError if unique_active_cart_per_customer
+    // constraint is violated (e.g. concurrent open).
+    try {
+      await this.cartRepository.insertCartEnforcingOneActivePerCustomer(cart);
+      return null;
+    } catch (error) {
+      if (error instanceof CartAlreadyOpenForCustomerError) {
+        const concurrent = await this.cartRepository.findOpenCartForCustomer(cart.customerId);
+        if (concurrent) return concurrent.id.get();
+      }
+      throw error;
+    }
+  }
+
+  private async publishCartEvents(cart: Cart): Promise<void> {
+    const events = cart.pullDomainEvents();
+    if (events.length > 0) {
+      await this.eventPublisher.publish(events);
     }
   }
 }

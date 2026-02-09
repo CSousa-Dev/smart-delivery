@@ -1,7 +1,8 @@
 import { CartStatus } from '../entities/cart-status.enum';
+import { DomainError } from '../../../../shared/errors/domain.error';
 
-export class MissingAddressForOrderViolationError extends Error {
+export class MissingAddressForOrderViolationError extends DomainError {
   constructor(status: CartStatus) {
-    super(`Address is required when cart status is ${status}.`);
+    super('MISSING_ADDRESS_FOR_ORDER', { status });
   }
 }
