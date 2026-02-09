@@ -180,6 +180,7 @@ export class CartMapper {
       .withPaymentContext(paymentContext)
       .withPaymentPreferenceId(data.paymentPreferenceId ?? null)
       .withQuoteId(data.quoteId ?? null)
+      .withAddressId(data.deliveryAddressId ?? null)
       .withDeliveryPlan(deliveryPlan)
       .withCoupons(coupons)
       .withOpenedAt(data.openedAt)

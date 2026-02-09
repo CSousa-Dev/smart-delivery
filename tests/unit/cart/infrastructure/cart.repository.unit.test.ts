@@ -30,7 +30,6 @@ describe('PrismaCartRepository', () => {
         CartAlreadyOpenForCustomerError
       );
       await expect(repo.insertCartEnforcingOneActivePerCustomer(cart)).rejects.toMatchObject({
-        message: expect.stringContaining('open cart'),
         code: 'CART_ALREADY_OPEN_FOR_CUSTOMER',
       });
     });

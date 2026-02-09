@@ -53,14 +53,6 @@ export function createCartRouter(controller: CartController): Router {
     req.body = { cartId: req.params.cartId };
     return controller.checkoutCart(req, res, next);
   });
-  router.post('/carts/:cartId/payments/start', (req, res, next) => {
-    req.body = { cartId: req.params.cartId };
-    return controller.startCartPayment(req, res, next);
-  });
-  router.post('/carts/:cartId/payments/retry', (req, res, next) => {
-    req.body = { cartId: req.params.cartId };
-    return controller.retryCartPayment(req, res, next);
-  });
   router.post('/carts/payments/confirm', (req, res, next) => {
     req.body = { quoteId: req.body.quoteId, paymentId: req.body.paymentId };
     return controller.processCartPayment(req, res, next);

@@ -10,7 +10,7 @@ export class ValidationErrorsError extends Error {
   constructor(validationErrors: ProductValidationErrorItem[]) {
     const message =
       validationErrors.length === 1
-        ? `Product validation failed: ${validationErrors[0].code}`
+        ? `Product validation failed: ${validationErrors[0]?.code ?? 'UNKNOWN'}`
         : `Product validation failed: ${validationErrors.length} error(s)`;
     super(message);
     this.name = 'ValidationErrorsError';

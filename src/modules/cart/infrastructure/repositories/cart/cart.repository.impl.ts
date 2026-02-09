@@ -178,6 +178,53 @@ export class PrismaCartRepository implements CartRepository {
     });
   }
 
+  async findInactiveInProgressBatch(
+    cutoffDate: Date,
+    limit: number,
+    afterId?: string
+  ): Promise<Cart[]> {
+    const cartList = await this.prisma.cart.findMany({
+      where: {
+        status: { in: CART_STATUSES_IN_PROGRESS },
+        lastMovementAt: { lte: cutoffDate },
+        ...(afterId ? { id: { gt: afterId } } : {}),
+      },
+      orderBy: { id: 'asc' },
+      take: limit,
+      include: {
+        statusHistory: { orderBy: { changedAt: 'asc' } },
+      },
+    });
+
+    return cartList.map((cart) =>
+      CartMapper.fromPersistence({
+        id: cart.id,
+        customerId: cart.customerId,
+        verticalId: cart.verticalId,
+        businessUnitId: cart.businessUnitId,
+        status: cart.status,
+        openedAt: cart.openedAt,
+        lastMovementAt: cart.lastMovementAt,
+        closedAt: cart.closedAt,
+        paymentMethod: cart.paymentMethod ?? null,
+        paymentId: cart.paymentId ?? null,
+        paymentObservation: cart.paymentObservation ?? null,
+        paymentPreferenceId: cart.paymentPreferenceId ?? null,
+        quoteId: cart.quoteId ?? null,
+        deliveryPlanId: cart.deliveryPlanId ?? null,
+        deliveryAddressId: cart.deliveryAddressId ?? null,
+        deliveryPrice: cart.deliveryPrice ?? null,
+        items: (cart.items as unknown as any[]) ?? null,
+        coupons: (cart.coupons as unknown as any[]) ?? null,
+        statusHistory: cart.statusHistory.map((entry) => ({
+          status: entry.status,
+          changedAt: entry.changedAt,
+          durationMs: entry.durationMs,
+        })),
+      })
+    );
+  }
+
   async save(cart: Cart): Promise<void> {
     const data = CartMapper.toPersistence(cart);
     const statusHistoryData = data.statusHistory ?? [];
@@ -196,8 +243,8 @@ export class PrismaCartRepository implements CartRepository {
           deliveryPlanId: data.deliveryPlanId,
           deliveryAddressId: data.deliveryAddressId,
           deliveryPrice: data.deliveryPrice,
-          items: data.items,
-          coupons: data.coupons,
+          items: data.items ?? Prisma.DbNull,
+          coupons: data.coupons ?? Prisma.DbNull,
         },
       }),
       this.prisma.cartStatusHistory.deleteMany({ where: { cartId: data.id } }),
@@ -214,5 +261,51 @@ export class PrismaCartRepository implements CartRepository {
           ]
         : []),
     ]);
+  }
+
+  async saveMany(carts: Cart[]): Promise<void> {
+    if (carts.length === 0) return;
+
+    const operations: Prisma.PrismaPromise<unknown>[] = [];
+
+    for (const cart of carts) {
+      const data = CartMapper.toPersistence(cart);
+      const statusHistoryData = data.statusHistory ?? [];
+      operations.push(
+        this.prisma.cart.update({
+          where: { id: data.id },
+          data: {
+            status: data.status,
+            lastMovementAt: data.lastMovementAt,
+            closedAt: data.closedAt,
+            paymentMethod: data.paymentMethod,
+            paymentId: data.paymentId,
+            paymentObservation: data.paymentObservation,
+            paymentPreferenceId: data.paymentPreferenceId,
+            quoteId: data.quoteId,
+            deliveryPlanId: data.deliveryPlanId,
+            deliveryAddressId: data.deliveryAddressId,
+            deliveryPrice: data.deliveryPrice,
+            items: data.items ?? Prisma.DbNull,
+            coupons: data.coupons ?? Prisma.DbNull,
+          },
+        })
+      );
+      operations.push(this.prisma.cartStatusHistory.deleteMany({ where: { cartId: data.id } }));
+      if (statusHistoryData.length) {
+        operations.push(
+          this.prisma.cartStatusHistory.createMany({
+            data: statusHistoryData.map((entry) => ({
+              cartId: data.id,
+              status: entry.status,
+              changedAt: entry.changedAt,
+              durationMs: entry.durationMs ?? null,
+            })),
+          })
+        );
+      }
+    }
+
+    await this.prisma.$transaction(operations);
   }
 }

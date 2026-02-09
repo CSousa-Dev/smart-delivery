@@ -152,18 +152,6 @@ exports.Prisma.InventoryItemScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.ProductItemLinkScalarFieldEnum = {
-  id: 'id',
-  businessUnitId: 'businessUnitId',
-  productId: 'productId',
-  itemId: 'itemId',
-  status: 'status',
-  createdBy: 'createdBy',
-  createdAt: 'createdAt',
-  updatedBy: 'updatedBy',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.StockLotScalarFieldEnum = {
   id: 'id',
   businessUnitId: 'businessUnitId',
@@ -202,7 +190,6 @@ exports.Prisma.NullsOrder = {
 exports.Prisma.ModelName = {
   UnitOfMeasure: 'UnitOfMeasure',
   InventoryItem: 'InventoryItem',
-  ProductItemLink: 'ProductItemLink',
   StockLot: 'StockLot',
   StockMovement: 'StockMovement'
 };

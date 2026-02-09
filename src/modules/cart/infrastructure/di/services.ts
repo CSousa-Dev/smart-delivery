@@ -9,11 +9,10 @@ import { SetCartPaymentPreferenceService } from '../../application/service/set-c
 import { CheckoutCartService } from '../../application/service/checkout-cart.service';
 import { ProcessCartPaymentService } from '../../application/service/process-cart-payment.service';
 import { ReopenCartService } from '../../application/service/reopen-cart.service';
-import { StartCartPaymentService } from '../../application/service/start-cart-payment.service';
-import { RetryCartPaymentService } from '../../application/service/retry-cart-payment.service';
 import { FailCartPaymentService } from '../../application/service/fail-cart-payment.service';
 import { AddCouponService } from '../../application/service/add-coupon.service';
 import { RemoveCouponService } from '../../application/service/remove-coupon.service';
+import { AutoAbandonCartService } from '../../application/service/auto-abandon-cart.service';
 import { createCartRepositories } from './repositories';
 import { createCartAdapters } from './adapters';
 
@@ -41,13 +40,16 @@ export function createCartAppServices(repos: Repositories, adapters: Adapters) {
     ),
     updateCartItemService: new UpdateCartItemService(
       repos.cartRepository,
-      validateCartItemService
+      validateCartItemService,
+      adapters.cartEventPublisher
     ),
-    removeCartItemService: new RemoveCartItemService(repos.cartRepository),
+    removeCartItemService: new RemoveCartItemService(
+      repos.cartRepository,
+      adapters.cartEventPublisher
+    ),
     setCartAddressService: new SetCartAddressService(
       repos.cartRepository,
-      adapters.addressValidationService,
-      adapters.fulfillmentService
+      adapters.addressValidationService
     ),
     setCartPaymentPreferenceService: new SetCartPaymentPreferenceService(
       repos.cartRepository,
@@ -55,19 +57,15 @@ export function createCartAppServices(repos: Repositories, adapters: Adapters) {
     ),
     checkoutCartService: new CheckoutCartService(
       repos.cartRepository,
+      adapters.fulfillmentService,
       adapters.paymentService,
       adapters.orderService
     ),
-    startCartPaymentService: new StartCartPaymentService(repos.cartRepository),
     processCartPaymentService: new ProcessCartPaymentService(
       repos.cartRepository,
       adapters.paymentService,
       adapters.cartEventPublisher,
       adapters.orderService
-    ),
-    retryCartPaymentService: new RetryCartPaymentService(
-      repos.cartRepository,
-      adapters.paymentService
     ),
     failCartPaymentService: new FailCartPaymentService(
       repos.cartRepository,
@@ -76,5 +74,9 @@ export function createCartAppServices(repos: Repositories, adapters: Adapters) {
     reopenCartService: new ReopenCartService(repos.cartRepository, adapters.paymentService),
     addCouponService: new AddCouponService(repos.cartRepository, adapters.pricingService),
     removeCouponService: new RemoveCouponService(repos.cartRepository),
+    autoAbandonCartService: new AutoAbandonCartService(
+      repos.cartRepository,
+      adapters.cartEventPublisher
+    ),
   };
 }

@@ -95,7 +95,7 @@ describe('CartController', () => {
     const { controller, openCartService } = buildController();
     (openCartService.execute as jest.Mock).mockResolvedValue({ cartId: 'cart-uuid-123' });
 
-    const req = { body: validBody } as any;
+    const req = { body: validBody, headers: {} } as any;
     const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
@@ -115,10 +115,10 @@ describe('CartController', () => {
   it('should map InvalidBusinessContextError to 400 Bad Request', async () => {
     const { controller, openCartService } = buildController();
     (openCartService.execute as jest.Mock).mockRejectedValue(
-      new InvalidBusinessContextError('CustomerId, verticalId and businessUnitId are required.')
+      new InvalidBusinessContextError()
     );
 
-    const req = { body: validBody } as any;
+    const req = { body: validBody, headers: {} } as any;
     const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
     const next = jest.fn();
 
@@ -137,7 +137,7 @@ describe('CartController', () => {
       new CartAlreadyOpenForCustomerError('customer-1')
     );
 
-    const req = { body: validBody } as any;
+    const req = { body: validBody, headers: {} } as any;
     const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
     const next = jest.fn();
 
@@ -153,7 +153,7 @@ describe('CartController', () => {
     const { controller, openCartService } = buildController();
     (openCartService.execute as jest.Mock).mockRejectedValue(new CartNotFoundError('cart-1'));
 
-    const req = { body: validBody } as any;
+    const req = { body: validBody, headers: {} } as any;
     const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
     const next = jest.fn();
 
@@ -171,7 +171,7 @@ describe('CartController', () => {
       new ImmutableCartViolationError(CartStatus.ORDERED, 'Cannot add item')
     );
 
-    const req = { body: validBody } as any;
+    const req = { body: validBody, headers: {} } as any;
     const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
     const next = jest.fn();
 
@@ -187,7 +187,7 @@ describe('CartController', () => {
     const { controller, openCartService } = buildController();
     (openCartService.execute as jest.Mock).mockRejectedValue(new Error('Unexpected failure'));
 
-    const req = { body: validBody } as any;
+    const req = { body: validBody, headers: {} } as any;
     const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
     const next = jest.fn();
 

@@ -4,6 +4,7 @@ import { CartAddressValidation } from '../../modules/cart/domain/value-objects/c
 export class AddressValidationServiceMock implements AddressValidationService {
   async validateAddress(
     addressId: string,
+    _customerId: string,
     _businessUnitId: string,
     _verticalId: string
   ): Promise<CartAddressValidation> {

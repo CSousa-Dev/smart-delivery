@@ -78,7 +78,8 @@ export class AutoAbandonCartService {
   }
 
   private toBatchResult(processed: Cart[], abandoned: Cart[]): AutoAbandonBatchResult {
-    const lastId = processed.length > 0 ? processed[processed.length - 1].id.get() : null;
+    const lastCart = processed.at(-1);
+    const lastId = lastCart ? lastCart.id.get() : null;
     return {
       processed: processed.length,
       abandoned: abandoned.length,

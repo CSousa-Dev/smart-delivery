@@ -21,6 +21,9 @@ describe('OpenCartService', () => {
       save: jest.fn(),
       existsOpenCartForCustomer: jest.fn().mockResolvedValue(false),
       findOpenCartForCustomer: jest.fn().mockResolvedValue(null),
+      findByQuoteId: jest.fn().mockResolvedValue(null),
+      saveMany: jest.fn(),
+      findInactiveInProgressBatch: jest.fn().mockResolvedValue([]),
     };
 
     const eventPublisher: CartEventPublisher = {
@@ -81,7 +84,9 @@ describe('OpenCartService', () => {
       constraintError
     );
     const existingCart = { id: { get: () => 'cart-id-existing' } } as any;
-    (cartRepository.findOpenCartForCustomer as jest.Mock).mockResolvedValue(existingCart);
+    (cartRepository.findOpenCartForCustomer as jest.Mock)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(existingCart);
 
     const output = await service.execute(validInput);
     expect(output.cartId).toBe('cart-id-existing');

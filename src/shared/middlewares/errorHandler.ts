@@ -16,11 +16,12 @@ export function errorHandler(
 ): void {
   // Se for um AppError customizado, usa os valores dele
   if (error instanceof AppError) {
+    const code = error.code ?? 'INTERNAL_ERROR';
     res.status(error.statusCode).json({
       success: false,
       error: {
-        message: error.message,
-        code: error.code,
+        message: code,
+        code,
         ...(error.payload && { ...error.payload }),
         ...(config.nodeEnv === 'development' && { stack: error.stack }),
       },
@@ -32,9 +33,8 @@ export function errorHandler(
   res.status(500).json({
     success: false,
     error: {
-      message: config.nodeEnv === 'development'
-        ? error.message
-        : 'Internal Server Error',
+      message: 'INTERNAL_ERROR',
+      code: 'INTERNAL_ERROR',
       ...(config.nodeEnv === 'development' && { stack: error.stack }),
     },
   });

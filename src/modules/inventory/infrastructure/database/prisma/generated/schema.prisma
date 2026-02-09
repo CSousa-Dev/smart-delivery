@@ -52,23 +52,6 @@ model InventoryItem {
   @@map("inventory_items")
 }
 
-model ProductItemLink {
-  id             String    @id @default(uuid()) @db.VarChar(36)
-  businessUnitId String    @map("business_unit_id") @db.VarChar(36)
-  productId      String    @map("product_id") @db.VarChar(36)
-  itemId         String    @map("item_id") @db.VarChar(36)
-  status         String    @db.VarChar(10)
-  createdBy      String    @map("created_by") @db.VarChar(36)
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedBy      String?   @map("updated_by") @db.VarChar(36)
-  updatedAt      DateTime? @map("updated_at")
-
-  @@unique([businessUnitId, productId])
-  @@unique([businessUnitId, itemId])
-  @@index([businessUnitId])
-  @@map("product_item_links")
-}
-
 model StockLot {
   id                String    @id @default(uuid()) @db.VarChar(36)
   businessUnitId    String    @map("business_unit_id") @db.VarChar(36)

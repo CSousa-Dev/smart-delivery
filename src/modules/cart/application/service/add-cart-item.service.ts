@@ -6,6 +6,7 @@ import { CartNotFoundError } from '../errors/cart-not-found.error';
 import { ValidateCartItemService } from './validate-cart-item.service';
 import { CartItem } from '../../domain/entities/cart-item.entity';
 import { CartOwnerMismatchError } from '../errors/cart-owner-mismatch.error';
+import { Cart } from '../../domain/entities/cart.entity';
 
 export class AddCartItemService {
   constructor(
@@ -14,7 +15,7 @@ export class AddCartItemService {
     private readonly validateCartItemService: ValidateCartItemService
   ) {}
 
-  public async execute(input: AddCartItemInputDTO): Promise<void> {
+  public async execute(input: AddCartItemInputDTO): Promise<{ itemId: string }> {
     const cart = await this.getCartOrThrow(input.cartId);
     this.ensureOwner(cart.id.get(), cart.customerId, input.actorUserId);
     const item = this.toCartItem(input);
@@ -24,6 +25,7 @@ export class AddCartItemService {
     cart.addItem(item);
     await this.cartRepository.save(cart);
     await this.publishCartEvents(cart);
+    return { itemId: item.id.get() };
   }
 
   private async getCartOrThrow(cartId: string) {

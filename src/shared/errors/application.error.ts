@@ -5,7 +5,15 @@ export type ApplicationErrorLayer = 'application';
 export class ApplicationError extends BaseAppError {
   public readonly layer: ApplicationErrorLayer = 'application';
 
-  constructor(message: string, code: string, args?: Record<string, unknown>) {
-    super(message, code, 'application', args);
+  constructor(
+    codeOrMessage: string,
+    codeOrArgs?: string | Record<string, unknown>,
+    args?: Record<string, unknown>
+  ) {
+    if (typeof codeOrArgs === 'string') {
+      super(codeOrArgs, 'application', args);
+      return;
+    }
+    super(codeOrMessage, 'application', codeOrArgs);
   }
 }

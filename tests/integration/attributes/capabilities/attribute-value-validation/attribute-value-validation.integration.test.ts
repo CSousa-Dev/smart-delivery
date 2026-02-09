@@ -31,10 +31,10 @@ describeIf('Capability Attribute Value Validation – [CAP-008]', () => {
     await prisma.verticalAllowedValue.deleteMany();
     await prisma.verticalAttribute.deleteMany();
     await prisma.attributeAllowedValue.deleteMany();
-    await prisma.attribute.deleteMany();
     await prisma.categoryAllowedValueLink.deleteMany();
     await prisma.categoryAllowedValue.deleteMany();
     await prisma.categoryAttribute.deleteMany();
+    await prisma.attribute.deleteMany();
     await prisma.category.deleteMany();
     await prisma.vertical.deleteMany();
   });

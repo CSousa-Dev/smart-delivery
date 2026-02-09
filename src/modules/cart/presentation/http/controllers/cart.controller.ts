@@ -7,9 +7,7 @@ import { ReadCartService } from '../../../application/service/read-cart.service'
 import { SetCartAddressService } from '../../../application/service/set-cart-address.service';
 import { SetCartPaymentPreferenceService } from '../../../application/service/set-cart-payment-preference.service';
 import { CheckoutCartService } from '../../../application/service/checkout-cart.service';
-import { StartCartPaymentService } from '../../../application/service/start-cart-payment.service';
 import { ProcessCartPaymentService } from '../../../application/service/process-cart-payment.service';
-import { RetryCartPaymentService } from '../../../application/service/retry-cart-payment.service';
 import { FailCartPaymentService } from '../../../application/service/fail-cart-payment.service';
 import { ReopenCartService } from '../../../application/service/reopen-cart.service';
 import { AddCouponService } from '../../../application/service/add-coupon.service';
@@ -32,9 +30,11 @@ const ERROR_STATUS_BY_CODE: Record<
     AppError.badRequest(message, code, payload),
   ADD_CART_ITEM_OPERATIONS_VALIDATION: (message, code) => AppError.badRequest(message, code),
   ITEM_NOT_FOUND_IN_CART_VIOLATION: (message, code) => AppError.notFound(message, code),
+  ITEM_QUANTITY_VIOLATION: (message, code) => AppError.badRequest(message, code),
   ADDRESS_ID_REQUIRED_FOR_VALIDATION: (message, code) => AppError.badRequest(message, code),
   ADDRESS_OUT_OF_RANGE_FOR_ORDER: (message, code) => AppError.badRequest(message, code),
   ADDRESS_VALIDATION_REQUIRED_FOR_ORDER: (message, code) => AppError.badRequest(message, code),
+  MISSING_ADDRESS_FOR_ORDER: (message, code) => AppError.badRequest(message, code),
   PAYMENT_PREFERENCE_INVALID: (message, code) => AppError.badRequest(message, code),
   PAYMENT_PREFERENCE_REQUIRED_FOR_CHECKOUT: (message, code) => AppError.badRequest(message, code),
   DELIVERY_PLAN_REQUIRED_FOR_CHECKOUT: (message, code) => AppError.badRequest(message, code),
@@ -59,9 +59,7 @@ export class CartController {
     private readonly setCartAddressService: SetCartAddressService,
     private readonly setCartPaymentPreferenceService: SetCartPaymentPreferenceService,
     private readonly checkoutCartService: CheckoutCartService,
-    private readonly startCartPaymentService: StartCartPaymentService,
     private readonly processCartPaymentService: ProcessCartPaymentService,
-    private readonly retryCartPaymentService: RetryCartPaymentService,
     private readonly failCartPaymentService: FailCartPaymentService,
     private readonly reopenCartService: ReopenCartService,
     private readonly addCouponService: AddCouponService,
@@ -138,7 +136,10 @@ export class CartController {
   async setCartPaymentPreference(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const actorUserId = await this.getActorUserId(req);
-      const output = await this.setCartPaymentPreferenceService.execute({ ...req.body, actorUserId });
+      const output = await this.setCartPaymentPreferenceService.execute({
+        ...req.body,
+        actorUserId,
+      });
       res.status(200).json({ success: true, data: output });
     } catch (error) {
       next(this.mapError(error));
@@ -155,31 +156,11 @@ export class CartController {
     }
   }
 
-  async startCartPayment(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const actorUserId = await this.getActorUserId(req);
-      const output = await this.startCartPaymentService.execute({ ...req.body, actorUserId });
-      res.status(200).json({ success: true, data: output });
-    } catch (error) {
-      next(this.mapError(error));
-    }
-  }
-
   async processCartPayment(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const actorUserId = await this.getActorUserId(req);
       await this.processCartPaymentService.execute({ ...req.body, actorUserId });
       res.sendStatus(204);
-    } catch (error) {
-      next(this.mapError(error));
-    }
-  }
-
-  async retryCartPayment(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const actorUserId = await this.getActorUserId(req);
-      const output = await this.retryCartPaymentService.execute({ ...req.body, actorUserId });
-      res.status(200).json({ success: true, data: output });
     } catch (error) {
       next(this.mapError(error));
     }

@@ -7,6 +7,6 @@ import type { CartItem } from '../../modules/cart/domain/entities/cart-item.enti
  */
 export class OperationsServiceMock implements OperationsService {
   async checkSaleFeasibility(_item: CartItem) {
-    return Promise.resolve({ isValid: true });
+    return Promise.resolve({ isValid: true, reason: '' });
   }
 }

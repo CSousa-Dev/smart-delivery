@@ -61,6 +61,52 @@ describeIf('E2E Open Cart – use case and error flows', () => {
     expect(response.body.data.cartId.length).toBeGreaterThan(0);
   });
 
+  it('should add item and read cart with items', async () => {
+    const customerId = `customer-e2e-item-${Date.now()}`;
+    const cartResponse = await request(app)
+      .post(`${basePath}/carts/open`)
+      .send({
+        customerId,
+        verticalId: 'vertical-e2e-1',
+        businessUnitId: 'business-unit-e2e-1',
+      })
+      .set('Content-Type', 'application/json')
+      .set('Authorization', `Bearer ${createTestJwt(customerId)}`);
+
+    expect(cartResponse.status).toBe(201);
+    const cartId = cartResponse.body.data.cartId;
+
+    const addItemResponse = await request(app)
+      .post(`${basePath}/carts/${cartId}/items`)
+      .send({
+        item: {
+          id: 'item-e2e-1',
+          productCatalogId: 'product-e2e-1',
+          sku: 'SKU-E2E-1',
+          description: 'E2E Product',
+          quantity: 1,
+          businessUnitId: 'business-unit-e2e-1',
+          verticalId: 'vertical-e2e-1',
+          categories: ['cat-e2e-1'],
+        },
+      })
+      .set('Content-Type', 'application/json')
+      .set('Authorization', `Bearer ${createTestJwt(customerId)}`);
+
+    expect(addItemResponse.status).toBe(201);
+    expect(addItemResponse.body.success).toBe(true);
+    expect(addItemResponse.body.data?.itemId).toBe('item-e2e-1');
+
+    const readResponse = await request(app)
+      .get(`${basePath}/carts/${cartId}`)
+      .set('Authorization', `Bearer ${createTestJwt(customerId)}`);
+
+    expect(readResponse.status).toBe(200);
+    expect(readResponse.body.success).toBe(true);
+    expect(readResponse.body.data?.items?.length).toBe(1);
+    expect(readResponse.body.data?.items?.[0]?.sku).toBe('SKU-E2E-1');
+  });
+
   it('should return existing cartId when customer already has cart in flow', async () => {
     const body = {
       customerId: 'customer-e2e-conflict',
@@ -106,7 +152,7 @@ describeIf('E2E Open Cart – use case and error flows', () => {
     expect(response.body.success).toBe(false);
     expect(response.body.error).toBeDefined();
     expect(response.body.error.code).toBe('INVALID_BUSINESS_CONTEXT');
-    expect(response.body.error.message).toContain('required');
+    expect(response.body.error.message).toBe('INVALID_BUSINESS_CONTEXT');
   });
 
   it('should return 400 when verticalId is missing', async () => {
