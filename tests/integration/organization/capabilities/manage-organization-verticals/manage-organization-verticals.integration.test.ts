@@ -6,17 +6,17 @@ import {
   OrganizationVerticalNotFoundError,
   VerticalNotRegisteredError,
 } from '../../../../../src/modules/organization/domain/errors/organization.errors';
-import { UserNotOwnerError } from '../../../../../src/modules/organization/domain/errors/business-unit.errors';
 import { PrismaOrganizationRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization/organization.repository.impl';
 import { PrismaOrganizationUnitOfWork } from '../../../../../src/modules/organization/infrastructure/repositories/organization-unit-of-work/organization-unit-of-work.impl';
 import { PrismaOrganizationVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization-vertical/organization-vertical.repository.impl';
-import { PrismaVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/vertical/vertical.repository.impl';
 import {
   createOrganizationTestPrismaClient,
   OrganizationPrismaClient,
 } from '../../../../helpers/prisma/organization/prisma-test-client';
+import { createVerticalCatalogStub } from '../../../../helpers/organization/vertical-catalog-stub';
 
 const describeIf = process.env.DATABASE_URL_ORGANIZATION_TEST ? describe : describe.skip;
+const validVerticalCodes = ['v1', 'v2'];
 
 describeIf('Capability Manage Organization Verticals – [CAP-010]', () => {
   let prisma: OrganizationPrismaClient;
@@ -36,14 +36,13 @@ describeIf('Capability Manage Organization Verticals – [CAP-010]', () => {
     await prisma.businessUnit.deleteMany();
     await prisma.userOrganizationLink.deleteMany();
     await prisma.organization.deleteMany();
-    await prisma.vertical.deleteMany();
   });
 
   const buildLinkService = () =>
     new LinkOrganizationVerticalService(
       new PrismaOrganizationRepository(prisma),
       new PrismaOrganizationVerticalRepository(prisma),
-      new PrismaVerticalRepository(prisma)
+      createVerticalCatalogStub(validVerticalCodes)
     );
 
   const buildUnlinkService = () =>
@@ -53,7 +52,7 @@ describeIf('Capability Manage Organization Verticals – [CAP-010]', () => {
       new PrismaOrganizationUnitOfWork(prisma)
     );
 
-  const seedOrganization = async (ownerUserId = 'user-1') =>
+  const seedOrganization = async (ownerUserId: string | null = 'user-1') =>
     prisma.organization.create({
       data: {
         id: 'org-1',
@@ -69,18 +68,14 @@ describeIf('Capability Manage Organization Verticals – [CAP-010]', () => {
   it('should link new vertical – [SCN-001]', async () => {
     const service = buildLinkService();
     await seedOrganization();
-    await prisma.vertical.create({
-      data: { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
-    });
 
     const output = await service.execute({
       organizationId: 'org-1',
-      verticalId: 'vert-1',
-      actorUserId: 'user-1',
+      verticalCode: 'v1',
     });
 
     const link = await prisma.organizationVertical.findUnique({
-      where: { organizationId_verticalId: { organizationId: 'org-1', verticalId: 'vert-1' } },
+      where: { organizationId_verticalCode: { organizationId: 'org-1', verticalCode: 'v1' } },
     });
 
     expect(output.status).toBe('ACTIVE');
@@ -90,59 +85,52 @@ describeIf('Capability Manage Organization Verticals – [CAP-010]', () => {
   it('should reactivate inactive link – [SCN-002]', async () => {
     const service = buildLinkService();
     await seedOrganization();
-    await prisma.vertical.create({
-      data: { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
-    });
     await prisma.organizationVertical.create({
       data: {
         organizationId: 'org-1',
-        verticalId: 'vert-1',
+        verticalCode: 'v1',
         statusId: 'INACTIVE',
       },
     });
 
     await service.execute({
       organizationId: 'org-1',
-      verticalId: 'vert-1',
-      actorUserId: 'user-1',
+      verticalCode: 'v1',
     });
 
     const link = await prisma.organizationVertical.findUnique({
-      where: { organizationId_verticalId: { organizationId: 'org-1', verticalId: 'vert-1' } },
+      where: { organizationId_verticalCode: { organizationId: 'org-1', verticalCode: 'v1' } },
     });
 
     expect(link?.statusId).toBe('ACTIVE');
   });
 
-  it('should reject link when organization is missing – [SCN-003]', async () => {
+  it('should link vertical when organization has no owner – [SCN-001b]', async () => {
     const service = buildLinkService();
-    await prisma.vertical.create({
-      data: { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
+    await seedOrganization(null);
+
+    const output = await service.execute({
+      organizationId: 'org-1',
+      verticalCode: 'v1',
     });
 
-    await expect(
-      service.execute({
-        organizationId: 'org-1',
-        verticalId: 'vert-1',
-        actorUserId: 'user-1',
-      })
-    ).rejects.toBeInstanceOf(OrganizationNotFoundError);
+    const link = await prisma.organizationVertical.findUnique({
+      where: { organizationId_verticalCode: { organizationId: 'org-1', verticalCode: 'v1' } },
+    });
+
+    expect(output.status).toBe('ACTIVE');
+    expect(link?.statusId).toBe('ACTIVE');
   });
 
-  it('should reject link when user is not owner – [SCN-004]', async () => {
+  it('should reject link when organization is missing – [SCN-003]', async () => {
     const service = buildLinkService();
-    await seedOrganization('user-2');
-    await prisma.vertical.create({
-      data: { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
-    });
 
     await expect(
       service.execute({
         organizationId: 'org-1',
-        verticalId: 'vert-1',
-        actorUserId: 'user-1',
+        verticalCode: 'v1',
       })
-    ).rejects.toBeInstanceOf(UserNotOwnerError);
+    ).rejects.toBeInstanceOf(OrganizationNotFoundError);
   });
 
   it('should reject link when vertical is not registered – [SCN-005]', async () => {
@@ -152,8 +140,7 @@ describeIf('Capability Manage Organization Verticals – [CAP-010]', () => {
     await expect(
       service.execute({
         organizationId: 'org-1',
-        verticalId: 'vert-1',
-        actorUserId: 'user-1',
+        verticalCode: 'unknown',
       })
     ).rejects.toBeInstanceOf(VerticalNotRegisteredError);
   });
@@ -161,27 +148,20 @@ describeIf('Capability Manage Organization Verticals – [CAP-010]', () => {
   it('should unlink active vertical – [SCN-006]', async () => {
     const service = buildUnlinkService();
     await seedOrganization();
-    await prisma.vertical.createMany({
-      data: [
-        { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
-        { id: 'vert-2', name: 'V2', code: 'v2', description: 'Vertical 2' },
-      ],
-    });
     await prisma.organizationVertical.createMany({
       data: [
-        { organizationId: 'org-1', verticalId: 'vert-1', statusId: 'ACTIVE' },
-        { organizationId: 'org-1', verticalId: 'vert-2', statusId: 'ACTIVE' },
+        { organizationId: 'org-1', verticalCode: 'v1', statusId: 'ACTIVE' },
+        { organizationId: 'org-1', verticalCode: 'v2', statusId: 'ACTIVE' },
       ],
     });
 
     const output = await service.execute({
       organizationId: 'org-1',
-      verticalId: 'vert-1',
-      actorUserId: 'user-1',
+      verticalCode: 'v1',
     });
 
     const link = await prisma.organizationVertical.findUnique({
-      where: { organizationId_verticalId: { organizationId: 'org-1', verticalId: 'vert-1' } },
+      where: { organizationId_verticalCode: { organizationId: 'org-1', verticalCode: 'v1' } },
     });
 
     expect(output.status).toBe('INACTIVE');
@@ -195,8 +175,7 @@ describeIf('Capability Manage Organization Verticals – [CAP-010]', () => {
     await expect(
       service.execute({
         organizationId: 'org-1',
-        verticalId: 'vert-1',
-        actorUserId: 'user-1',
+        verticalCode: 'v1',
       })
     ).rejects.toBeInstanceOf(OrganizationVerticalNotFoundError);
   });
@@ -204,18 +183,14 @@ describeIf('Capability Manage Organization Verticals – [CAP-010]', () => {
   it('should reject unlink when last active vertical – [SCN-008]', async () => {
     const service = buildUnlinkService();
     await seedOrganization();
-    await prisma.vertical.create({
-      data: { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
-    });
     await prisma.organizationVertical.create({
-      data: { organizationId: 'org-1', verticalId: 'vert-1', statusId: 'ACTIVE' },
+      data: { organizationId: 'org-1', verticalCode: 'v1', statusId: 'ACTIVE' },
     });
 
     await expect(
       service.execute({
         organizationId: 'org-1',
-        verticalId: 'vert-1',
-        actorUserId: 'user-1',
+        verticalCode: 'v1',
       })
     ).rejects.toBeInstanceOf(OrganizationRequiresActiveVerticalError);
   });

@@ -31,12 +31,13 @@ describeIf('Capability Create Product – [CAP-001]', () => {
       findById: jest.fn().mockResolvedValue({
         id: 'bu-1',
         organizationId: 'org-1',
-        activeVerticalIds: ['vert-1'],
+        activeVerticalCodes: ['v1'],
       }),
     };
     const categoryRepository: CategoryRepository = {
       findById: jest.fn().mockResolvedValue({
         id: 'cat-1',
+        verticalCode: 'v1',
         verticalId: 'vert-1',
       }),
     };

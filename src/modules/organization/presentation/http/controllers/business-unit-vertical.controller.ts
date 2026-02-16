@@ -7,6 +7,7 @@ import { ListBusinessUnitVerticalsService } from '../../../application/services/
 const ERROR_STATUS_BY_CODE: Record<string, (message: string, code: string) => AppError> = {
   BUSINESS_UNIT_NOT_FOUND: (message, code) => AppError.notFound(message, code),
   ORGANIZATION_NOT_FOUND: (message, code) => AppError.notFound(message, code),
+  ORGANIZATION_HAS_NO_OWNER: (message, code) => AppError.badRequest(message, code),
   USER_NOT_OWNER: (message, code) => AppError.forbidden(message, code),
   VERTICAL_NOT_IN_ORGANIZATION: (message, code) => AppError.badRequest(message, code),
   BUSINESS_UNIT_VERTICAL_NOT_FOUND: (message, code) => AppError.notFound(message, code),
@@ -23,13 +24,13 @@ export class BusinessUnitVerticalController {
   async link(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const businessUnitId = String(req.params.businessUnitId || '');
-      const { verticalId, actorUserId } = req.body as {
-        verticalId?: string;
+      const { verticalCode, actorUserId } = req.body as {
+        verticalCode?: string;
         actorUserId?: string;
       };
       const output = await this.linkBusinessUnitVerticalService.execute({
         businessUnitId,
-        verticalId: String(verticalId || ''),
+        verticalCode: String(verticalCode || ''),
         actorUserId: String(actorUserId || ''),
       });
       res.status(200).json({ success: true, data: output });
@@ -41,11 +42,11 @@ export class BusinessUnitVerticalController {
   async unlink(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const businessUnitId = String(req.params.businessUnitId || '');
-      const verticalId = String(req.params.verticalId || '');
+      const verticalCode = String(req.params.verticalCode || '');
       const actorUserId = String(req.headers['x-actor-user-id'] || '');
       const output = await this.unlinkBusinessUnitVerticalService.execute({
         businessUnitId,
-        verticalId,
+        verticalCode,
         actorUserId,
       });
       res.status(200).json({ success: true, data: output });

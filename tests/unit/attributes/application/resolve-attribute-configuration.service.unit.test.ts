@@ -15,40 +15,63 @@ describe('ResolveAttributeConfigurationService', () => {
   const buildService = () => {
     const attributeRepository: AttributeRepository = {
       save: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
       updateDefaultValue: jest.fn(),
       existsByName: jest.fn(),
       existsByCode: jest.fn(),
+      existsByNameExcludingId: jest.fn(),
+      existsByCodeExcludingId: jest.fn(),
       findById: jest.fn().mockResolvedValue(null),
       listGlobal: jest.fn().mockResolvedValue([]),
       findByIds: jest.fn().mockResolvedValue([]),
     };
     const verticalRepository: VerticalRepository = {
       save: jest.fn(),
+      update: jest.fn(),
       existsByName: jest.fn(),
       existsByCode: jest.fn(),
+      existsByNameExcludingId: jest.fn(),
+      existsByCodeExcludingId: jest.fn(),
       existsById: jest.fn().mockResolvedValue(true),
+      findById: jest.fn(),
+      listAll: jest.fn(),
     };
     const categoryRepository: CategoryRepository = {
       save: jest.fn(),
+      update: jest.fn(),
       existsByNameAndVerticalId: jest.fn(),
       existsByCodeAndVerticalId: jest.fn(),
+      existsByNameExcludingId: jest.fn(),
+      existsByCodeExcludingId: jest.fn(),
       findById: jest.fn(),
+      listAll: jest.fn(),
+      listByVerticalId: jest.fn(),
       getAncestry: jest.fn(),
       getInheritanceChain: jest.fn(),
       validateChain: jest.fn(),
     };
     const verticalAttributeRepository: VerticalAttributeRepository = {
       save: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
       existsByVerticalAndAttribute: jest.fn(),
+      existsByAttributeId: jest.fn(),
       saveSubsetLinks: jest.fn(),
+      deleteSubsetLinks: jest.fn(),
       findByVerticalAndAttribute: jest.fn(),
       listSubsetLinks: jest.fn().mockResolvedValue([]),
       listByVertical: jest.fn().mockResolvedValue([]),
     };
     const categoryAttributeRepository: CategoryAttributeRepository = {
       save: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
       existsByCategoryAndAttribute: jest.fn(),
+      existsByAttributeId: jest.fn(),
       saveSubsetLinks: jest.fn(),
+      deleteSubsetLinks: jest.fn(),
+      findByCategoryAndAttribute: jest.fn(),
       listByCategories: jest.fn().mockResolvedValue([]),
       listSubsetLinks: jest.fn().mockResolvedValue([]),
     };
@@ -56,14 +79,22 @@ describe('ResolveAttributeConfigurationService', () => {
       saveAll: jest.fn(),
       existsByName: jest.fn(),
       existsByValue: jest.fn(),
+      existsByNameExcludingId: jest.fn(),
+      existsByValueExcludingId: jest.fn(),
+      findById: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      isLinkedToUsage: jest.fn(),
       listByAttribute: jest.fn().mockResolvedValue([]),
     };
     const verticalAllowedValueRepository: VerticalAllowedValueRepository = {
       saveAll: jest.fn(),
+      deleteByVerticalAttribute: jest.fn(),
       listByVerticalAttribute: jest.fn().mockResolvedValue([]),
     };
     const categoryAllowedValueRepository: CategoryAllowedValueRepository = {
       saveAll: jest.fn(),
+      deleteByCategoryAttribute: jest.fn(),
       listByCategoryAttribute: jest.fn().mockResolvedValue([]),
     };
 

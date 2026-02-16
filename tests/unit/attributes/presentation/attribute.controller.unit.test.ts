@@ -7,9 +7,27 @@ describe('AttributeController', () => {
     const createAttributeService = {
       execute: jest.fn(),
     };
+    const getAttributeService = {
+      execute: jest.fn(),
+    };
+    const listAttributesService = {
+      execute: jest.fn(),
+    };
+    const updateAttributeService = {
+      execute: jest.fn(),
+    };
+    const deleteAttributeService = {
+      execute: jest.fn(),
+    };
 
     return {
-      controller: new AttributeController(createAttributeService as any),
+      controller: new AttributeController(
+        createAttributeService as any,
+        getAttributeService as any,
+        listAttributesService as any,
+        updateAttributeService as any,
+        deleteAttributeService as any
+      ),
       createAttributeService,
     };
   };

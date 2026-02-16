@@ -1,11 +1,11 @@
 import { ListOrganizationsService } from '../../../../../src/modules/organization/application/services/list-organizations.service';
 import { PrismaOrganizationRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization/organization.repository.impl';
 import { PrismaOrganizationVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization-vertical/organization-vertical.repository.impl';
-import { PrismaVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/vertical/vertical.repository.impl';
 import {
   createOrganizationTestPrismaClient,
   OrganizationPrismaClient,
 } from '../../../../helpers/prisma/organization/prisma-test-client';
+import { createVerticalCatalogStub } from '../../../../helpers/organization/vertical-catalog-stub';
 
 const describeIf = process.env.DATABASE_URL_ORGANIZATION_TEST ? describe : describe.skip;
 
@@ -28,17 +28,16 @@ describeIf('Capability List Organizations – [CAP-007]', () => {
     await prisma.userOrganizationLink.deleteMany();
     await prisma.user.deleteMany();
     await prisma.organization.deleteMany();
-    await prisma.vertical.deleteMany();
   });
 
   const buildService = () =>
     new ListOrganizationsService(
       new PrismaOrganizationRepository(prisma),
       new PrismaOrganizationVerticalRepository(prisma),
-      new PrismaVerticalRepository(prisma)
+      createVerticalCatalogStub(['v1', 'v2'])
     );
 
-  const seedOrganization = async (id: string, createdAt: Date, verticalIds: string[]) => {
+  const seedOrganization = async (id: string, createdAt: Date, verticalCodes: string[]) => {
     const numericSuffix = id.replace(/\D/g, '') || '1';
     const documentNumber = String(10000000000000 + Number(numericSuffix)).padStart(14, '0');
     await prisma.organization.create({
@@ -54,9 +53,9 @@ describeIf('Capability List Organizations – [CAP-007]', () => {
       },
     });
     await prisma.organizationVertical.createMany({
-      data: verticalIds.map((verticalId) => ({
+      data: verticalCodes.map((verticalCode) => ({
         organizationId: id,
-        verticalId,
+        verticalCode,
         statusId: 'ACTIVE',
       })),
     });
@@ -64,10 +63,7 @@ describeIf('Capability List Organizations – [CAP-007]', () => {
 
   it('should list organizations – [SCN-001]', async () => {
     const service = buildService();
-    await prisma.vertical.createMany({
-      data: [{ id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' }],
-    });
-    await seedOrganization('org-1', new Date('2026-01-01T00:00:00Z'), ['vert-1']);
+    await seedOrganization('org-1', new Date('2026-01-01T00:00:00Z'), ['v1']);
 
     const output = await service.execute({});
 
@@ -76,7 +72,7 @@ describeIf('Capability List Organizations – [CAP-007]', () => {
     if (!first) {
       throw new Error('Expected at least one organization item');
     }
-    expect(first.verticals.map((vertical) => vertical.id)).toEqual(['vert-1']);
+    expect(first.verticals.map((v) => v.code)).toEqual(['v1']);
   });
 
   it('should return empty list – [SCN-002]', async () => {
@@ -90,9 +86,6 @@ describeIf('Capability List Organizations – [CAP-007]', () => {
 
   it('should paginate organizations – [SCN-003]', async () => {
     const service = buildService();
-    await prisma.vertical.createMany({
-      data: [{ id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' }],
-    });
     const baseDate = new Date('2026-01-01T00:00:00Z');
     const orgs = Array.from({ length: 21 }, (_, index) => ({
       id: `org-${index + 1}`,
@@ -113,7 +106,7 @@ describeIf('Capability List Organizations – [CAP-007]', () => {
     await prisma.organizationVertical.createMany({
       data: orgs.map((org) => ({
         organizationId: org.id,
-        verticalId: 'vert-1',
+        verticalCode: 'v1',
         statusId: 'ACTIVE',
       })),
     });
@@ -126,10 +119,7 @@ describeIf('Capability List Organizations – [CAP-007]', () => {
 
   it('should return empty list for page out of range – [SCN-004]', async () => {
     const service = buildService();
-    await prisma.vertical.createMany({
-      data: [{ id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' }],
-    });
-    await seedOrganization('org-10', new Date('2026-01-01T00:00:00Z'), ['vert-1']);
+    await seedOrganization('org-10', new Date('2026-01-01T00:00:00Z'), ['v1']);
 
     const output = await service.execute({ page: 2, pageSize: 10 });
 
@@ -139,10 +129,7 @@ describeIf('Capability List Organizations – [CAP-007]', () => {
 
   it('should adjust invalid pagination – [SCN-005]', async () => {
     const service = buildService();
-    await prisma.vertical.createMany({
-      data: [{ id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' }],
-    });
-    await seedOrganization('org-11', new Date('2026-01-01T00:00:00Z'), ['vert-1']);
+    await seedOrganization('org-11', new Date('2026-01-01T00:00:00Z'), ['v1']);
 
     const output = await service.execute({ page: 0, pageSize: 120 });
 
@@ -152,10 +139,7 @@ describeIf('Capability List Organizations – [CAP-007]', () => {
 
   it('should adjust invalid sort direction – [SCN-006]', async () => {
     const service = buildService();
-    await prisma.vertical.createMany({
-      data: [{ id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' }],
-    });
-    await seedOrganization('org-12', new Date('2026-01-01T00:00:00Z'), ['vert-1']);
+    await seedOrganization('org-12', new Date('2026-01-01T00:00:00Z'), ['v1']);
 
     const output = await service.execute({ sortDirection: 'invalid' });
 

@@ -49,7 +49,6 @@ describeIf('Capability Link Attribute to Category – [CAP-006]', () => {
       data: {
         id: 'category-1',
         verticalId: vertical.id,
-        parentCategoryId: null,
         name: 'Bebidas',
         code: 'BEVERAGES',
         description: 'Bebidas',

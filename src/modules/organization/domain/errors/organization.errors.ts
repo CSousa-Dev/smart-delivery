@@ -31,16 +31,16 @@ export class MissingLegalNameError extends DomainError {
 }
 
 export class VerticalNotRegisteredError extends DomainError {
-  constructor(verticalIds: string[]) {
-    super('Vertical not registered', 'VERTICAL_NOT_REGISTERED', { verticalIds });
+  constructor(verticalCodes: string[]) {
+    super('Vertical not registered', 'VERTICAL_NOT_REGISTERED', { verticalCodes });
   }
 }
 
 export class OrganizationVerticalNotFoundError extends DomainError {
-  constructor(organizationId: string, verticalId: string) {
+  constructor(organizationId: string, verticalCode: string) {
     super('Organization vertical not found', 'ORGANIZATION_VERTICAL_NOT_FOUND', {
       organizationId,
-      verticalId,
+      verticalCode,
     });
   }
 }
@@ -50,5 +50,17 @@ export class OrganizationRequiresActiveVerticalError extends DomainError {
     super('Organization requires active vertical', 'ORGANIZATION_REQUIRES_ACTIVE_VERTICAL', {
       organizationId,
     });
+  }
+}
+
+export class OrganizationHasNoOwnerError extends DomainError {
+  constructor(organizationId: string) {
+    super('Organization has no owner', 'ORGANIZATION_HAS_NO_OWNER', { organizationId });
+  }
+}
+
+export class OrganizationIdRequiredError extends DomainError {
+  constructor() {
+    super('Organization is required to create user', 'ORGANIZATION_ID_REQUIRED');
   }
 }

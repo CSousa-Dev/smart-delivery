@@ -2,18 +2,20 @@ import {
   LinkOrganizationVerticalInput,
   LinkOrganizationVerticalOutput,
 } from '../dtos/link-organization-vertical.dto';
-import { OrganizationNotFoundError, VerticalNotRegisteredError } from '../../domain/errors/organization.errors';
-import { UserNotOwnerError } from '../../domain/errors/business-unit.errors';
+import {
+  OrganizationNotFoundError,
+  VerticalNotRegisteredError,
+} from '../../domain/errors/organization.errors';
 import { OrganizationRepository } from '../../domain/repositories/organization.repository';
 import { OrganizationVerticalRepository } from '../../domain/repositories/organization-vertical.repository';
-import { VerticalRepository } from '../../domain/repositories/vertical.repository';
+import { VerticalCatalogPort } from '../ports/vertical-catalog.port';
 import { OrganizationVerticalLink } from '../../domain/entities/organization-vertical-link.entity';
 
 export class LinkOrganizationVerticalService {
   constructor(
     private readonly organizationRepository: OrganizationRepository,
     private readonly organizationVerticalRepository: OrganizationVerticalRepository,
-    private readonly verticalRepository: VerticalRepository
+    private readonly verticalCatalog: VerticalCatalogPort
   ) {}
 
   async execute(input: LinkOrganizationVerticalInput): Promise<LinkOrganizationVerticalOutput> {
@@ -22,37 +24,33 @@ export class LinkOrganizationVerticalService {
       throw new OrganizationNotFoundError(input.organizationId);
     }
 
-    if (organization.getOwnerUserId() !== input.actorUserId) {
-      throw new UserNotOwnerError(input.actorUserId, input.organizationId);
+    const codesValid = await this.verticalCatalog.validateCodes([input.verticalCode]);
+    if (!codesValid) {
+      throw new VerticalNotRegisteredError([input.verticalCode]);
     }
 
-    const verticals = await this.verticalRepository.listByIds([input.verticalId]);
-    if (verticals.length === 0) {
-      throw new VerticalNotRegisteredError([input.verticalId]);
-    }
-
-    const existing = await this.organizationVerticalRepository.findByOrganizationAndVerticalId(
+    const existing = await this.organizationVerticalRepository.findByOrganizationAndVerticalCode(
       input.organizationId,
-      input.verticalId
+      input.verticalCode
     );
 
     if (!existing) {
       const link = OrganizationVerticalLink.create({
         organizationId: input.organizationId,
-        verticalId: input.verticalId,
+        verticalCode: input.verticalCode,
       });
       await this.organizationVerticalRepository.save(link);
     } else if (existing.getStatus() === 'INACTIVE') {
       await this.organizationVerticalRepository.updateStatus(
         input.organizationId,
-        input.verticalId,
+        input.verticalCode,
         'ACTIVE'
       );
     }
 
     return {
       organizationId: input.organizationId,
-      verticalId: input.verticalId,
+      verticalCode: input.verticalCode,
       status: 'ACTIVE',
     };
   }

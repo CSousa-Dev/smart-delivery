@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { LinkAttributeToCategoryService } from '../../../application/services/link-attribute-to-category.service';
+import { UpdateCategoryAttributeService } from '../../../application/services/update-category-attribute.service';
+import { UnlinkAttributeFromCategoryService } from '../../../application/services/unlink-attribute-from-category.service';
+import { ListCategoryAttributesService } from '../../../application/services/list-category-attributes.service';
 import { AppError } from '../../../../../shared/utils/AppError';
 
 const ERROR_STATUS_BY_CODE: Record<string, (message: string, code: string) => AppError> = {
@@ -13,10 +16,16 @@ const ERROR_STATUS_BY_CODE: Record<string, (message: string, code: string) => Ap
   DEFAULT_VALUE_NOT_FOUND: (message, code) => AppError.notFound(message, code),
   ALLOWED_VALUE_NOT_FOUND: (message, code) => AppError.notFound(message, code),
   ALLOWED_VALUE_CONFLICT: (message, code) => AppError.conflict(message, code),
+  CATEGORY_ATTRIBUTE_NOT_FOUND: (message, code) => AppError.notFound(message, code),
 };
 
 export class CategoryAttributeController {
-  constructor(private readonly linkAttributeToCategoryService: LinkAttributeToCategoryService) {}
+  constructor(
+    private readonly linkAttributeToCategoryService: LinkAttributeToCategoryService,
+    private readonly updateCategoryAttributeService: UpdateCategoryAttributeService,
+    private readonly unlinkAttributeFromCategoryService: UnlinkAttributeFromCategoryService,
+    private readonly listCategoryAttributesService: ListCategoryAttributesService
+  ) {}
 
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -28,6 +37,48 @@ export class CategoryAttributeController {
         success: true,
         data: output,
       });
+    } catch (error) {
+      next(this.mapError(error));
+    }
+  }
+
+  async list(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const output = await this.listCategoryAttributesService.execute({
+        categoryId: String(req.params.categoryId),
+      });
+      res.status(200).json({
+        success: true,
+        data: output,
+      });
+    } catch (error) {
+      next(this.mapError(error));
+    }
+  }
+
+  async update(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const output = await this.updateCategoryAttributeService.execute({
+        ...req.body,
+        categoryId: String(req.params.categoryId),
+        attributeId: String(req.params.attributeId),
+      });
+      res.status(200).json({
+        success: true,
+        data: output,
+      });
+    } catch (error) {
+      next(this.mapError(error));
+    }
+  }
+
+  async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      await this.unlinkAttributeFromCategoryService.execute({
+        categoryId: String(req.params.categoryId),
+        attributeId: String(req.params.attributeId),
+      });
+      res.sendStatus(204);
     } catch (error) {
       next(this.mapError(error));
     }

@@ -4,6 +4,7 @@ import {
   createAttributesAppServices,
   createAttributesDomainServices,
 } from '../../../attributes/infrastructure/di/services';
+import { createAttributesAdapters } from '../../../attributes/infrastructure/di/adapters';
 import { OrganizationDbClient } from '../../../organization/infrastructure/database/prisma';
 import { AttributesCategoryAdapter } from '../external/attributes-category.adapter';
 import { AttributeValueValidationAdapter } from '../external/attribute-value-validation.adapter';
@@ -18,7 +19,12 @@ export function createProductsAdapters(params: {
 
   const attributeRepos = createAttributesRepositories(attributesPrisma);
   const attributeDomain = createAttributesDomainServices();
-  const attributeApp = createAttributesAppServices(attributeRepos, attributeDomain);
+  const attributeAdapters = createAttributesAdapters();
+  const attributeApp = createAttributesAppServices(
+    attributeRepos,
+    attributeDomain,
+    attributeAdapters
+  );
 
   return {
     businessUnitRepository: new OrganizationBusinessUnitAdapter(organizationPrisma),

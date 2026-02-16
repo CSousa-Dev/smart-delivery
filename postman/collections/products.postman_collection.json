@@ -15,7 +15,7 @@
             "value": "application/json"
           }
         ],
-        "url": "{{baseUrl}}{{apiPrefix}}/{{apiVersion}}/products",
+        "url": "{{baseUrl}}{{apiPrefix}}/products",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"businessUnitId\": \"{{businessUnitId}}\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"code\": \"PIZZA-MARG-{{$timestamp}}\",\n  \"title\": \"Pizza Margherita\",\n  \"shortDescription\": \"Pizza tradicional\",\n  \"description\": \"Pizza margherita com tomate e manjericao.\",\n  \"images\": [\n    {\n      \"url\": \"https://example.com/images/pizza-margherita.jpg\",\n      \"order\": 1,\n      \"altText\": \"Pizza margherita\",\n      \"isPrimary\": true\n    }\n  ],\n  \"attributes\": [\n    {\n      \"attributeId\": \"{{attributeId}}\",\n      \"value\": \"Tradicional\"\n    }\n  ],\n  \"createdBy\": \"{{actorUserId}}\"\n}"
@@ -48,10 +48,6 @@
     {
       "key": "apiPrefix",
       "value": "/api"
-    },
-    {
-      "key": "apiVersion",
-      "value": "v1"
     },
     {
       "key": "organizationId",

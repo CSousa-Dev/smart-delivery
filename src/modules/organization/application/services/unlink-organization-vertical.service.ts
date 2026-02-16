@@ -7,7 +7,6 @@ import {
   OrganizationRequiresActiveVerticalError,
   OrganizationVerticalNotFoundError,
 } from '../../domain/errors/organization.errors';
-import { UserNotOwnerError } from '../../domain/errors/business-unit.errors';
 import { OrganizationRepository } from '../../domain/repositories/organization.repository';
 import { OrganizationUnitOfWork } from '../../domain/repositories/organization-unit-of-work';
 import { OrganizationVerticalRepository } from '../../domain/repositories/organization-vertical.repository';
@@ -27,17 +26,13 @@ export class UnlinkOrganizationVerticalService {
       throw new OrganizationNotFoundError(input.organizationId);
     }
 
-    if (organization.getOwnerUserId() !== input.actorUserId) {
-      throw new UserNotOwnerError(input.actorUserId, input.organizationId);
-    }
-
     const activeLink =
-      await this.organizationVerticalRepository.findActiveByOrganizationAndVerticalId(
+      await this.organizationVerticalRepository.findActiveByOrganizationAndVerticalCode(
         input.organizationId,
-        input.verticalId
+        input.verticalCode
       );
     if (!activeLink) {
-      throw new OrganizationVerticalNotFoundError(input.organizationId, input.verticalId);
+      throw new OrganizationVerticalNotFoundError(input.organizationId, input.verticalCode);
     }
 
     await this.unitOfWork.withTransaction(async (repositories) => {
@@ -49,14 +44,14 @@ export class UnlinkOrganizationVerticalService {
       }
       await repositories.organizationVerticalRepository.updateStatus(
         input.organizationId,
-        input.verticalId,
+        input.verticalCode,
         'INACTIVE'
       );
     });
 
     return {
       organizationId: input.organizationId,
-      verticalId: input.verticalId,
+      verticalCode: input.verticalCode,
       status: 'INACTIVE',
     };
   }

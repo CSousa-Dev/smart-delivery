@@ -48,7 +48,7 @@ export class ResolvedAttributeController {
 
   async get(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { verticalId, categoryIds } = req.query;
+      const { verticalId, categoryIds, includeCategoryOverrides } = req.query;
       const parsedCategoryIds = typeof categoryIds === 'string' ? categoryIds.split(',') : [];
       const input: { attributeId: string; verticalId?: string; categoryIds?: string[] } = {
         attributeId: String(req.params.attributeId),
@@ -59,6 +59,28 @@ export class ResolvedAttributeController {
       if (parsedCategoryIds.length > 0) {
         input.categoryIds = parsedCategoryIds;
       }
+
+      const shouldIncludeCategoryOverrides =
+        typeof includeCategoryOverrides === 'string'
+          ? includeCategoryOverrides === 'true'
+          : false;
+
+      if (
+        shouldIncludeCategoryOverrides &&
+        typeof input.verticalId === 'string' &&
+        !input.categoryIds
+      ) {
+        const output = await this.resolveAttributeConfigurationService.getWithCategoryOverrides({
+          attributeId: input.attributeId,
+          verticalId: input.verticalId,
+        });
+        res.status(200).json({
+          success: true,
+          data: output,
+        });
+        return;
+      }
+
       const output = await this.resolveAttributeConfigurationService.get(input);
       res.status(200).json({
         success: true,

@@ -15,9 +15,13 @@ describe('CreateAllowedValueService', () => {
   const buildService = () => {
     const attributeRepository: AttributeRepository = {
       save: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
       updateDefaultValue: jest.fn(),
       existsByName: jest.fn(),
       existsByCode: jest.fn(),
+      existsByNameExcludingId: jest.fn(),
+      existsByCodeExcludingId: jest.fn(),
       findById: jest.fn().mockResolvedValue(null),
       listGlobal: jest.fn().mockResolvedValue([]),
       findByIds: jest.fn().mockResolvedValue([]),
@@ -26,6 +30,12 @@ describe('CreateAllowedValueService', () => {
       saveAll: jest.fn(),
       existsByName: jest.fn().mockResolvedValue(false),
       existsByValue: jest.fn().mockResolvedValue(false),
+      existsByNameExcludingId: jest.fn(),
+      existsByValueExcludingId: jest.fn(),
+      findById: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      isLinkedToUsage: jest.fn(),
       listByAttribute: jest.fn().mockResolvedValue([]),
     };
 

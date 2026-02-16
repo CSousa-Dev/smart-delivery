@@ -41,13 +41,14 @@ describe('CreateProductService', () => {
       findById: jest.fn().mockResolvedValue({
         id: 'bu-1',
         organizationId: 'org-1',
-        activeVerticalIds: ['vert-1'],
+        activeVerticalCodes: ['v1'],
       }),
     };
 
     const categoryRepository: CategoryRepository = {
       findById: jest.fn().mockResolvedValue({
         id: 'cat-1',
+        verticalCode: 'v1',
         verticalId: 'vert-1',
       }),
     };
@@ -94,7 +95,7 @@ describe('CreateProductService', () => {
     (businessUnitRepository.findById as jest.Mock).mockResolvedValue({
       id: 'bu-1',
       organizationId: 'org-2',
-      activeVerticalIds: ['vert-1'],
+      activeVerticalCodes: ['v1'],
     });
 
     await expect(service.execute(baseInput)).rejects.toBeInstanceOf(
@@ -114,10 +115,11 @@ describe('CreateProductService', () => {
     (businessUnitRepository.findById as jest.Mock).mockResolvedValue({
       id: 'bu-1',
       organizationId: 'org-1',
-      activeVerticalIds: ['vert-2'],
+      activeVerticalCodes: ['v2'],
     });
     (categoryRepository.findById as jest.Mock).mockResolvedValue({
       id: 'cat-1',
+      verticalCode: 'v1',
       verticalId: 'vert-1',
     });
 

@@ -85,7 +85,7 @@ import { Application } from 'express';
 import { router } from './presentation/routes';
 
 export function registerModule(app: Application): void {
-  app.use('/api/v1/meu-modulo', router);
+  app.use('/api/meu-modulo', router);
 }
 ```
 
@@ -116,7 +116,6 @@ registerModule(app);
 | `PORT` | Porta do servidor | `3000` |
 | `CORS_ORIGIN` | Origem permitida para CORS | `*` |
 | `API_PREFIX` | Prefixo da API | `/api` |
-| `API_VERSION` | Versão da API | `v1` |
 | `LOG_LEVEL` | Nível de log (info, debug, warn, error) | `info` |
 
 ## 🔍 Health Check

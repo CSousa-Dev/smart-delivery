@@ -35,6 +35,7 @@ export class CreateVerticalService {
       name: vertical.getName(),
       code: vertical.getCode(),
       description: vertical.getDescription(),
+      isActive: vertical.getIsActive(),
       createdAt: vertical.getCreatedAt(),
     };
   }

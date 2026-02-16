@@ -7,9 +7,31 @@ describe('CategoryController', () => {
     const createCategoryService = {
       execute: jest.fn(),
     };
+    const updateCategoryService = {
+      execute: jest.fn(),
+    };
+    const inactivateCategoryService = {
+      execute: jest.fn(),
+    };
+    const activateCategoryService = {
+      execute: jest.fn(),
+    };
+    const getCategoryService = {
+      execute: jest.fn(),
+    };
+    const listCategoriesService = {
+      execute: jest.fn(),
+    };
 
     return {
-      controller: new CategoryController(createCategoryService as any),
+      controller: new CategoryController(
+        createCategoryService as any,
+        updateCategoryService as any,
+        inactivateCategoryService as any,
+        activateCategoryService as any,
+        getCategoryService as any,
+        listCategoriesService as any
+      ),
       createCategoryService,
     };
   };
@@ -24,7 +46,9 @@ describe('CategoryController', () => {
       code: 'BEVERAGES',
       description: 'Bebidas',
       depth: 1,
+      isActive: true,
       createdAt: new Date(),
+      updatedAt: null,
     });
 
     const req = { body: { name: 'Bebidas' } } as any;

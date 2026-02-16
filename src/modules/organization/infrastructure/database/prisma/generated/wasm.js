@@ -156,18 +156,9 @@ exports.Prisma.UserOrganizationLinkScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
-exports.Prisma.VerticalScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  code: 'code',
-  description: 'description',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.OrganizationVerticalScalarFieldEnum = {
   organizationId: 'organizationId',
-  verticalId: 'verticalId',
+  verticalCode: 'verticalCode',
   statusId: 'statusId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -203,7 +194,7 @@ exports.Prisma.BusinessUnitAddressScalarFieldEnum = {
 exports.Prisma.BusinessUnitVerticalScalarFieldEnum = {
   businessUnitId: 'businessUnitId',
   organizationId: 'organizationId',
-  verticalId: 'verticalId',
+  verticalCode: 'verticalCode',
   statusId: 'statusId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -224,7 +215,6 @@ exports.Prisma.ModelName = {
   User: 'User',
   Organization: 'Organization',
   UserOrganizationLink: 'UserOrganizationLink',
-  Vertical: 'Vertical',
   OrganizationVertical: 'OrganizationVertical',
   BusinessUnit: 'BusinessUnit',
   BusinessUnitAddress: 'BusinessUnitAddress',

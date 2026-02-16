@@ -1,13 +1,13 @@
 import { ListOrganizationsInput, ListOrganizationsOutput } from '../dtos/list-organizations.dto';
 import { OrganizationRepository } from '../../domain/repositories/organization.repository';
 import { OrganizationVerticalRepository } from '../../domain/repositories/organization-vertical.repository';
-import { VerticalRepository } from '../../domain/repositories/vertical.repository';
+import { VerticalCatalogPort } from '../ports/vertical-catalog.port';
 
 export class ListOrganizationsService {
   constructor(
     private readonly organizationRepository: OrganizationRepository,
     private readonly organizationVerticalRepository: OrganizationVerticalRepository,
-    private readonly verticalRepository: VerticalRepository
+    private readonly verticalCatalog: VerticalCatalogPort
   ) {}
 
   async execute(input: ListOrganizationsInput): Promise<ListOrganizationsOutput> {
@@ -27,25 +27,14 @@ export class ListOrganizationsService {
     const verticalLinks = await this.organizationVerticalRepository.listByOrganizationIds(
       organizationIds
     );
-    const allVerticalIds = Array.from(new Set(verticalLinks.map((link) => link.getVerticalId())));
-    const verticals = await this.verticalRepository.listByIds(allVerticalIds);
-    const verticalsById = new Map(verticals.map((vertical) => [vertical.getId(), vertical]));
-    const verticalsByOrg = new Map<
-      string,
-      Array<{ id: string; name: string; code: string; description: string }>
-    >();
+    const catalogList = await this.verticalCatalog.listAllActive();
+    const catalogByCode = new Map(catalogList.map((v) => [v.code, v]));
+    const verticalsByOrg = new Map<string, Array<{ code: string; name: string; description: string }>>();
     for (const link of verticalLinks) {
-      const vertical = verticalsById.get(link.getVerticalId());
-      if (!vertical) {
-        continue;
-      }
+      const catalog = catalogByCode.get(link.getVerticalCode());
+      if (!catalog) continue;
       const list = verticalsByOrg.get(link.getOrganizationId()) ?? [];
-      list.push({
-        id: vertical.getId(),
-        name: vertical.getName(),
-        code: vertical.getCode(),
-        description: vertical.getDescription(),
-      });
+      list.push({ code: link.getVerticalCode(), name: catalog.name, description: catalog.description });
       verticalsByOrg.set(link.getOrganizationId(), list);
     }
 

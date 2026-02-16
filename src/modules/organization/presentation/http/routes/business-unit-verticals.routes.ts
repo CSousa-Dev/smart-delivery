@@ -11,7 +11,7 @@ export function createBusinessUnitVerticalsRouter(
   );
 
   router.delete(
-    '/organization/business-units/:businessUnitId/verticals/:verticalId',
+    '/organization/business-units/:businessUnitId/verticals/:verticalCode',
     (req, res, next) => controller.unlink(req, res, next)
   );
 

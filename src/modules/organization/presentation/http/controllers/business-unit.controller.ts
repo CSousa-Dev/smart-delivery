@@ -16,6 +16,8 @@ const ERROR_STATUS_BY_CODE: Record<string, (message: string, code: string) => Ap
   VERTICAL_NOT_IN_ORGANIZATION: (message, code) => AppError.badRequest(message, code),
   INVALID_BUSINESS_UNIT_ID: (message, code) => AppError.badRequest(message, code),
   BUSINESS_UNIT_NOT_FOUND: (message, code) => AppError.notFound(message, code),
+  OWNER_CANNOT_CREATE_BUSINESS_UNIT: (message, code) => AppError.forbidden(message, code),
+  BUSINESS_UNIT_LIMIT_REACHED: (message, code) => AppError.badRequest(message, code),
 };
 
 export class BusinessUnitController {

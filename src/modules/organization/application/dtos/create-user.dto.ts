@@ -9,7 +9,7 @@ export interface CreateUserInput {
   phoneNumber: string;
   emailOptIn: boolean;
   phoneOptIn: boolean;
-  organizationId?: string;
+  organizationId: string;
 }
 
 export interface CreateUserOutput {
@@ -23,6 +23,6 @@ export interface CreateUserOutput {
   emailOptIn: boolean;
   phoneOptIn: boolean;
   status: UserStatusValue;
-  organizationId: string | null;
+  organizationId: string;
   createdAt: Date;
 }

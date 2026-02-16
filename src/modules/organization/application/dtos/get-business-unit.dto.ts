@@ -5,9 +5,8 @@ export interface GetBusinessUnitInput {
   actorUserId: string;
 }
 export interface VerticalSummary {
-  id: string;
-  name: string;
   code: string;
+  name: string;
   description: string;
   status: VerticalLinkStatusValue;
 }

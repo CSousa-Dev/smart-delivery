@@ -5,17 +5,17 @@ export interface BusinessUnitVerticalRepository {
   saveMany(links: BusinessUnitVerticalLink[]): Promise<void>;
   save(link: BusinessUnitVerticalLink): Promise<void>;
   listByBusinessUnitId(businessUnitId: string): Promise<BusinessUnitVerticalLink[]>;
-  findByBusinessUnitAndVerticalId(
+  findByBusinessUnitAndVerticalCode(
     businessUnitId: string,
-    verticalId: string
+    verticalCode: string
   ): Promise<BusinessUnitVerticalLink | null>;
-  findActiveByBusinessUnitAndVerticalId(
+  findActiveByBusinessUnitAndVerticalCode(
     businessUnitId: string,
-    verticalId: string
+    verticalCode: string
   ): Promise<BusinessUnitVerticalLink | null>;
   updateStatus(
     businessUnitId: string,
-    verticalId: string,
+    verticalCode: string,
     status: VerticalLinkStatusValue
   ): Promise<void>;
   countActiveByBusinessUnitId(businessUnitId: string): Promise<number>;

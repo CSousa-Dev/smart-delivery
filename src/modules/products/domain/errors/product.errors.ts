@@ -68,10 +68,10 @@ export class BusinessUnitOrganizationMismatchError extends DomainError {
 }
 
 export class CategoryVerticalNotEnabledError extends DomainError {
-  constructor(categoryId: string, verticalId: string) {
+  constructor(categoryId: string, verticalCode: string) {
     super('Category vertical not enabled for business unit', 'CATEGORY_VERTICAL_NOT_ENABLED', {
       categoryId,
-      verticalId,
+      verticalCode,
     });
   }
 }

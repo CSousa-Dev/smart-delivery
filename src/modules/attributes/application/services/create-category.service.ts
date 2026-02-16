@@ -21,6 +21,7 @@ export class CreateCategoryService {
     const name = input.name.trim();
     const description = input.description.trim();
     const code = input.code;
+    const parentCategoryId = input.parentCategoryId ?? null;
 
     const verticalExists = await this.verticalRepository.existsById(
       input.verticalId
@@ -29,17 +30,27 @@ export class CreateCategoryService {
       throw new VerticalNotFoundError(input.verticalId);
     }
 
-    if (await this.categoryRepository.existsByNameAndVerticalId(name, input.verticalId)) {
+    if (
+      await this.categoryRepository.existsByNameAndVerticalId(
+        name,
+        input.verticalId,
+        parentCategoryId
+      )
+    ) {
       throw new CategoryNameAlreadyExistsError(name);
     }
 
-    if (await this.categoryRepository.existsByCodeAndVerticalId(code, input.verticalId)) {
+    if (
+      await this.categoryRepository.existsByCodeAndVerticalId(
+        code,
+        input.verticalId,
+        parentCategoryId
+      )
+    ) {
       throw new CategoryCodeAlreadyExistsError(code);
     }
 
     let depth = 1;
-    let parentCategoryId: string | null = input.parentCategoryId ?? null;
-
     if (parentCategoryId) {
       const parent = await this.categoryRepository.findById(parentCategoryId);
       if (!parent) {
@@ -92,7 +103,10 @@ export class CreateCategoryService {
       code: category.getCode(),
       description: category.getDescription(),
       depth: category.getDepth(),
+      isActive: category.getIsActive(),
       createdAt: category.getCreatedAt(),
+      updatedAt: category.getUpdatedAt(),
     };
   }
+
 }

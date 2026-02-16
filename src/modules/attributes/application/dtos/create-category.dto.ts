@@ -14,5 +14,7 @@ export interface CreateCategoryOutput {
   code: string;
   description: string;
   depth: number;
+  isActive: boolean;
   createdAt: Date;
+  updatedAt: Date | null;
 }

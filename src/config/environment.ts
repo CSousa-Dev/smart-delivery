@@ -17,7 +17,6 @@ export const config = {
   
   // API
   apiPrefix: process.env.API_PREFIX || '/api',
-  apiVersion: process.env.API_VERSION || 'v1',
   
   // Logging
   logLevel: process.env.LOG_LEVEL || 'info',

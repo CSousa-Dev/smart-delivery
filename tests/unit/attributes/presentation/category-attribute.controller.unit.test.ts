@@ -7,9 +7,23 @@ describe('CategoryAttributeController', () => {
     const linkAttributeToCategoryService = {
       execute: jest.fn(),
     };
+    const updateCategoryAttributeService = {
+      execute: jest.fn(),
+    };
+    const unlinkAttributeFromCategoryService = {
+      execute: jest.fn(),
+    };
+    const listCategoryAttributesService = {
+      execute: jest.fn(),
+    };
 
     return {
-      controller: new CategoryAttributeController(linkAttributeToCategoryService as any),
+      controller: new CategoryAttributeController(
+        linkAttributeToCategoryService as any,
+        updateCategoryAttributeService as any,
+        unlinkAttributeFromCategoryService as any,
+        listCategoryAttributesService as any
+      ),
       linkAttributeToCategoryService,
     };
   };

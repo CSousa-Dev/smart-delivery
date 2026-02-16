@@ -7,7 +7,7 @@ export class OrganizationBusinessUnitAdapter implements BusinessUnitRepository {
   async findById(id: string): Promise<{
     id: string;
     organizationId: string;
-    activeVerticalIds: string[];
+    activeVerticalCodes: string[];
   } | null> {
     const businessUnit = await this.prisma.businessUnit.findUnique({
       where: { id },
@@ -20,13 +20,13 @@ export class OrganizationBusinessUnitAdapter implements BusinessUnitRepository {
 
     const verticals = await this.prisma.businessUnitVertical.findMany({
       where: { businessUnitId: businessUnit.id, statusId: 'ACTIVE' },
-      select: { verticalId: true },
+      select: { verticalCode: true },
     });
 
     return {
       id: businessUnit.id,
       organizationId: businessUnit.organizationId,
-      activeVerticalIds: verticals.map((vertical) => vertical.verticalId),
+      activeVerticalCodes: verticals.map((v) => v.verticalCode),
     };
   }
 }

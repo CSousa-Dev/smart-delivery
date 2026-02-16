@@ -6,7 +6,6 @@ import { ListOrganizationVerticalsService } from '../../../application/services/
 
 const ERROR_STATUS_BY_CODE: Record<string, (message: string, code: string) => AppError> = {
   ORGANIZATION_NOT_FOUND: (message, code) => AppError.notFound(message, code),
-  USER_NOT_OWNER: (message, code) => AppError.forbidden(message, code),
   VERTICAL_NOT_REGISTERED: (message, code) => AppError.badRequest(message, code),
   ORGANIZATION_VERTICAL_NOT_FOUND: (message, code) => AppError.notFound(message, code),
   ORGANIZATION_REQUIRES_ACTIVE_VERTICAL: (message, code) => AppError.badRequest(message, code),
@@ -22,14 +21,10 @@ export class OrganizationVerticalController {
   async link(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const organizationId = String(req.params.organizationId || '');
-      const { verticalId, actorUserId } = req.body as {
-        verticalId?: string;
-        actorUserId?: string;
-      };
+      const { verticalCode } = req.body as { verticalCode?: string };
       const output = await this.linkOrganizationVerticalService.execute({
         organizationId,
-        verticalId: String(verticalId || ''),
-        actorUserId: String(actorUserId || ''),
+        verticalCode: String(verticalCode || ''),
       });
       res.status(200).json({ success: true, data: output });
     } catch (error) {
@@ -40,12 +35,10 @@ export class OrganizationVerticalController {
   async unlink(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const organizationId = String(req.params.organizationId || '');
-      const verticalId = String(req.params.verticalId || '');
-      const actorUserId = String(req.headers['x-actor-user-id'] || '');
+      const verticalCode = String(req.params.verticalCode || '');
       const output = await this.unlinkOrganizationVerticalService.execute({
         organizationId,
-        verticalId,
-        actorUserId,
+        verticalCode,
       });
       res.status(200).json({ success: true, data: output });
     } catch (error) {

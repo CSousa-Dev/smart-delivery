@@ -7,9 +7,23 @@ describe('VerticalAttributeController', () => {
     const linkAttributeToVerticalService = {
       execute: jest.fn(),
     };
+    const updateVerticalAttributeService = {
+      execute: jest.fn(),
+    };
+    const unlinkAttributeFromVerticalService = {
+      execute: jest.fn(),
+    };
+    const listVerticalAttributesService = {
+      execute: jest.fn(),
+    };
 
     return {
-      controller: new VerticalAttributeController(linkAttributeToVerticalService as any),
+      controller: new VerticalAttributeController(
+        linkAttributeToVerticalService as any,
+        updateVerticalAttributeService as any,
+        unlinkAttributeFromVerticalService as any,
+        listVerticalAttributesService as any
+      ),
       linkAttributeToVerticalService,
     };
   };

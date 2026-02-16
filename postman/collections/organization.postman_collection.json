@@ -15,11 +15,59 @@
             "value": "application/json"
           }
         ],
-        "url": "{{baseUrl}}{{apiPrefix}}/{{apiVersion}}/organization/users",
+        "url": "{{baseUrl}}{{apiPrefix}}/organization/users",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"firstName\": \"Maria\",\n  \"lastName\": \"Silva\",\n  \"documentType\": \"CPF\",\n  \"documentNumber\": \"12345678901\",\n  \"email\": \"maria.silva+{{$timestamp}}@example.com\",\n  \"phoneNumber\": \"5511999999999\",\n  \"emailOptIn\": true,\n  \"phoneOptIn\": true\n}"
         }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('response success true', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.success).to.eql(true);",
+              "});"
+            ]
+          }
+        },
+        {
+          "listen": "postresponse",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "  const json = pm.response.json();",
+              "  if (json.success && json.data && json.data.id) {",
+              "    pm.collectionVariables.set('ownerUserId', json.data.id);",
+              "  }",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Organization",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}{{apiPrefix}}/organization/organizations",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tradeName\": \"Minha Loja\",\n  \"legalName\": \"Minha Loja LTDA\",\n  \"documentType\": \"CNPJ\",\n  \"documentNumber\": \"12345678000199\",\n  \"ownerUserId\": \"{{ownerUserId}}\"\n}"
+        },
+        "description": "Cria organização. ownerUserId = id retornado em Create User. Verticais são vinculadas depois via POST /api/organization/organizations/:organizationId/verticals."
       },
       "event": [
         {
@@ -50,8 +98,8 @@
       "value": "/api"
     },
     {
-      "key": "apiVersion",
-      "value": "v1"
+      "key": "ownerUserId",
+      "value": ""
     }
   ]
 }

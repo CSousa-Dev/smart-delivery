@@ -41,3 +41,9 @@ export class DefaultValueNotFoundError extends DomainError {
     super('Default value not found', 'DEFAULT_VALUE_NOT_FOUND', { defaultValueId });
   }
 }
+
+export class AttributeInUseError extends DomainError {
+  constructor(attributeId: string) {
+    super('Attribute is in use', 'ATTRIBUTE_IN_USE', { attributeId });
+  }
+}

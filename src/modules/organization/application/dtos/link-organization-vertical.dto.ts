@@ -1,11 +1,10 @@
 export interface LinkOrganizationVerticalInput {
   organizationId: string;
-  verticalId: string;
-  actorUserId: string;
+  verticalCode: string;
 }
 
 export interface LinkOrganizationVerticalOutput {
   organizationId: string;
-  verticalId: string;
+  verticalCode: string;
   status: string;
 }

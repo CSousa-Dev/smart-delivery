@@ -1,6 +1,10 @@
 import { CreateBusinessUnitService } from '../../../../../src/modules/organization/application/services/create-business-unit.service';
 import { OrganizationNotFoundError } from '../../../../../src/modules/organization/domain/errors/organization.errors';
-import { UserNotOwnerError } from '../../../../../src/modules/organization/domain/errors/business-unit.errors';
+import {
+  OwnerCannotCreateBusinessUnitError,
+  BusinessUnitLimitReachedError,
+  UserNotOwnerError,
+} from '../../../../../src/modules/organization/domain/errors/business-unit.errors';
 import { PrismaBusinessUnitRepository } from '../../../../../src/modules/organization/infrastructure/repositories/business-unit/business-unit.repository.impl';
 import { PrismaBusinessUnitVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/business-unit-vertical/business-unit-vertical.repository.impl';
 import { PrismaOrganizationRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization/organization.repository.impl';
@@ -10,6 +14,7 @@ import {
   createOrganizationTestPrismaClient,
   OrganizationPrismaClient,
 } from '../../../../helpers/prisma/organization/prisma-test-client';
+import { createVerticalCatalogStub } from '../../../../helpers/organization/vertical-catalog-stub';
 
 const describeIf = process.env.DATABASE_URL_ORGANIZATION_TEST ? describe : describe.skip;
 
@@ -32,7 +37,6 @@ describeIf('Capability Create Business Unit – [CAP-003]', () => {
     await prisma.userOrganizationLink.deleteMany();
     await prisma.organization.deleteMany();
     await prisma.user.deleteMany();
-    await prisma.vertical.deleteMany();
   });
 
   const buildService = () =>
@@ -47,9 +51,6 @@ describeIf('Capability Create Business Unit – [CAP-003]', () => {
   const createOrganization = async (
     overrides?: Partial<{ ownerUserId: string; statusId: string }>
   ) => {
-    await prisma.vertical.create({
-      data: { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
-    });
     await prisma.organization.create({
       data: {
         id: 'org-1',
@@ -64,7 +65,7 @@ describeIf('Capability Create Business Unit – [CAP-003]', () => {
     await prisma.organizationVertical.create({
       data: {
         organizationId: 'org-1',
-        verticalId: 'vert-1',
+        verticalCode: 'v1',
         statusId: 'ACTIVE',
       },
     });
@@ -72,8 +73,8 @@ describeIf('Capability Create Business Unit – [CAP-003]', () => {
 
   const baseInput = {
     organizationId: 'org-1',
-    actorUserId: 'user-1',
-    verticalIds: ['vert-1'],
+    actorUserId: 'platform-1',
+    verticalCodes: ['v1'],
     publicName: 'Loja X',
     phoneNumber: '11-99999-9999',
     phoneHasWhatsapp: true,
@@ -117,28 +118,46 @@ describeIf('Capability Create Business Unit – [CAP-003]', () => {
     );
   });
 
-  it('should reject when user is not owner – [SCN-003]', async () => {
+  it('should reject when actor is owner (only platform can create BU) – [SCN-003]', async () => {
     const service = buildService();
     await createOrganization({ ownerUserId: 'user-1' });
 
     await expect(
       service.execute({
         ...baseInput,
-        actorUserId: 'user-2',
+        actorUserId: 'user-1',
       })
-    ).rejects.toBeInstanceOf(UserNotOwnerError);
+    ).rejects.toBeInstanceOf(OwnerCannotCreateBusinessUnitError);
   });
 
-  it('should keep organization active for additional unit – [SCN-004]', async () => {
+  it('should reject when business unit limit reached – [SCN-004]', async () => {
     const service = buildService();
-    await createOrganization({ statusId: 'ACTIVE' });
-
-    await service.execute(baseInput);
-
-    const organization = await prisma.organization.findUnique({
-      where: { id: 'org-1' },
+    await createOrganization();
+    await prisma.businessUnit.create({
+      data: {
+        id: 'existing-unit',
+        organizationId: 'org-1',
+        publicName: 'Existing',
+        phoneNumber: '11999999999',
+        phoneHasWhatsapp: true,
+        statusId: 'PENDING_PRODUCTS',
+        address: {
+          create: {
+            street: 'Rua A',
+            number: '1',
+            neighborhood: 'Centro',
+            city: 'Sao Paulo',
+            state: 'SP',
+            postalCode: '01001000',
+            country: 'BR',
+            referencePoint: '',
+          },
+        },
+      },
     });
 
-    expect(organization?.statusId).toBe('ACTIVE');
+    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(
+      BusinessUnitLimitReachedError
+    );
   });
 });

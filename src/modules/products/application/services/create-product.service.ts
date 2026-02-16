@@ -45,8 +45,8 @@ export class CreateProductService {
     if (!category) {
       throw new CategoryNotFoundError(input.categoryId);
     }
-    if (!businessUnit.activeVerticalIds.includes(category.verticalId)) {
-      throw new CategoryVerticalNotEnabledError(input.categoryId, category.verticalId);
+    if (!businessUnit.activeVerticalCodes.includes(category.verticalCode)) {
+      throw new CategoryVerticalNotEnabledError(input.categoryId, category.verticalCode);
     }
 
     const organization = await this.organizationRepository.findById(input.organizationId);

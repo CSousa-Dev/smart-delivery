@@ -11,7 +11,7 @@ export function createOrganizationVerticalsRouter(
   );
 
   router.delete(
-    '/organization/organizations/:organizationId/verticals/:verticalId',
+    '/organization/organizations/:organizationId/verticals/:verticalCode',
     (req, res, next) => controller.unlink(req, res, next)
   );
 

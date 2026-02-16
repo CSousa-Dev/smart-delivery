@@ -54,17 +54,27 @@ function createApp(): Application {
 
   // ========================================
   // Load Modules Here
-  const { router: attributesRouter } = bootstrapAttributesModule();
-  const { router: organizationRouter } = bootstrapOrganizationModule();
+  const attributesModule = bootstrapAttributesModule();
+  const { router: organizationRouter } = bootstrapOrganizationModule({
+    listVerticalsFromCatalog: () =>
+      attributesModule.appServices.listVerticalsService.execute().then((r) => ({
+        items: r.items.map((i) => ({
+          code: i.code,
+          name: i.name,
+          description: i.description,
+          isActive: i.isActive,
+        })),
+      })),
+  });
   const { router: productsRouter } = bootstrapProductsModule();
   const { router: inventoryRouter } = bootstrapInventoryModule();
   const { authenticateRequestService } = bootstrapAuthModule();
   const { router: cartRouter } = bootstrapCartModule({ authenticateRequestService });
-  app.use(`${config.apiPrefix}/${config.apiVersion}`, attributesRouter);
-  app.use(`${config.apiPrefix}/${config.apiVersion}`, organizationRouter);
-  app.use(`${config.apiPrefix}/${config.apiVersion}`, productsRouter);
-  app.use(`${config.apiPrefix}/${config.apiVersion}`, inventoryRouter);
-  app.use(`${config.apiPrefix}/${config.apiVersion}`, cartRouter);
+  app.use(config.apiPrefix, attributesModule.router);
+  app.use(config.apiPrefix, organizationRouter);
+  app.use(config.apiPrefix, productsRouter);
+  app.use(config.apiPrefix, inventoryRouter);
+  app.use(config.apiPrefix, cartRouter);
   // ========================================
 
   // ========================================

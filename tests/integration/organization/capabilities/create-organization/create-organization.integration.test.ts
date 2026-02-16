@@ -3,14 +3,12 @@ import {
   MissingLegalNameError,
   OwnerUserNotFoundError,
   UserAlreadyLinkedError,
-  VerticalNotRegisteredError,
 } from '../../../../../src/modules/organization/domain/errors/organization.errors';
 import { DocumentAlreadyExistsError } from '../../../../../src/modules/organization/domain/errors/user.errors';
 import { PrismaOrganizationRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization/organization.repository.impl';
 import { PrismaOrganizationUnitOfWork } from '../../../../../src/modules/organization/infrastructure/repositories/organization-unit-of-work/organization-unit-of-work.impl';
 import { PrismaUserOrganizationLinkRepository } from '../../../../../src/modules/organization/infrastructure/repositories/user-organization-link/user-organization-link.repository.impl';
 import { PrismaUserRepository } from '../../../../../src/modules/organization/infrastructure/repositories/user/user.repository.impl';
-import { PrismaVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/vertical/vertical.repository.impl';
 import {
   createOrganizationTestPrismaClient,
   OrganizationPrismaClient,
@@ -37,7 +35,6 @@ describeIf('Capability Create Organization – [CAP-002]', () => {
     await prisma.userOrganizationLink.deleteMany();
     await prisma.organization.deleteMany();
     await prisma.user.deleteMany();
-    await prisma.vertical.deleteMany();
   });
 
   const buildService = () =>
@@ -45,7 +42,6 @@ describeIf('Capability Create Organization – [CAP-002]', () => {
       new PrismaOrganizationRepository(prisma),
       new PrismaUserRepository(prisma),
       new PrismaUserOrganizationLinkRepository(prisma),
-      new PrismaVerticalRepository(prisma),
       new PrismaOrganizationUnitOfWork(prisma)
     );
 
@@ -68,12 +64,6 @@ describeIf('Capability Create Organization – [CAP-002]', () => {
   it('should create organization with valid owner – [SCN-001]', async () => {
     const service = buildService();
     await createOwnerUser();
-    await prisma.vertical.createMany({
-      data: [
-        { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
-        { id: 'vert-2', name: 'V2', code: 'v2', description: 'Vertical 2' },
-      ],
-    });
 
     const output = await service.execute({
       tradeName: 'Loja X',
@@ -81,7 +71,6 @@ describeIf('Capability Create Organization – [CAP-002]', () => {
       documentType: 'CNPJ',
       documentNumber: '12345678901234',
       ownerUserId: 'user-1',
-      verticalIds: ['vert-1', 'vert-2'],
     });
 
     const organization = await prisma.organization.findUnique({ where: { id: output.id } });
@@ -97,7 +86,7 @@ describeIf('Capability Create Organization – [CAP-002]', () => {
     expect(organization).not.toBeNull();
     expect(owner?.statusId).toBe('ACTIVE');
     expect(link?.isOwner).toBe(true);
-    expect(verticalLinks).toBe(2);
+    expect(verticalLinks).toBe(0);
   });
 
   it('should reject when owner does not exist – [SCN-002]', async () => {
@@ -109,7 +98,6 @@ describeIf('Capability Create Organization – [CAP-002]', () => {
         documentType: 'CPF',
         documentNumber: '12345678901',
         ownerUserId: 'user-1',
-        verticalIds: ['vert-1'],
       })
     ).rejects.toBeInstanceOf(OwnerUserNotFoundError);
   });
@@ -143,7 +131,6 @@ describeIf('Capability Create Organization – [CAP-002]', () => {
         documentType: 'CNPJ',
         documentNumber: '22345678901234',
         ownerUserId: 'user-1',
-        verticalIds: ['vert-1'],
       })
     ).rejects.toBeInstanceOf(UserAlreadyLinkedError);
   });
@@ -170,7 +157,6 @@ describeIf('Capability Create Organization – [CAP-002]', () => {
         documentType: 'CNPJ',
         documentNumber: '12345678901234',
         ownerUserId: 'user-1',
-        verticalIds: ['vert-1'],
       })
     ).rejects.toBeInstanceOf(DocumentAlreadyExistsError);
   });
@@ -178,9 +164,6 @@ describeIf('Capability Create Organization – [CAP-002]', () => {
   it('should reject missing legal name for CNPJ – [SCN-005]', async () => {
     const service = buildService();
     await createOwnerUser();
-    await prisma.vertical.createMany({
-      data: [{ id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' }],
-    });
 
     await expect(
       service.execute({
@@ -188,24 +171,31 @@ describeIf('Capability Create Organization – [CAP-002]', () => {
         documentType: 'CNPJ',
         documentNumber: '12345678901234',
         ownerUserId: 'user-1',
-        verticalIds: ['vert-1'],
       })
     ).rejects.toBeInstanceOf(MissingLegalNameError);
   });
 
-  it('should reject invalid vertical – [SCN-006]', async () => {
+  it('should create organization without owner – [SCN-007]', async () => {
     const service = buildService();
-    await createOwnerUser();
 
-    await expect(
-      service.execute({
-        tradeName: 'Loja X',
-        legalName: 'Loja X LTDA',
-        documentType: 'CNPJ',
-        documentNumber: '12345678901234',
-        ownerUserId: 'user-1',
-        verticalIds: ['vert-1'],
-      })
-    ).rejects.toBeInstanceOf(VerticalNotRegisteredError);
+    const output = await service.execute({
+      tradeName: 'Loja X',
+      legalName: 'Loja X LTDA',
+      documentType: 'CNPJ',
+      documentNumber: '12345678901234',
+    });
+
+    const organization = await prisma.organization.findUnique({ where: { id: output.id } });
+    const linkCount = await prisma.userOrganizationLink.count();
+    const verticalCount = await prisma.organizationVertical.count({
+      where: { organizationId: output.id },
+    });
+
+    expect(output.status).toBe('PENDING_BUSINESS_UNIT');
+    expect(output.ownerUserId).toBeNull();
+    expect(organization).not.toBeNull();
+    expect(organization?.ownerUserId).toBeNull();
+    expect(linkCount).toBe(0);
+    expect(verticalCount).toBe(0);
   });
 });

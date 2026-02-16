@@ -12,7 +12,7 @@ export interface CategoryHierarchyNode {
 }
 
 export class CategoryHierarchyService {
-  private static readonly MAX_DEPTH = 3;
+  private static readonly MAX_DEPTH = 5;
 
   validateParent(parent: CategoryHierarchyNode, verticalId: string): void {
     if (parent.verticalId !== verticalId) {
@@ -20,9 +20,16 @@ export class CategoryHierarchyService {
     }
   }
 
-  validateHierarchy(parent: CategoryHierarchyNode, ancestors: CategoryHierarchyNode[]): number {
+  validateHierarchy(
+    parent: CategoryHierarchyNode,
+    ancestors: CategoryHierarchyNode[],
+    childId?: string
+  ): number {
     const nodeIds = new Set<string>(ancestors.map((node) => node.id));
-    if (nodeIds.has(parent.id)) {
+    if (
+      nodeIds.has(parent.id) ||
+      (childId && (nodeIds.has(childId) || parent.id === childId))
+    ) {
       throw new InvalidCategoryHierarchyError();
     }
 
@@ -32,5 +39,9 @@ export class CategoryHierarchyService {
     }
 
     return depth;
+  }
+
+  getMaxDepth(): number {
+    return CategoryHierarchyService.MAX_DEPTH;
   }
 }

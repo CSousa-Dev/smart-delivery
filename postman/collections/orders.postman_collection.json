@@ -15,7 +15,7 @@
             "value": "application/json"
           }
         ],
-        "url": "{{baseUrl}}{{apiPrefix}}/{{apiVersion}}/orders",
+        "url": "{{baseUrl}}{{apiPrefix}}/orders",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"organizationId\": \"{{organizationId}}\",\n  \"businessUnitId\": \"{{businessUnitId}}\",\n  \"clientId\": \"{{clientId}}\",\n  \"addressId\": \"{{addressId}}\",\n  \"products\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 2,\n      \"observation\": \"Sem cebola\"\n    }\n  ],\n  \"externalOrderId\": \"EXT-{{$timestamp}}\",\n  \"externalSource\": \"MARKETPLACE_99\"\n}"
@@ -43,10 +43,6 @@
     {
       "key": "apiPrefix",
       "value": "/api"
-    },
-    {
-      "key": "apiVersion",
-      "value": "v1"
     },
     {
       "key": "organizationId",

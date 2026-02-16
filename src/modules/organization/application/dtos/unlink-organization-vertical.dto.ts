@@ -1,11 +1,10 @@
 export interface UnlinkOrganizationVerticalInput {
   organizationId: string;
-  verticalId: string;
-  actorUserId: string;
+  verticalCode: string;
 }
 
 export interface UnlinkOrganizationVerticalOutput {
   organizationId: string;
-  verticalId: string;
+  verticalCode: string;
   status: string;
 }

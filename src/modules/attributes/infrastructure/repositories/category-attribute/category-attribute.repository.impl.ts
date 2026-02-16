@@ -27,12 +27,44 @@ export class PrismaCategoryAttributeRepository implements CategoryAttributeRepos
     });
   }
 
+  async update(categoryAttribute: CategoryAttribute): Promise<void> {
+    const { id, createdAt, ...data } = CategoryAttributeMapper.toPersistence(categoryAttribute);
+    await this.prisma.categoryAttribute.update({
+      where: {
+        categoryId_attributeId: {
+          categoryId: categoryAttribute.getCategoryId(),
+          attributeId: categoryAttribute.getAttributeId(),
+        },
+      },
+      data,
+    });
+  }
+
+  async delete(categoryId: string, attributeId: string): Promise<void> {
+    await this.prisma.categoryAttribute.delete({
+      where: {
+        categoryId_attributeId: {
+          categoryId,
+          attributeId,
+        },
+      },
+    });
+  }
+
   async existsByCategoryAndAttribute(
     categoryId: string,
     attributeId: string
   ): Promise<boolean> {
     const count = await this.prisma.categoryAttribute.count({
       where: { categoryId, attributeId },
+    });
+
+    return count > 0;
+  }
+
+  async existsByAttributeId(attributeId: string): Promise<boolean> {
+    const count = await this.prisma.categoryAttribute.count({
+      where: { attributeId },
     });
 
     return count > 0;
@@ -53,6 +85,63 @@ export class PrismaCategoryAttributeRepository implements CategoryAttributeRepos
         sourceValueId: link.sourceValueId,
       })),
     });
+  }
+
+  async deleteSubsetLinks(categoryAttributeId: string): Promise<void> {
+    await this.prisma.categoryAllowedValueLink.deleteMany({
+      where: { categoryAttributeId },
+    });
+  }
+
+  async findByCategoryAndAttribute(
+    categoryId: string,
+    attributeId: string
+  ): Promise<{
+    id: string;
+    isRequired: boolean | null;
+    isMultiValue: boolean | null;
+    minValue: number | null;
+    maxValue: number | null;
+    defaultValueId: string | null;
+    defaultValueScope: string | null;
+    createdAt: Date;
+    updatedAt: Date | null;
+  } | null> {
+    const found = await this.prisma.categoryAttribute.findUnique({
+      where: {
+        categoryId_attributeId: {
+          categoryId,
+          attributeId,
+        },
+      },
+      select: {
+        id: true,
+        isRequired: true,
+        isMultiValue: true,
+        minValue: true,
+        maxValue: true,
+        defaultValueId: true,
+        defaultValueScope: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!found) {
+      return null;
+    }
+
+    return {
+      id: found.id,
+      isRequired: found.isRequired ?? null,
+      isMultiValue: found.isMultiValue ?? null,
+      minValue: found.minValue ? Number(found.minValue) : null,
+      maxValue: found.maxValue ? Number(found.maxValue) : null,
+      defaultValueId: found.defaultValueId ?? null,
+      defaultValueScope: found.defaultValueScope ?? null,
+      createdAt: found.createdAt,
+      updatedAt: found.updatedAt ?? null,
+    };
   }
 
   async listByCategories(

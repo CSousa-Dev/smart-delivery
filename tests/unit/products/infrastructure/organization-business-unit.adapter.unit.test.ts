@@ -32,8 +32,8 @@ describe('OrganizationBusinessUnitAdapter', () => {
       },
       businessUnitVertical: {
         findMany: jest.fn().mockResolvedValue([
-          { verticalId: 'vert-1' },
-          { verticalId: 'vert-2' },
+          { verticalCode: 'v1' },
+          { verticalCode: 'v2' },
         ]),
       },
     } as any;
@@ -45,11 +45,11 @@ describe('OrganizationBusinessUnitAdapter', () => {
     expect(result).toEqual({
       id: 'bu-1',
       organizationId: 'org-1',
-      activeVerticalIds: ['vert-1', 'vert-2'],
+      activeVerticalCodes: ['v1', 'v2'],
     });
     expect(prisma.businessUnitVertical.findMany).toHaveBeenCalledWith({
       where: { businessUnitId: 'bu-1', statusId: 'ACTIVE' },
-      select: { verticalId: true },
+      select: { verticalCode: true },
     });
   });
 });

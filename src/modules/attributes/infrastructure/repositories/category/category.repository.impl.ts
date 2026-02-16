@@ -4,6 +4,19 @@ import { Category } from '../../../domain/entities/category.entity';
 import { InvalidCategoryChainError } from '../../../domain/errors/resolve.errors';
 import { CategoryMapper } from './category.mapper';
 
+type CategoryRecord = {
+  id: string;
+  verticalId: string;
+  parentCategoryId: string | null;
+  name: string;
+  code: string;
+  description: string;
+  depth: number;
+  isActive?: boolean;
+  createdAt: Date;
+  updatedAt: Date | null;
+};
+
 export class PrismaCategoryRepository implements CategoryRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -13,42 +26,101 @@ export class PrismaCategoryRepository implements CategoryRepository {
     });
   }
 
-  async existsByNameAndVerticalId(name: string, verticalId: string): Promise<boolean> {
+  async update(category: Category): Promise<void> {
+    const { id, createdAt, ...data } = CategoryMapper.toPersistence(category);
+    await this.prisma.category.update({
+      where: { id: category.getId().value },
+      data,
+    });
+  }
+
+  async existsByNameAndVerticalId(
+    name: string,
+    verticalId: string,
+    parentCategoryId: string | null
+  ): Promise<boolean> {
     const count = await this.prisma.category.count({
-      where: { name, verticalId },
+      where: { name, verticalId, parentCategoryId },
     });
 
     return count > 0;
   }
 
-  async existsByCodeAndVerticalId(code: string, verticalId: string): Promise<boolean> {
+  async existsByCodeAndVerticalId(
+    code: string,
+    verticalId: string,
+    parentCategoryId: string | null
+  ): Promise<boolean> {
     const count = await this.prisma.category.count({
-      where: { code, verticalId },
+      where: { code, verticalId, parentCategoryId },
+    });
+
+    return count > 0;
+  }
+
+  async existsByNameExcludingId(
+    name: string,
+    verticalId: string,
+    parentCategoryId: string | null,
+    excludeId: string
+  ): Promise<boolean> {
+    const count = await this.prisma.category.count({
+      where: {
+        name,
+        verticalId,
+        parentCategoryId,
+        id: { not: excludeId },
+      },
+    });
+
+    return count > 0;
+  }
+
+  async existsByCodeExcludingId(
+    code: string,
+    verticalId: string,
+    parentCategoryId: string | null,
+    excludeId: string
+  ): Promise<boolean> {
+    const count = await this.prisma.category.count({
+      where: {
+        code,
+        verticalId,
+        parentCategoryId,
+        id: { not: excludeId },
+      },
     });
 
     return count > 0;
   }
 
   async findById(id: string): Promise<Category | null> {
-    const found = await this.prisma.category.findUnique({
+    const found = (await this.prisma.category.findUnique({
       where: { id },
-    });
+    })) as CategoryRecord | null;
 
     if (!found) {
       return null;
     }
 
-    return Category.create({
-      id: found.id,
-      verticalId: found.verticalId,
-      parentCategoryId: found.parentCategoryId,
-      name: found.name,
-      code: found.code,
-      description: found.description,
-      depth: found.depth,
-      createdAt: found.createdAt,
-      updatedAt: found.updatedAt,
-    });
+    return CategoryMapper.toDomain(found);
+  }
+
+  async listAll(): Promise<Category[]> {
+    const items = (await this.prisma.category.findMany({
+      orderBy: { name: 'asc' },
+    })) as CategoryRecord[];
+
+    return items.map((item) => CategoryMapper.toDomain(item));
+  }
+
+  async listByVerticalId(verticalId: string): Promise<Category[]> {
+    const items = (await this.prisma.category.findMany({
+      where: { verticalId },
+      orderBy: { name: 'asc' },
+    })) as CategoryRecord[];
+
+    return items.map((item) => CategoryMapper.toDomain(item));
   }
 
   async getAncestry(id: string): Promise<Category[]> {
@@ -56,56 +128,23 @@ export class PrismaCategoryRepository implements CategoryRepository {
     let currentId: string | null = id;
 
     while (currentId) {
-      const current: {
-        id: string;
-        verticalId: string;
-        parentCategoryId: string | null;
-        name: string;
-        code: string;
-        description: string;
-        depth: number;
-        createdAt: Date;
-        updatedAt: Date | null;
-      } | null = await this.prisma.category.findUnique({
+      const current = (await this.prisma.category.findUnique({
         where: { id: currentId },
-      });
+      })) as CategoryRecord | null;
 
       if (!current || !current.parentCategoryId) {
         break;
       }
 
-      const parent: {
-        id: string;
-        verticalId: string;
-        parentCategoryId: string | null;
-        name: string;
-        code: string;
-        description: string;
-        depth: number;
-        createdAt: Date;
-        updatedAt: Date | null;
-      } | null = await this.prisma.category.findUnique({
+      const parent = (await this.prisma.category.findUnique({
         where: { id: current.parentCategoryId },
-      });
+      })) as CategoryRecord | null;
 
       if (!parent) {
         break;
       }
 
-      ancestors.push(
-        Category.create({
-          id: parent.id,
-          verticalId: parent.verticalId,
-          parentCategoryId: parent.parentCategoryId,
-          name: parent.name,
-          code: parent.code,
-          description: parent.description,
-          depth: parent.depth,
-          createdAt: parent.createdAt,
-          updatedAt: parent.updatedAt,
-        })
-      );
-
+      ancestors.push(CategoryMapper.toDomain(parent));
       currentId = parent.id;
     }
 

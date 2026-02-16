@@ -9,9 +9,14 @@ describe('CreateVerticalService', () => {
   const buildService = () => {
     const verticalRepository: VerticalRepository = {
       save: jest.fn(),
+      update: jest.fn(),
       existsByName: jest.fn().mockResolvedValue(false),
       existsByCode: jest.fn().mockResolvedValue(false),
+      existsByNameExcludingId: jest.fn(),
+      existsByCodeExcludingId: jest.fn(),
       existsById: jest.fn(),
+      findById: jest.fn(),
+      listAll: jest.fn(),
     };
 
     return {

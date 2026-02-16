@@ -76,7 +76,6 @@ describeIf('Capability Create Category – [CAP-003]', () => {
       data: {
         id: 'category-1',
         verticalId: vertical.id,
-        parentCategoryId: null,
         name: 'Bebidas',
         code: 'BEVERAGES',
         description: 'Bebidas',
@@ -104,6 +103,7 @@ describeIf('Capability Create Category – [CAP-003]', () => {
 
     expect(persisted).not.toBeNull();
     expect(persisted?.depth).toBe(2);
+
     expect(persisted?.parentCategoryId).toBe(parent.id);
   });
 });

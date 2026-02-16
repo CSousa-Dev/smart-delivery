@@ -6,7 +6,7 @@ export class BusinessUnitVerticalMapper {
     return {
       businessUnitId: link.getBusinessUnitId(),
       organizationId: link.getOrganizationId(),
-      verticalId: link.getVerticalId(),
+      verticalCode: link.getVerticalCode(),
       statusId: link.getStatus(),
       createdAt: link.getCreatedAt(),
       updatedAt: link.getUpdatedAt(),
@@ -16,7 +16,7 @@ export class BusinessUnitVerticalMapper {
   static toDomain(raw: {
     businessUnitId: string;
     organizationId: string;
-    verticalId: string;
+    verticalCode: string;
     statusId: string;
     createdAt: Date;
     updatedAt: Date | null;
@@ -24,7 +24,7 @@ export class BusinessUnitVerticalMapper {
     return BusinessUnitVerticalLink.restore({
       businessUnitId: raw.businessUnitId,
       organizationId: raw.organizationId,
-      verticalId: raw.verticalId,
+      verticalCode: raw.verticalCode,
       status: raw.statusId as VerticalLinkStatusValue,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,

@@ -7,21 +7,21 @@ export interface OrganizationVerticalRepository {
   listByOrganizationId(organizationId: string): Promise<OrganizationVerticalLink[]>;
   listByOrganizationIds(organizationIds: string[]): Promise<OrganizationVerticalLink[]>;
   listActiveByOrganizationId(organizationId: string): Promise<OrganizationVerticalLink[]>;
-  findByOrganizationAndVerticalId(
+  findByOrganizationAndVerticalCode(
     organizationId: string,
-    verticalId: string
+    verticalCode: string
   ): Promise<OrganizationVerticalLink | null>;
-  findActiveByOrganizationAndVerticalId(
+  findActiveByOrganizationAndVerticalCode(
     organizationId: string,
-    verticalId: string
+    verticalCode: string
   ): Promise<OrganizationVerticalLink | null>;
-  existsActiveByOrganizationAndVerticalId(
+  existsActiveByOrganizationAndVerticalCode(
     organizationId: string,
-    verticalId: string
+    verticalCode: string
   ): Promise<boolean>;
   updateStatus(
     organizationId: string,
-    verticalId: string,
+    verticalCode: string,
     status: VerticalLinkStatusValue
   ): Promise<void>;
   countActiveByOrganizationId(organizationId: string): Promise<number>;

@@ -1,9 +1,14 @@
 import {
   GetResolvedAttributeInput,
   GetResolvedAttributeOutput,
+  GetResolvedAttributeWithCategoryOverridesOutput,
   ListResolvedAttributesInput,
   ListResolvedAttributesOutput,
+  ResolvedAllowedValueWithScopeOutput,
   ResolvedAttributeOutput,
+  AttributeOverrideOutput,
+  CategoryOverrideDetail,
+  ResolvedAttributeCategoryOverridesOutput,
 } from '../dtos/resolve-attribute-configuration.dto';
 import {
   AttributeResolutionService,
@@ -136,6 +141,90 @@ export class ResolveAttributeConfigurationService {
     );
 
     return { item };
+  }
+
+  async getWithCategoryOverrides(
+    input: GetResolvedAttributeInput & { verticalId: string }
+  ): Promise<GetResolvedAttributeWithCategoryOverridesOutput> {
+    const attribute = await this.attributeRepository.findById(input.attributeId);
+    if (!attribute) {
+      throw new AttributeNotFoundError(input.attributeId);
+    }
+
+    if (!(await this.verticalRepository.existsById(input.verticalId))) {
+      throw new VerticalNotFoundError(input.verticalId);
+    }
+
+    const verticalLink = await this.verticalAttributeRepository.findByVerticalAndAttribute(
+      input.verticalId,
+      input.attributeId
+    );
+    if (!verticalLink) {
+      throw new AttributeNotInVerticalError(input.attributeId, input.verticalId);
+    }
+
+    const categories = await this.categoryRepository.listByVerticalId(input.verticalId);
+    const categoryIds = categories.map((category) => category.getId().value);
+    const categoryLinks = await this.categoryAttributeRepository.listByCategories(categoryIds);
+
+    const item = await this.resolveForContext(
+      attribute,
+      [{ ...verticalLink, attributeId: input.attributeId }],
+      categoryLinks,
+      [],
+      input.verticalId
+    );
+
+    const verticalOverride = this.toOverrideOutput(verticalLink);
+
+    const categoriesResolved = await Promise.all(
+      categories.map(async (category) => {
+        const chain = await this.buildCategoryChain(category.getId().value);
+        const resolved = await this.resolveForContext(
+          attribute,
+          [{ ...verticalLink, attributeId: input.attributeId }],
+          categoryLinks,
+          chain,
+          input.verticalId
+        );
+        const overrides = this.buildCategoryOverrideDetails(
+          chain,
+          categoryLinks,
+          input.attributeId
+        );
+        const allowedValues = await this.resolveAllowedValues(
+          input.attributeId,
+          verticalLink,
+          chain,
+          categoryLinks
+        );
+
+        return {
+          categoryId: category.getId().value,
+          categoryChain: chain,
+          resolved,
+          allowedValues: allowedValues.map(
+            (value) =>
+              ({
+                id: value.id,
+                name: value.name,
+                value: value.value,
+                description: value.description ?? null,
+                scope: value.scope,
+              }) satisfies ResolvedAllowedValueWithScopeOutput
+          ),
+          overrides: {
+            vertical: verticalOverride,
+            categories: overrides,
+          },
+        } satisfies ResolvedAttributeCategoryOverridesOutput;
+      })
+    );
+
+    return {
+      item,
+      categories: categoriesResolved,
+    };
   }
 
   private async resolveGlobal(attributeId: string): Promise<ResolvedAttributeOutput> {
@@ -292,6 +381,73 @@ export class ResolveAttributeConfigurationService {
     );
 
     return this.toOutput(resolved);
+  }
+
+  private async buildCategoryChain(categoryId: string): Promise<string[]> {
+    const ancestry = await this.categoryRepository.getInheritanceChain(categoryId);
+    const ancestors = ancestry.map((category) => category.getId().value).reverse();
+    return [...ancestors, categoryId];
+  }
+
+  private toOverrideOutput(link: {
+    isRequired: boolean | null;
+    isMultiValue: boolean | null;
+    minValue: number | null;
+    maxValue: number | null;
+    defaultValueId: string | null;
+    defaultValueScope: string | null;
+  }): AttributeOverrideOutput {
+    return {
+      isRequired: link.isRequired ?? null,
+      isMultiValue: link.isMultiValue ?? null,
+      minValue: link.minValue ?? null,
+      maxValue: link.maxValue ?? null,
+      defaultValueId: link.defaultValueId ?? null,
+      defaultValueScope: link.defaultValueScope ?? null,
+    };
+  }
+
+  private buildCategoryOverrideDetails(
+    categoryIds: string[],
+    categoryLinks: Array<{
+      id: string;
+      categoryId: string;
+      attributeId: string;
+      isRequired: boolean | null;
+      isMultiValue: boolean | null;
+      minValue: number | null;
+      maxValue: number | null;
+      defaultValueId: string | null;
+      defaultValueScope: string | null;
+    }>,
+    attributeId: string
+  ): CategoryOverrideDetail[] {
+    if (categoryIds.length === 0) {
+      return [];
+    }
+
+    const byCategory = new Map(
+      categoryLinks
+        .filter((link) => link.attributeId === attributeId)
+        .map((link) => [link.categoryId, link])
+    );
+
+    const overrides: CategoryOverrideDetail[] = [];
+    for (let index = categoryIds.length - 1; index >= 0; index -= 1) {
+      const categoryId = categoryIds[index];
+      if (!categoryId) {
+        continue;
+      }
+      const link = byCategory.get(categoryId);
+      if (link) {
+        overrides.push({
+          categoryId,
+          override: this.toOverrideOutput(link),
+        });
+      }
+    }
+
+    return overrides;
   }
 
   private async resolveAllowedValues(

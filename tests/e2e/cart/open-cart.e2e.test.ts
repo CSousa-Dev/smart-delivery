@@ -13,7 +13,7 @@ import { notFoundHandler } from '../../../src/shared/middlewares/notFoundHandler
 
 const describeIf = process.env.DATABASE_URL_CART_TEST ? describe : describe.skip;
 
-const basePath = `/${config.apiPrefix}/${config.apiVersion}`;
+const basePath = config.apiPrefix;
 
 function buildCartOnlyApp(): express.Application {
   const app = express();

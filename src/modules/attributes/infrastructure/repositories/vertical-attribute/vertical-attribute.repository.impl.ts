@@ -27,12 +27,44 @@ export class PrismaVerticalAttributeRepository implements VerticalAttributeRepos
     });
   }
 
+  async update(verticalAttribute: VerticalAttribute): Promise<void> {
+    const { id, createdAt, ...data } = VerticalAttributeMapper.toPersistence(verticalAttribute);
+    await this.prisma.verticalAttribute.update({
+      where: {
+        verticalId_attributeId: {
+          verticalId: verticalAttribute.getVerticalId(),
+          attributeId: verticalAttribute.getAttributeId(),
+        },
+      },
+      data,
+    });
+  }
+
+  async delete(verticalId: string, attributeId: string): Promise<void> {
+    await this.prisma.verticalAttribute.delete({
+      where: {
+        verticalId_attributeId: {
+          verticalId,
+          attributeId,
+        },
+      },
+    });
+  }
+
   async existsByVerticalAndAttribute(
     verticalId: string,
     attributeId: string
   ): Promise<boolean> {
     const count = await this.prisma.verticalAttribute.count({
       where: { verticalId, attributeId },
+    });
+
+    return count > 0;
+  }
+
+  async existsByAttributeId(attributeId: string): Promise<boolean> {
+    const count = await this.prisma.verticalAttribute.count({
+      where: { attributeId },
     });
 
     return count > 0;
@@ -49,6 +81,8 @@ export class PrismaVerticalAttributeRepository implements VerticalAttributeRepos
     maxValue: number | null;
     defaultValueId: string | null;
     defaultValueScope: string | null;
+    createdAt: Date;
+    updatedAt: Date | null;
   } | null> {
     const found = await this.prisma.verticalAttribute.findUnique({
       where: {
@@ -65,6 +99,8 @@ export class PrismaVerticalAttributeRepository implements VerticalAttributeRepos
         maxValue: true,
         defaultValueId: true,
         defaultValueScope: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
 
@@ -80,6 +116,8 @@ export class PrismaVerticalAttributeRepository implements VerticalAttributeRepos
       maxValue: found.maxValue ? Number(found.maxValue) : null,
       defaultValueId: found.defaultValueId ?? null,
       defaultValueScope: found.defaultValueScope ?? null,
+      createdAt: found.createdAt,
+      updatedAt: found.updatedAt ?? null,
     };
   }
 
@@ -96,6 +134,12 @@ export class PrismaVerticalAttributeRepository implements VerticalAttributeRepos
         verticalAttributeId,
         attributeAllowedValueId,
       })),
+    });
+  }
+
+  async deleteSubsetLinks(verticalAttributeId: string): Promise<void> {
+    await this.prisma.verticalAllowedValueLink.deleteMany({
+      where: { verticalAttributeId },
     });
   }
 

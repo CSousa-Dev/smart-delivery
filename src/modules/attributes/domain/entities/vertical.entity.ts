@@ -3,7 +3,13 @@ import {
   InvalidVerticalCodeError,
   InvalidVerticalDescriptionError,
   InvalidVerticalNameError,
+  VerticalAlreadyActiveError,
+  VerticalAlreadyInactiveError,
 } from '../errors/vertical.errors';
+import { AggregateRoot } from '../../../../shared/contracts/commons/aggregate-root';
+import { VerticalDomainEvent } from '../events/vertical-domain-event';
+import { VerticalActivatedEvent } from '../events/vertical-activated.event';
+import { VerticalInactivatedEvent } from '../events/vertical-inactivated.event';
 
 export class VerticalId {
   private constructor(public readonly value: string) {}
@@ -66,20 +72,27 @@ export class VerticalDescription {
 }
 
 export interface CreateVerticalProps {
+  id?: string;
   name: string;
   code: string;
   description: string;
+  isActive?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date | null;
 }
 
-export class Vertical {
+export class Vertical extends AggregateRoot<VerticalDomainEvent> {
   private constructor(
     private readonly id: VerticalId,
-    private readonly name: VerticalName,
-    private readonly code: VerticalCode,
-    private readonly description: VerticalDescription,
+    private name: VerticalName,
+    private code: VerticalCode,
+    private description: VerticalDescription,
+    private isActive: boolean,
     private readonly createdAt: Date,
-    private readonly updatedAt: Date | null
-  ) {}
+    private updatedAt: Date | null
+  ) {
+    super();
+  }
 
   static create(props: CreateVerticalProps): Vertical {
     const name = VerticalName.create(props.name);
@@ -87,12 +100,13 @@ export class Vertical {
     const description = VerticalDescription.create(props.description);
 
     return new Vertical(
-      VerticalId.create(),
+      VerticalId.create(props.id),
       name,
       code,
       description,
-      new Date(),
-      null
+      props.isActive ?? true,
+      props.createdAt ?? new Date(),
+      props.updatedAt ?? null
     );
   }
 
@@ -112,11 +126,46 @@ export class Vertical {
     return this.description.value;
   }
 
+  getIsActive(): boolean {
+    return this.isActive;
+  }
+
   getCreatedAt(): Date {
     return this.createdAt;
   }
 
   getUpdatedAt(): Date | null {
     return this.updatedAt;
+  }
+
+  updateDetails(name: string, code: string, description: string): void {
+    this.name = VerticalName.create(name);
+    this.code = VerticalCode.create(code);
+    this.description = VerticalDescription.create(description);
+    this.updatedAt = new Date();
+  }
+
+  inactivate(): void {
+    if (!this.isActive) {
+      throw new VerticalAlreadyInactiveError(this.id.value);
+    }
+
+    this.isActive = false;
+    this.updatedAt = new Date();
+    this.addDomainEvent(
+      new VerticalInactivatedEvent(this.id.value, this.getCode(), this.getName())
+    );
+  }
+
+  activate(): void {
+    if (this.isActive) {
+      throw new VerticalAlreadyActiveError(this.id.value);
+    }
+
+    this.isActive = true;
+    this.updatedAt = new Date();
+    this.addDomainEvent(
+      new VerticalActivatedEvent(this.id.value, this.getCode(), this.getName())
+    );
   }
 }

@@ -1,40 +1,230 @@
 {
   "info": {
     "name": "Attributes Module",
-    "description": "Requests to validate attributes module use cases from specs.",
+    "description": "Interface collection for Attributes (admin setup + consumer usage).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Create Attribute",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "url": "{{baseUrl}}{{apiPrefix}}/{{apiVersion}}/attributes",
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"name\": \"Cor\",\n  \"code\": \"COLOR\",\n  \"description\": \"Cor principal do produto\",\n  \"type\": \"TEXT\",\n  \"isMultiValue\": false,\n  \"isRequired\": true\n}"
-        }
-      },
-      "event": [
+      "name": "Admin - Taxonomy Setup",
+      "item": [
         {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('status 201', function () {",
-              "  pm.response.to.have.status(201);",
-              "});",
-              "",
-              "pm.test('response success true', function () {",
-              "  const json = pm.response.json();",
-              "  pm.expect(json.success).to.eql(true);",
-              "});"
-            ]
+          "name": "Create Vertical",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}{{apiPrefix}}/attributes/verticals",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Restaurantes\",\n  \"code\": \"RESTAURANTS\",\n  \"description\": \"Vertical de restaurantes\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Vertical",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}{{apiPrefix}}/attributes/verticals/{{verticalId}}"
+          }
+        },
+        {
+          "name": "List Verticals",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}{{apiPrefix}}/attributes/verticals"
+          }
+        },
+        {
+          "name": "Update Vertical",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}{{apiPrefix}}/attributes/verticals/{{verticalId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Restaurantes Atualizado\",\n  \"code\": \"RESTAURANTS\",\n  \"description\": \"Vertical de restaurantes atualizada\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Inactivate Vertical",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}{{apiPrefix}}/attributes/verticals/{{verticalId}}/inactivate"
+          }
+        },
+        {
+          "name": "Activate Vertical",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}{{apiPrefix}}/attributes/verticals/{{verticalId}}/activate"
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}{{apiPrefix}}/attributes/categories",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"verticalId\": \"{{verticalId}}\",\n  \"parentCategoryId\": null,\n  \"name\": \"Pizzas\",\n  \"code\": \"PIZZAS\",\n  \"description\": \"Categoria de pizzas\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Attribute",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}{{apiPrefix}}/attributes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cor\",\n  \"code\": \"COLOR\",\n  \"description\": \"Cor principal do produto\",\n  \"type\": \"option\",\n  \"isMultiValue\": false,\n  \"isRequired\": true,\n  \"allowedValues\": [\n    {\n      \"name\": \"Vermelho\",\n      \"value\": \"red\",\n      \"description\": \"Cor vermelha\"\n    },\n    {\n      \"name\": \"Azul\",\n      \"value\": \"blue\",\n      \"description\": \"Cor azul\"\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Allowed Value",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}{{apiPrefix}}/attributes/{{attributeId}}/allowed-values",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Preto\",\n  \"value\": \"black\",\n  \"description\": \"Cor preta\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Link Attribute to Vertical",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}{{apiPrefix}}/attributes/verticals/{{verticalId}}/attributes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributeId\": \"{{attributeId}}\",\n  \"isRequired\": true,\n  \"isMultiValue\": false,\n  \"minValue\": 1,\n  \"maxValue\": 10,\n  \"defaultValueId\": null,\n  \"allowedValueIds\": [\"{{allowedValueId}}\"],\n  \"additionalAllowedValues\": []\n}"
+            }
+          }
+        },
+        {
+          "name": "Link Attribute to Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}{{apiPrefix}}/attributes/categories/{{categoryId}}/attributes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributeId\": \"{{attributeId}}\",\n  \"isRequired\": true,\n  \"isMultiValue\": false,\n  \"minValue\": 1,\n  \"maxValue\": 5,\n  \"defaultValueId\": null,\n  \"allowedValueRefs\": [\n    {\n      \"sourceScope\": \"ATTRIBUTE\",\n      \"sourceValueId\": \"{{allowedValueId}}\"\n    }\n  ],\n  \"additionalAllowedValues\": []\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Consumer - Resolve & Validate",
+      "item": [
+        {
+          "name": "List Resolved Attributes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}{{apiPrefix}}/attributes?verticalId={{verticalId}}&categoryIds={{categoryId}}&limit=20&offset=0"
+          }
+        },
+        {
+          "name": "Get Resolved Attribute",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}{{apiPrefix}}/attributes/{{attributeId}}?verticalId={{verticalId}}&categoryIds={{categoryId}}"
+          }
+        },
+        {
+          "name": "Validate Attribute Values",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}{{apiPrefix}}/attributes/values/validate",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"verticalId\": \"{{verticalId}}\",\n  \"categoryIds\": [\"{{categoryId}}\"],\n  \"items\": [\n    {\n      \"attributeId\": \"{{attributeId}}\",\n      \"allowedValueId\": \"{{allowedValueId}}\"\n    }\n  ]\n}"
+            }
           }
         }
       ]
@@ -50,8 +240,20 @@
       "value": "/api"
     },
     {
-      "key": "apiVersion",
-      "value": "v1"
+      "key": "verticalId",
+      "value": "VERTICAL_ID_HERE"
+    },
+    {
+      "key": "categoryId",
+      "value": "CATEGORY_ID_HERE"
+    },
+    {
+      "key": "attributeId",
+      "value": "ATTRIBUTE_ID_HERE"
+    },
+    {
+      "key": "allowedValueId",
+      "value": "ALLOWED_VALUE_ID_HERE"
     }
   ]
 }

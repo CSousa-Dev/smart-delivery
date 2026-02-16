@@ -15,7 +15,7 @@
             "value": "application/json"
           }
         ],
-        "url": "{{baseUrl}}{{apiPrefix}}/{{apiVersion}}/identity/users",
+        "url": "{{baseUrl}}{{apiPrefix}}/identity/users",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"identifier\": \"admin+{{$timestamp}}@example.com\",\n  \"name\": \"Admin User\"\n}"
@@ -44,9 +44,5 @@
       "key": "apiPrefix",
       "value": "/api"
     },
-    {
-      "key": "apiVersion",
-      "value": "v1"
-    }
   ]
 }

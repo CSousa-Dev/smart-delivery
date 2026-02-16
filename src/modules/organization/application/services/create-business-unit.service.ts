@@ -5,7 +5,8 @@ import {
 import { BusinessUnit } from '../../domain/entities/business-unit.entity';
 import { OrganizationNotFoundError } from '../../domain/errors/organization.errors';
 import {
-  UserNotOwnerError,
+  OwnerCannotCreateBusinessUnitError,
+  BusinessUnitLimitReachedError,
   VerticalNotInOrganizationError,
   VerticalRequiredError,
 } from '../../domain/errors/business-unit.errors';
@@ -15,6 +16,9 @@ import { BusinessUnitVerticalRepository } from '../../domain/repositories/busine
 import { OrganizationRepository } from '../../domain/repositories/organization.repository';
 import { OrganizationVerticalRepository } from '../../domain/repositories/organization-vertical.repository';
 import { OrganizationUnitOfWork } from '../../domain/repositories/organization-unit-of-work';
+
+/** Maximum business units per organization. Ready to be made configurable per org later. */
+export const MAX_BUSINESS_UNITS_PER_ORGANIZATION = 1;
 
 export class CreateBusinessUnitService {
   constructor(
@@ -31,26 +35,30 @@ export class CreateBusinessUnitService {
       throw new OrganizationNotFoundError(input.organizationId);
     }
 
-    if (organization.getOwnerUserId() !== input.actorUserId) {
-      throw new UserNotOwnerError(input.actorUserId, input.organizationId);
+    if (organization.getOwnerUserId() === input.actorUserId) {
+      throw new OwnerCannotCreateBusinessUnitError(input.actorUserId, input.organizationId);
     }
 
-    if (!input.verticalIds.length) {
+    const unitCount = await this.businessUnitRepository.countByOrganizationId(input.organizationId);
+    if (unitCount >= MAX_BUSINESS_UNITS_PER_ORGANIZATION) {
+      throw new BusinessUnitLimitReachedError(
+        input.organizationId,
+        MAX_BUSINESS_UNITS_PER_ORGANIZATION
+      );
+    }
+
+    if (!input.verticalCodes.length) {
       throw new VerticalRequiredError();
     }
 
     const activeLinks = await this.organizationVerticalRepository.listActiveByOrganizationId(
       input.organizationId
     );
-    const activeVerticalIds = new Set(activeLinks.map((link) => link.getVerticalId()));
-    const invalidVertical = input.verticalIds.find((verticalId) => !activeVerticalIds.has(verticalId));
+    const activeVerticalCodes = new Set(activeLinks.map((link) => link.getVerticalCode()));
+    const invalidVertical = input.verticalCodes.find((code) => !activeVerticalCodes.has(code));
     if (invalidVertical) {
       throw new VerticalNotInOrganizationError(input.organizationId, invalidVertical);
     }
-
-    const unitCount = await this.businessUnitRepository.countByOrganizationId(
-      input.organizationId
-    );
 
     const unit = BusinessUnit.create({
       organizationId: input.organizationId,
@@ -64,11 +72,11 @@ export class CreateBusinessUnitService {
       status: 'PENDING_PRODUCTS',
     });
 
-    const verticalLinks = input.verticalIds.map((verticalId) =>
+    const verticalLinks = input.verticalCodes.map((verticalCode) =>
       BusinessUnitVerticalLink.create({
         businessUnitId: unit.getId().value,
         organizationId: input.organizationId,
-        verticalId,
+        verticalCode,
       })
     );
 
@@ -76,17 +84,14 @@ export class CreateBusinessUnitService {
       await repositories.businessUnitRepository.save(unit);
       await repositories.businessUnitVerticalRepository.saveMany(verticalLinks);
       if (unitCount === 0) {
-        await repositories.organizationRepository.updateStatus(
-          input.organizationId,
-          'ACTIVE'
-        );
+        await repositories.organizationRepository.updateStatus(input.organizationId, 'ACTIVE');
       }
     });
 
     return {
       id: unit.getId().value,
       organizationId: unit.getOrganizationId(),
-      verticalIds: input.verticalIds,
+      verticalCodes: input.verticalCodes,
       publicName: unit.getPublicName(),
       phoneNumber: unit.getPhoneNumber(),
       phoneHasWhatsapp: unit.getPhoneHasWhatsapp(),

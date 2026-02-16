@@ -14,15 +14,24 @@ describe('LinkAttributeToVerticalService', () => {
   const buildService = () => {
     const verticalRepository: VerticalRepository = {
       save: jest.fn(),
+      update: jest.fn(),
       existsByName: jest.fn(),
       existsByCode: jest.fn(),
+      existsByNameExcludingId: jest.fn(),
+      existsByCodeExcludingId: jest.fn(),
       existsById: jest.fn().mockResolvedValue(true),
+      findById: jest.fn(),
+      listAll: jest.fn(),
     };
     const attributeRepository: AttributeRepository = {
       save: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
       updateDefaultValue: jest.fn(),
       existsByName: jest.fn(),
       existsByCode: jest.fn(),
+      existsByNameExcludingId: jest.fn(),
+      existsByCodeExcludingId: jest.fn(),
       findById: jest.fn().mockResolvedValue(null),
       listGlobal: jest.fn().mockResolvedValue([]),
       findByIds: jest.fn().mockResolvedValue([]),
@@ -31,18 +40,29 @@ describe('LinkAttributeToVerticalService', () => {
       saveAll: jest.fn(),
       existsByName: jest.fn(),
       existsByValue: jest.fn(),
+      existsByNameExcludingId: jest.fn(),
+      existsByValueExcludingId: jest.fn(),
+      findById: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      isLinkedToUsage: jest.fn(),
       listByAttribute: jest.fn().mockResolvedValue([]),
     };
     const verticalAttributeRepository: VerticalAttributeRepository = {
       save: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
       existsByVerticalAndAttribute: jest.fn().mockResolvedValue(false),
+      existsByAttributeId: jest.fn(),
       saveSubsetLinks: jest.fn(),
+      deleteSubsetLinks: jest.fn(),
       findByVerticalAndAttribute: jest.fn().mockResolvedValue(null),
       listSubsetLinks: jest.fn().mockResolvedValue([]),
       listByVertical: jest.fn().mockResolvedValue([]),
     };
     const verticalAllowedValueRepository: VerticalAllowedValueRepository = {
       saveAll: jest.fn(),
+      deleteByVerticalAttribute: jest.fn(),
       listByVerticalAttribute: jest.fn().mockResolvedValue([]),
     };
 

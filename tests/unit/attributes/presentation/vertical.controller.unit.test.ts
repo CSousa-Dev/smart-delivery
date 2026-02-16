@@ -7,9 +7,31 @@ describe('VerticalController', () => {
     const createVerticalService = {
       execute: jest.fn(),
     };
+    const updateVerticalService = {
+      execute: jest.fn(),
+    };
+    const inactivateVerticalService = {
+      execute: jest.fn(),
+    };
+    const activateVerticalService = {
+      execute: jest.fn(),
+    };
+    const getVerticalService = {
+      execute: jest.fn(),
+    };
+    const listVerticalsService = {
+      execute: jest.fn(),
+    };
 
     return {
-      controller: new VerticalController(createVerticalService as any),
+      controller: new VerticalController(
+        createVerticalService as any,
+        updateVerticalService as any,
+        inactivateVerticalService as any,
+        activateVerticalService as any,
+        getVerticalService as any,
+        listVerticalsService as any
+      ),
       createVerticalService,
     };
   };

@@ -11,8 +11,7 @@ import { OrganizationRepository } from '../../../../src/modules/organization/dom
 import { OrganizationVerticalRepository } from '../../../../src/modules/organization/domain/repositories/organization-vertical.repository';
 import { UserRepository } from '../../../../src/modules/organization/domain/repositories/user.repository';
 import { User } from '../../../../src/modules/organization/domain/entities/user.entity';
-import { VerticalRepository } from '../../../../src/modules/organization/domain/repositories/vertical.repository';
-import { Vertical } from '../../../../src/modules/organization/domain/entities/vertical.entity';
+import { VerticalCatalogPort } from '../../../../src/modules/organization/application/ports/vertical-catalog.port';
 
 describe('GetOrganizationService', () => {
   const organization = Organization.create({
@@ -22,7 +21,7 @@ describe('GetOrganizationService', () => {
     documentType: 'CNPJ',
     documentNumber: '12345678901234',
     ownerUserId: 'user-1',
-    verticalIds: ['vert-1'],
+    verticalCodes: ['v1'],
     status: 'ACTIVE',
   });
 
@@ -32,6 +31,7 @@ describe('GetOrganizationService', () => {
       existsById: jest.fn(),
       existsByDocumentNumber: jest.fn(),
       findById: jest.fn().mockResolvedValue(organization),
+      update: jest.fn(),
       updateStatus: jest.fn(),
       list: jest.fn(),
       countAll: jest.fn(),
@@ -43,18 +43,23 @@ describe('GetOrganizationService', () => {
       listByOrganizationId: jest.fn().mockResolvedValue([
         OrganizationVerticalLink.restore({
           organizationId: organization.getId().value,
-          verticalId: 'vert-1',
+          verticalCode: 'v1',
           status: 'ACTIVE',
           createdAt: new Date(),
         }),
       ]),
       listByOrganizationIds: jest.fn(),
       listActiveByOrganizationId: jest.fn(),
-      findByOrganizationAndVerticalId: jest.fn(),
-      findActiveByOrganizationAndVerticalId: jest.fn(),
-      existsActiveByOrganizationAndVerticalId: jest.fn(),
+      findByOrganizationAndVerticalCode: jest.fn(),
+      findActiveByOrganizationAndVerticalCode: jest.fn(),
+      existsActiveByOrganizationAndVerticalCode: jest.fn(),
       updateStatus: jest.fn(),
       countActiveByOrganizationId: jest.fn(),
+    };
+
+    const verticalCatalog: VerticalCatalogPort = {
+      listAllActive: jest.fn().mockResolvedValue([{ code: 'v1', name: 'V1', description: 'd1' }]),
+      validateCodes: jest.fn().mockResolvedValue(true),
     };
 
     const businessUnitRepository: BusinessUnitRepository = {
@@ -109,31 +114,19 @@ describe('GetOrganizationService', () => {
       ]),
     };
 
-    const verticalRepository: VerticalRepository = {
-      listByIds: jest.fn().mockResolvedValue([
-        Vertical.restore({
-          id: 'vert-1',
-          name: 'Restaurante',
-          code: 'FOOD',
-          description: 'Food services',
-          createdAt: new Date(),
-        }),
-      ]),
-    };
-
     return {
       service: new GetOrganizationService(
         organizationRepository,
         organizationVerticalRepository,
         businessUnitRepository,
         userRepository,
-        verticalRepository
+        verticalCatalog
       ),
       organizationRepository,
       organizationVerticalRepository,
       businessUnitRepository,
       userRepository,
-      verticalRepository,
+      verticalCatalog,
     };
   };
 
@@ -163,7 +156,7 @@ describe('GetOrganizationService', () => {
 
     expect(output.businessUnits).toBeUndefined();
     expect(output.users).toBeUndefined();
-    expect(output.verticals.map((vertical) => vertical.id)).toEqual(['vert-1']);
+    expect(output.verticals.map((v) => v.code)).toEqual(['v1']);
   });
 
   it('should return organization with business units and users', async () => {

@@ -26,7 +26,6 @@ describeIf('Capability List Business Units – [CAP-009]', () => {
     await prisma.userOrganizationLink.deleteMany();
     await prisma.user.deleteMany();
     await prisma.organization.deleteMany();
-    await prisma.vertical.deleteMany();
   });
 
   const buildService = () => new ListBusinessUnitsService(new PrismaBusinessUnitRepository(prisma));

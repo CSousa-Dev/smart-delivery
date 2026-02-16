@@ -16,15 +16,22 @@ export class PrismaVerticalAllowedValueRepository implements VerticalAllowedValu
     });
   }
 
+  async deleteByVerticalAttribute(verticalAttributeId: string): Promise<void> {
+    await this.prisma.verticalAllowedValue.deleteMany({
+      where: { verticalAttributeId },
+    });
+  }
+
   async listByVerticalAttribute(
     verticalAttributeId: string
-  ): Promise<Array<{ id: string; name: string; value: string }>> {
+  ): Promise<Array<{ id: string; name: string; value: string; description: string | null }>> {
     const values = await this.prisma.verticalAllowedValue.findMany({
       where: { verticalAttributeId },
       select: {
         id: true,
         name: true,
         value: true,
+        description: true,
       },
     });
 

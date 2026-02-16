@@ -3,16 +3,16 @@ import { VerticalLinkStatus, VerticalLinkStatusValue } from './vertical-link-sta
 export class OrganizationVerticalLink {
   private constructor(
     private readonly organizationId: string,
-    private readonly verticalId: string,
+    private readonly verticalCode: string,
     private status: VerticalLinkStatus,
     private readonly createdAt: Date,
     private updatedAt: Date | null
   ) {}
 
-  static create(props: { organizationId: string; verticalId: string }): OrganizationVerticalLink {
+  static create(props: { organizationId: string; verticalCode: string }): OrganizationVerticalLink {
     return new OrganizationVerticalLink(
       props.organizationId,
-      props.verticalId,
+      props.verticalCode,
       VerticalLinkStatus.create('ACTIVE'),
       new Date(),
       null
@@ -21,14 +21,14 @@ export class OrganizationVerticalLink {
 
   static restore(props: {
     organizationId: string;
-    verticalId: string;
+    verticalCode: string;
     status: VerticalLinkStatusValue;
     createdAt: Date;
     updatedAt?: Date | null;
   }): OrganizationVerticalLink {
     return new OrganizationVerticalLink(
       props.organizationId,
-      props.verticalId,
+      props.verticalCode,
       VerticalLinkStatus.create(props.status),
       props.createdAt,
       props.updatedAt ?? null
@@ -39,8 +39,8 @@ export class OrganizationVerticalLink {
     return this.organizationId;
   }
 
-  getVerticalId(): string {
-    return this.verticalId;
+  getVerticalCode(): string {
+    return this.verticalCode;
   }
 
   getStatus(): VerticalLinkStatusValue {

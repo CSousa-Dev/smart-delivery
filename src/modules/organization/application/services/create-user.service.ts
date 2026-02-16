@@ -7,7 +7,10 @@ import {
   User,
 } from '../../domain/entities/user.entity';
 import { UserOrganizationLink } from '../../domain/entities/user-organization-link.entity';
-import { OrganizationNotFoundError } from '../../domain/errors/organization.errors';
+import {
+  OrganizationIdRequiredError,
+  OrganizationNotFoundError,
+} from '../../domain/errors/organization.errors';
 import {
   DocumentAlreadyExistsError,
   EmailAlreadyExistsError,
@@ -25,10 +28,19 @@ export class CreateUserService {
   ) {}
 
   async execute(input: CreateUserInput): Promise<CreateUserOutput> {
+    if (!input.organizationId?.trim()) {
+      throw new OrganizationIdRequiredError();
+    }
+
     const documentType = DocumentType.create(input.documentType);
     const documentNumber = DocumentNumber.create(input.documentNumber, documentType.value);
     const email = EmailAddress.create(input.email);
     const phoneNumber = PhoneNumber.create(input.phoneNumber);
+
+    const organizationExists = await this.organizationRepository.existsById(input.organizationId);
+    if (!organizationExists) {
+      throw new OrganizationNotFoundError(input.organizationId);
+    }
 
     if (await this.userRepository.existsByDocumentNumber(documentNumber.value)) {
       throw new DocumentAlreadyExistsError(documentNumber.value);
@@ -46,14 +58,6 @@ export class CreateUserService {
       throw new PhoneAlreadyExistsError(phoneNumber.value);
     }
 
-    if (input.organizationId) {
-      const exists = await this.organizationRepository.existsById(input.organizationId);
-      if (!exists) {
-        throw new OrganizationNotFoundError(input.organizationId);
-      }
-    }
-
-    const status = input.organizationId ? 'ORG_LINKED' : 'PENDING_ORG_LINK';
     const user = User.create({
       firstName: input.firstName,
       lastName: input.lastName,
@@ -63,21 +67,17 @@ export class CreateUserService {
       phoneNumber: phoneNumber.value,
       emailOptIn: input.emailOptIn,
       phoneOptIn: input.phoneOptIn,
-      status,
+      status: 'ORG_LINKED',
     });
 
-    const link = input.organizationId
-      ? UserOrganizationLink.create({
-          userId: user.getId().value,
-          organizationId: input.organizationId,
-        })
-      : null;
+    const link = UserOrganizationLink.create({
+      userId: user.getId().value,
+      organizationId: input.organizationId,
+    });
 
     await this.unitOfWork.withTransaction(async (repositories) => {
       await repositories.userRepository.save(user);
-      if (link) {
-        await repositories.userOrganizationLinkRepository.save(link);
-      }
+      await repositories.userOrganizationLinkRepository.save(link);
     });
 
     return {
@@ -91,7 +91,7 @@ export class CreateUserService {
       emailOptIn: user.getEmailOptIn(),
       phoneOptIn: user.getPhoneOptIn(),
       status: user.getStatus(),
-      organizationId: input.organizationId ?? null,
+      organizationId: input.organizationId,
       createdAt: user.getCreatedAt(),
     };
   }

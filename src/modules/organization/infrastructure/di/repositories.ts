@@ -6,7 +6,6 @@ import { PrismaOrganizationVerticalRepository } from '../repositories/organizati
 import { PrismaBusinessUnitVerticalRepository } from '../repositories/business-unit-vertical/business-unit-vertical.repository.impl';
 import { PrismaUserOrganizationLinkRepository } from '../repositories/user-organization-link/user-organization-link.repository.impl';
 import { PrismaUserRepository } from '../repositories/user/user.repository.impl';
-import { PrismaVerticalRepository } from '../repositories/vertical/vertical.repository.impl';
 
 export function createOrganizationRepositories(db: OrganizationPrismaClient) {
   return {
@@ -15,7 +14,6 @@ export function createOrganizationRepositories(db: OrganizationPrismaClient) {
     businessUnitVerticalRepository: new PrismaBusinessUnitVerticalRepository(db),
     userRepository: new PrismaUserRepository(db),
     userOrganizationLinkRepository: new PrismaUserOrganizationLinkRepository(db),
-    verticalRepository: new PrismaVerticalRepository(db),
     businessUnitRepository: new PrismaBusinessUnitRepository(db),
     unitOfWork: new PrismaOrganizationUnitOfWork(db),
   };

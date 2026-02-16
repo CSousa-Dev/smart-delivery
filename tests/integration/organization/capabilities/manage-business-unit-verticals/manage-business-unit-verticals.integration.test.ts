@@ -37,7 +37,6 @@ describeIf('Capability Manage Business Unit Verticals – [CAP-011]', () => {
     await prisma.businessUnit.deleteMany();
     await prisma.organizationVertical.deleteMany();
     await prisma.organization.deleteMany();
-    await prisma.vertical.deleteMany();
   });
 
   const buildLinkService = () =>
@@ -97,21 +96,18 @@ describeIf('Capability Manage Business Unit Verticals – [CAP-011]', () => {
     const service = buildLinkService();
     await seedOrganization();
     await seedBusinessUnit();
-    await prisma.vertical.create({
-      data: { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
-    });
     await prisma.organizationVertical.create({
-      data: { organizationId: 'org-1', verticalId: 'vert-1', statusId: 'ACTIVE' },
+      data: { organizationId: 'org-1', verticalCode: 'v1', statusId: 'ACTIVE' },
     });
 
     const output = await service.execute({
       businessUnitId: 'unit-1',
-      verticalId: 'vert-1',
+      verticalCode: 'v1',
       actorUserId: 'user-1',
     });
 
     const link = await prisma.businessUnitVertical.findUnique({
-      where: { businessUnitId_verticalId: { businessUnitId: 'unit-1', verticalId: 'vert-1' } },
+      where: { businessUnitId_verticalCode: { businessUnitId: 'unit-1', verticalCode: 'v1' } },
     });
 
     expect(output.status).toBe('ACTIVE');
@@ -122,14 +118,11 @@ describeIf('Capability Manage Business Unit Verticals – [CAP-011]', () => {
     const service = buildLinkService();
     await seedOrganization();
     await seedBusinessUnit();
-    await prisma.vertical.create({
-      data: { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
-    });
 
     await expect(
       service.execute({
         businessUnitId: 'unit-1',
-        verticalId: 'vert-1',
+        verticalCode: 'v1',
         actorUserId: 'user-1',
       })
     ).rejects.toBeInstanceOf(VerticalNotInOrganizationError);
@@ -142,7 +135,7 @@ describeIf('Capability Manage Business Unit Verticals – [CAP-011]', () => {
     await expect(
       service.execute({
         businessUnitId: 'unit-1',
-        verticalId: 'vert-1',
+        verticalCode: 'v1',
         actorUserId: 'user-1',
       })
     ).rejects.toBeInstanceOf(BusinessUnitNotFoundError);
@@ -159,7 +152,7 @@ describeIf('Capability Manage Business Unit Verticals – [CAP-011]', () => {
     await expect(
       service.execute({
         businessUnitId: 'unit-1',
-        verticalId: 'vert-1',
+        verticalCode: 'v1',
         actorUserId: 'user-1',
       })
     ).rejects.toBeInstanceOf(OrganizationNotFoundError);
@@ -169,17 +162,14 @@ describeIf('Capability Manage Business Unit Verticals – [CAP-011]', () => {
     const service = buildLinkService();
     await seedOrganization('user-2');
     await seedBusinessUnit();
-    await prisma.vertical.create({
-      data: { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
-    });
     await prisma.organizationVertical.create({
-      data: { organizationId: 'org-1', verticalId: 'vert-1', statusId: 'ACTIVE' },
+      data: { organizationId: 'org-1', verticalCode: 'v1', statusId: 'ACTIVE' },
     });
 
     await expect(
       service.execute({
         businessUnitId: 'unit-1',
-        verticalId: 'vert-1',
+        verticalCode: 'v1',
         actorUserId: 'user-1',
       })
     ).rejects.toBeInstanceOf(UserNotOwnerError);
@@ -189,16 +179,10 @@ describeIf('Capability Manage Business Unit Verticals – [CAP-011]', () => {
     const service = buildUnlinkService();
     await seedOrganization();
     await seedBusinessUnit();
-    await prisma.vertical.createMany({
-      data: [
-        { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
-        { id: 'vert-2', name: 'V2', code: 'v2', description: 'Vertical 2' },
-      ],
-    });
     await prisma.organizationVertical.createMany({
       data: [
-        { organizationId: 'org-1', verticalId: 'vert-1', statusId: 'ACTIVE' },
-        { organizationId: 'org-1', verticalId: 'vert-2', statusId: 'ACTIVE' },
+        { organizationId: 'org-1', verticalCode: 'v1', statusId: 'ACTIVE' },
+        { organizationId: 'org-1', verticalCode: 'v2', statusId: 'ACTIVE' },
       ],
     });
     await prisma.businessUnitVertical.createMany({
@@ -206,13 +190,13 @@ describeIf('Capability Manage Business Unit Verticals – [CAP-011]', () => {
         {
           businessUnitId: 'unit-1',
           organizationId: 'org-1',
-          verticalId: 'vert-1',
+          verticalCode: 'v1',
           statusId: 'ACTIVE',
         },
         {
           businessUnitId: 'unit-1',
           organizationId: 'org-1',
-          verticalId: 'vert-2',
+          verticalCode: 'v2',
           statusId: 'ACTIVE',
         },
       ],
@@ -220,12 +204,12 @@ describeIf('Capability Manage Business Unit Verticals – [CAP-011]', () => {
 
     const output = await service.execute({
       businessUnitId: 'unit-1',
-      verticalId: 'vert-1',
+      verticalCode: 'v1',
       actorUserId: 'user-1',
     });
 
     const link = await prisma.businessUnitVertical.findUnique({
-      where: { businessUnitId_verticalId: { businessUnitId: 'unit-1', verticalId: 'vert-1' } },
+      where: { businessUnitId_verticalCode: { businessUnitId: 'unit-1', verticalCode: 'v1' } },
     });
 
     expect(output.status).toBe('INACTIVE');
@@ -240,7 +224,7 @@ describeIf('Capability Manage Business Unit Verticals – [CAP-011]', () => {
     await expect(
       service.execute({
         businessUnitId: 'unit-1',
-        verticalId: 'vert-1',
+        verticalCode: 'v1',
         actorUserId: 'user-1',
       })
     ).rejects.toBeInstanceOf(BusinessUnitVerticalNotFoundError);
@@ -250,17 +234,14 @@ describeIf('Capability Manage Business Unit Verticals – [CAP-011]', () => {
     const service = buildUnlinkService();
     await seedOrganization();
     await seedBusinessUnit();
-    await prisma.vertical.create({
-      data: { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
-    });
     await prisma.organizationVertical.create({
-      data: { organizationId: 'org-1', verticalId: 'vert-1', statusId: 'ACTIVE' },
+      data: { organizationId: 'org-1', verticalCode: 'v1', statusId: 'ACTIVE' },
     });
     await prisma.businessUnitVertical.create({
       data: {
         businessUnitId: 'unit-1',
         organizationId: 'org-1',
-        verticalId: 'vert-1',
+        verticalCode: 'v1',
         statusId: 'ACTIVE',
       },
     });
@@ -268,7 +249,7 @@ describeIf('Capability Manage Business Unit Verticals – [CAP-011]', () => {
     await expect(
       service.execute({
         businessUnitId: 'unit-1',
-        verticalId: 'vert-1',
+        verticalCode: 'v1',
         actorUserId: 'user-1',
       })
     ).rejects.toBeInstanceOf(BusinessUnitRequiresActiveVerticalError);

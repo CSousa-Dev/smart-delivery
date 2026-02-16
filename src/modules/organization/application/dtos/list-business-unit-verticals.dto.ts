@@ -4,9 +4,8 @@ export interface ListBusinessUnitVerticalsInput {
   businessUnitId: string;
 }
 export interface BusinessUnitVerticalSummary {
-  id: string;
-  name: string;
   code: string;
+  name: string;
   description: string;
   status: VerticalLinkStatusValue;
 }

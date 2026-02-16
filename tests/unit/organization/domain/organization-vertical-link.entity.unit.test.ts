@@ -4,10 +4,10 @@ describe('OrganizationVerticalLink Entity', () => {
   it('should create organization vertical link', () => {
     const link = OrganizationVerticalLink.create({
       organizationId: 'org-1',
-      verticalId: 'vert-1',
+      verticalCode: 'RESTAURANTS',
     });
 
     expect(link.getOrganizationId()).toBe('org-1');
-    expect(link.getVerticalId()).toBe('vert-1');
+    expect(link.getVerticalCode()).toBe('RESTAURANTS');
   });
 });

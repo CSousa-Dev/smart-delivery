@@ -1,5 +1,8 @@
 import { CreateUserService } from '../../../../../src/modules/organization/application/services/create-user.service';
-import { OrganizationNotFoundError } from '../../../../../src/modules/organization/domain/errors/organization.errors';
+import {
+  OrganizationIdRequiredError,
+  OrganizationNotFoundError,
+} from '../../../../../src/modules/organization/domain/errors/organization.errors';
 import {
   DocumentAlreadyExistsError,
   EmailAlreadyExistsError,
@@ -35,7 +38,6 @@ describeIf('Capability Create User – [CAP-001]', () => {
     await prisma.userOrganizationLink.deleteMany();
     await prisma.user.deleteMany();
     await prisma.organization.deleteMany();
-    await prisma.vertical.deleteMany();
   });
 
   const buildService = () =>
@@ -45,31 +47,25 @@ describeIf('Capability Create User – [CAP-001]', () => {
       new PrismaOrganizationUnitOfWork(prisma)
     );
 
-  it('should create user without organization – [SCN-001]', async () => {
+  it('should reject when organizationId is missing – [SCN-001]', async () => {
     const service = buildService();
 
-    const output = await service.execute({
-      firstName: 'Ana',
-      lastName: 'Silva',
-      documentType: 'CPF',
-      documentNumber: '12345678901',
-      email: 'ana@example.com',
-      phoneNumber: '11999999999',
-      emailOptIn: true,
-      phoneOptIn: true,
-    });
-
-    const savedUser = await prisma.user.findUnique({ where: { id: output.id } });
-    const linkCount = await prisma.userOrganizationLink.count({
-      where: { userId: output.id },
-    });
-
-    expect(output.status).toBe('PENDING_ORG_LINK');
-    expect(savedUser).not.toBeNull();
-    expect(linkCount).toBe(0);
+    await expect(
+      service.execute({
+        firstName: 'Ana',
+        lastName: 'Silva',
+        documentType: 'CPF',
+        documentNumber: '12345678901',
+        email: 'ana@example.com',
+        phoneNumber: '11999999999',
+        emailOptIn: true,
+        phoneOptIn: true,
+        organizationId: '',
+      })
+    ).rejects.toBeInstanceOf(OrganizationIdRequiredError);
   });
 
-  it('should create user linked to organization – [SCN-002]', async () => {
+  it('should create user linked to organization (not owner) – [SCN-002]', async () => {
     const service = buildService();
 
     await prisma.organization.create({
@@ -80,7 +76,7 @@ describeIf('Capability Create User – [CAP-001]', () => {
         documentType: 'CNPJ',
         documentNumber: '12345678901234',
         statusId: 'ACTIVE',
-        ownerUserId: 'user-1',
+        ownerUserId: null,
       },
     });
 
@@ -101,7 +97,12 @@ describeIf('Capability Create User – [CAP-001]', () => {
     });
 
     expect(output.status).toBe('ORG_LINKED');
+    expect(output.organizationId).toBe('org-1');
     expect(linkCount).toBe(1);
+    const link = await prisma.userOrganizationLink.findUnique({
+      where: { userId: output.id },
+    });
+    expect(link?.isOwner).toBe(false);
   });
 
   it('should reject when organization does not exist – [SCN-003]', async () => {
@@ -133,7 +134,7 @@ describeIf('Capability Create User – [CAP-001]', () => {
         documentType: 'CNPJ',
         documentNumber: '12345678901',
         statusId: 'ACTIVE',
-        ownerUserId: 'user-1',
+        ownerUserId: null,
       },
     });
 
@@ -147,12 +148,25 @@ describeIf('Capability Create User – [CAP-001]', () => {
         phoneNumber: '11999999999',
         emailOptIn: true,
         phoneOptIn: true,
+        organizationId: 'org-1',
       })
     ).rejects.toBeInstanceOf(DocumentAlreadyExistsError);
   });
 
   it('should reject duplicated email – [SCN-005]', async () => {
     const service = buildService();
+
+    await prisma.organization.create({
+      data: {
+        id: 'org-1',
+        tradeName: 'Org 1',
+        legalName: 'Org 1 LTDA',
+        documentType: 'CNPJ',
+        documentNumber: '12345678901234',
+        statusId: 'ACTIVE',
+        ownerUserId: null,
+      },
+    });
 
     await service.execute({
       firstName: 'Ana',
@@ -163,6 +177,7 @@ describeIf('Capability Create User – [CAP-001]', () => {
       phoneNumber: '11999999999',
       emailOptIn: true,
       phoneOptIn: true,
+      organizationId: 'org-1',
     });
 
     await expect(
@@ -175,12 +190,25 @@ describeIf('Capability Create User – [CAP-001]', () => {
         phoneNumber: '11988887777',
         emailOptIn: true,
         phoneOptIn: true,
+        organizationId: 'org-1',
       })
     ).rejects.toBeInstanceOf(EmailAlreadyExistsError);
   });
 
   it('should reject duplicated phone – [SCN-006]', async () => {
     const service = buildService();
+
+    await prisma.organization.create({
+      data: {
+        id: 'org-1',
+        tradeName: 'Org 1',
+        legalName: 'Org 1 LTDA',
+        documentType: 'CNPJ',
+        documentNumber: '12345678901234',
+        statusId: 'ACTIVE',
+        ownerUserId: null,
+      },
+    });
 
     await service.execute({
       firstName: 'Ana',
@@ -191,6 +219,7 @@ describeIf('Capability Create User – [CAP-001]', () => {
       phoneNumber: '11999999999',
       emailOptIn: true,
       phoneOptIn: true,
+      organizationId: 'org-1',
     });
 
     await expect(
@@ -203,12 +232,25 @@ describeIf('Capability Create User – [CAP-001]', () => {
         phoneNumber: '11999999999',
         emailOptIn: true,
         phoneOptIn: true,
+        organizationId: 'org-1',
       })
     ).rejects.toBeInstanceOf(PhoneAlreadyExistsError);
   });
 
   it('should reject invalid document – [SCN-007]', async () => {
     const service = buildService();
+
+    await prisma.organization.create({
+      data: {
+        id: 'org-1',
+        tradeName: 'Org 1',
+        legalName: 'Org 1 LTDA',
+        documentType: 'CNPJ',
+        documentNumber: '12345678901234',
+        statusId: 'ACTIVE',
+        ownerUserId: null,
+      },
+    });
 
     await expect(
       service.execute({
@@ -220,6 +262,7 @@ describeIf('Capability Create User – [CAP-001]', () => {
         phoneNumber: '11999999999',
         emailOptIn: true,
         phoneOptIn: true,
+        organizationId: 'org-1',
       })
     ).rejects.toBeInstanceOf(InvalidDocumentError);
   });

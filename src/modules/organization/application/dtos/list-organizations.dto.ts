@@ -5,9 +5,8 @@ export interface ListOrganizationsInput {
 }
 
 export interface VerticalSummary {
-  id: string;
-  name: string;
   code: string;
+  name: string;
   description: string;
 }
 

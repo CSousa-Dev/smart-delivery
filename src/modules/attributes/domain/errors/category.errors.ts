@@ -6,6 +6,12 @@ export class VerticalNotFoundError extends DomainError {
   }
 }
 
+export class CategoryNotFoundError extends DomainError {
+  constructor(categoryId: string) {
+    super('Category not found', 'CATEGORY_NOT_FOUND', { categoryId });
+  }
+}
+
 export class ParentCategoryNotFoundError extends DomainError {
   constructor(parentCategoryId: string) {
     super('Parent category not found', 'PARENT_CATEGORY_NOT_FOUND', {
@@ -50,5 +56,17 @@ export class CategoryDepthExceededError extends DomainError {
 export class InvalidCategoryHierarchyError extends DomainError {
   constructor() {
     super('Category hierarchy cycle detected', 'CATEGORY_HIERARCHY_CYCLE');
+  }
+}
+
+export class CategoryAlreadyInactiveError extends DomainError {
+  constructor(categoryId: string) {
+    super('Category already inactive', 'CATEGORY_ALREADY_INACTIVE', { categoryId });
+  }
+}
+
+export class CategoryAlreadyActiveError extends DomainError {
+  constructor(categoryId: string) {
+    super('Category already active', 'CATEGORY_ALREADY_ACTIVE', { categoryId });
   }
 }

@@ -33,3 +33,9 @@ export class AllowedValueLengthOutOfBoundsError extends DomainError {
     });
   }
 }
+
+export class AllowedValueInUseError extends DomainError {
+  constructor(allowedValueId: string) {
+    super('Allowed value is in use', 'ALLOWED_VALUE_IN_USE', { allowedValueId });
+  }
+}

@@ -3,6 +3,7 @@ import { BusinessUnitVerticalController } from '../../presentation/http/controll
 import { OrganizationController } from '../../presentation/http/controllers/organization.controller';
 import { OrganizationVerticalController } from '../../presentation/http/controllers/organization-vertical.controller';
 import { UserController } from '../../presentation/http/controllers/user.controller';
+import { VerticalController } from '../../presentation/http/controllers/vertical.controller';
 import { createOrganizationAppServices } from './services';
 
 type AppServices = ReturnType<typeof createOrganizationAppServices>;
@@ -17,7 +18,8 @@ export function createOrganizationControllers(services: AppServices) {
     organizationController: new OrganizationController(
       services.createOrganizationService,
       services.getOrganizationService,
-      services.listOrganizationsService
+      services.listOrganizationsService,
+      services.updateOrganizationService
     ),
     businessUnitController: new BusinessUnitController(
       services.createBusinessUnitService,
@@ -34,5 +36,6 @@ export function createOrganizationControllers(services: AppServices) {
       services.unlinkBusinessUnitVerticalService,
       services.listBusinessUnitVerticalsService
     ),
+    verticalController: new VerticalController(services.listVerticalsService),
   };
 }

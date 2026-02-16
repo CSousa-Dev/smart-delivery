@@ -6,7 +6,10 @@ import {
   OrganizationUnitOfWorkRepositories,
 } from '../../../../src/modules/organization/domain/repositories/organization-unit-of-work';
 import { OrganizationNotFoundError } from '../../../../src/modules/organization/domain/errors/organization.errors';
-import { UserNotOwnerError } from '../../../../src/modules/organization/domain/errors/business-unit.errors';
+import {
+  OwnerCannotCreateBusinessUnitError,
+  BusinessUnitLimitReachedError,
+} from '../../../../src/modules/organization/domain/errors/business-unit.errors';
 import { Organization } from '../../../../src/modules/organization/domain/entities/organization.entity';
 import { OrganizationVerticalLink } from '../../../../src/modules/organization/domain/entities/organization-vertical-link.entity';
 
@@ -18,7 +21,7 @@ describe('CreateBusinessUnitService', () => {
     documentType: 'CNPJ',
     documentNumber: '12345678901234',
     ownerUserId: 'user-1',
-    verticalIds: ['vert-1'],
+    verticalCodes: ['v1'],
     status: 'PENDING_BUSINESS_UNIT',
   });
 
@@ -37,6 +40,7 @@ describe('CreateBusinessUnitService', () => {
       existsById: jest.fn(),
       existsByDocumentNumber: jest.fn(),
       findById: jest.fn().mockResolvedValue(organization),
+      update: jest.fn(),
       updateStatus: jest.fn(),
       list: jest.fn(),
       countAll: jest.fn(),
@@ -48,8 +52,8 @@ describe('CreateBusinessUnitService', () => {
         saveMany: jest.fn(),
         save: jest.fn(),
         listByBusinessUnitId: jest.fn(),
-        findByBusinessUnitAndVerticalId: jest.fn(),
-        findActiveByBusinessUnitAndVerticalId: jest.fn(),
+        findByBusinessUnitAndVerticalCode: jest.fn(),
+        findActiveByBusinessUnitAndVerticalCode: jest.fn(),
         updateStatus: jest.fn(),
         countActiveByBusinessUnitId: jest.fn(),
       },
@@ -61,15 +65,15 @@ describe('CreateBusinessUnitService', () => {
         listActiveByOrganizationId: jest.fn().mockResolvedValue([
           OrganizationVerticalLink.restore({
             organizationId: 'org-1',
-            verticalId: 'vert-1',
+            verticalCode: 'v1',
             status: 'ACTIVE',
             createdAt: new Date(),
           }),
         ]),
         save: jest.fn(),
-        findByOrganizationAndVerticalId: jest.fn(),
-        findActiveByOrganizationAndVerticalId: jest.fn(),
-        existsActiveByOrganizationAndVerticalId: jest.fn(),
+        findByOrganizationAndVerticalCode: jest.fn(),
+        findActiveByOrganizationAndVerticalCode: jest.fn(),
+        existsActiveByOrganizationAndVerticalCode: jest.fn(),
         updateStatus: jest.fn(),
         countActiveByOrganizationId: jest.fn(),
       },
@@ -112,8 +116,8 @@ describe('CreateBusinessUnitService', () => {
 
   const baseInput = {
     organizationId: 'org-1',
-    actorUserId: 'user-1',
-    verticalIds: ['vert-1'],
+    actorUserId: 'platform-1',
+    verticalCodes: ['v1'],
     publicName: 'Loja X',
     phoneNumber: '11999999999',
     phoneHasWhatsapp: true,
@@ -138,15 +142,24 @@ describe('CreateBusinessUnitService', () => {
     );
   });
 
-  it('should reject when user is not owner', async () => {
+  it('should reject when actor is owner (only platform can create BU)', async () => {
     const { service } = buildService();
 
     await expect(
       service.execute({
         ...baseInput,
-        actorUserId: 'user-2',
+        actorUserId: 'user-1',
       })
-    ).rejects.toBeInstanceOf(UserNotOwnerError);
+    ).rejects.toBeInstanceOf(OwnerCannotCreateBusinessUnitError);
+  });
+
+  it('should reject when business unit limit reached', async () => {
+    const { service, businessUnitRepository } = buildService();
+    (businessUnitRepository.countByOrganizationId as jest.Mock).mockResolvedValue(1);
+
+    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(
+      BusinessUnitLimitReachedError
+    );
   });
 
   it('should create business unit and activate organization on first unit', async () => {
@@ -163,8 +176,9 @@ describe('CreateBusinessUnitService', () => {
     const { service, businessUnitRepository, transactionRepositories } = buildService();
     (businessUnitRepository.countByOrganizationId as jest.Mock).mockResolvedValue(1);
 
-    await service.execute(baseInput);
-
+    await expect(service.execute(baseInput)).rejects.toBeInstanceOf(
+      BusinessUnitLimitReachedError
+    );
     expect(transactionRepositories.organizationRepository.updateStatus).not.toHaveBeenCalled();
   });
 });

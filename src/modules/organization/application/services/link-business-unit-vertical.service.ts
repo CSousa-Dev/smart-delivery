@@ -11,7 +11,10 @@ import {
   UserNotOwnerError,
   VerticalNotInOrganizationError,
 } from '../../domain/errors/business-unit.errors';
-import { OrganizationNotFoundError } from '../../domain/errors/organization.errors';
+import {
+  OrganizationHasNoOwnerError,
+  OrganizationNotFoundError,
+} from '../../domain/errors/organization.errors';
 import { BusinessUnitVerticalLink } from '../../domain/entities/business-unit-vertical-link.entity';
 
 export class LinkBusinessUnitVerticalService {
@@ -37,35 +40,39 @@ export class LinkBusinessUnitVerticalService {
       throw new OrganizationNotFoundError(businessUnit.getOrganizationId());
     }
 
-    if (organization.getOwnerUserId() !== input.actorUserId) {
+    const ownerUserId = organization.getOwnerUserId();
+    if (!ownerUserId) {
+      throw new OrganizationHasNoOwnerError(organization.getId().value);
+    }
+    if (ownerUserId !== input.actorUserId) {
       throw new UserNotOwnerError(input.actorUserId, organization.getId().value);
     }
 
     const isActiveInOrganization =
-      await this.organizationVerticalRepository.existsActiveByOrganizationAndVerticalId(
+      await this.organizationVerticalRepository.existsActiveByOrganizationAndVerticalCode(
         organization.getId().value,
-        input.verticalId
+        input.verticalCode
       );
     if (!isActiveInOrganization) {
-      throw new VerticalNotInOrganizationError(organization.getId().value, input.verticalId);
+      throw new VerticalNotInOrganizationError(organization.getId().value, input.verticalCode);
     }
 
-    const existing = await this.businessUnitVerticalRepository.findByBusinessUnitAndVerticalId(
+    const existing = await this.businessUnitVerticalRepository.findByBusinessUnitAndVerticalCode(
       input.businessUnitId,
-      input.verticalId
+      input.verticalCode
     );
 
     if (!existing) {
       const link = BusinessUnitVerticalLink.create({
         businessUnitId: input.businessUnitId,
         organizationId: organization.getId().value,
-        verticalId: input.verticalId,
+        verticalCode: input.verticalCode,
       });
       await this.businessUnitVerticalRepository.save(link);
     } else if (existing.getStatus() === 'INACTIVE') {
       await this.businessUnitVerticalRepository.updateStatus(
         input.businessUnitId,
-        input.verticalId,
+        input.verticalCode,
         'ACTIVE'
       );
     }
@@ -73,7 +80,7 @@ export class LinkBusinessUnitVerticalService {
     return {
       businessUnitId: input.businessUnitId,
       organizationId: organization.getId().value,
-      verticalId: input.verticalId,
+      verticalCode: input.verticalCode,
       status: 'ACTIVE',
     };
   }

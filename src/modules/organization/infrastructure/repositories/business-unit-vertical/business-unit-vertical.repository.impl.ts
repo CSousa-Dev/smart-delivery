@@ -32,23 +32,23 @@ export class PrismaBusinessUnitVerticalRepository implements BusinessUnitVertica
     return links.map((link) => BusinessUnitVerticalMapper.toDomain(link));
   }
 
-  async findByBusinessUnitAndVerticalId(
+  async findByBusinessUnitAndVerticalCode(
     businessUnitId: string,
-    verticalId: string
+    verticalCode: string
   ): Promise<BusinessUnitVerticalLink | null> {
     const link = await this.prisma.businessUnitVertical.findUnique({
-      where: { businessUnitId_verticalId: { businessUnitId, verticalId } },
+      where: { businessUnitId_verticalCode: { businessUnitId, verticalCode } },
     });
 
     return link ? BusinessUnitVerticalMapper.toDomain(link) : null;
   }
 
-  async findActiveByBusinessUnitAndVerticalId(
+  async findActiveByBusinessUnitAndVerticalCode(
     businessUnitId: string,
-    verticalId: string
+    verticalCode: string
   ): Promise<BusinessUnitVerticalLink | null> {
     const link = await this.prisma.businessUnitVertical.findFirst({
-      where: { businessUnitId, verticalId, statusId: 'ACTIVE' },
+      where: { businessUnitId, verticalCode, statusId: 'ACTIVE' },
     });
 
     return link ? BusinessUnitVerticalMapper.toDomain(link) : null;
@@ -56,11 +56,11 @@ export class PrismaBusinessUnitVerticalRepository implements BusinessUnitVertica
 
   async updateStatus(
     businessUnitId: string,
-    verticalId: string,
+    verticalCode: string,
     status: VerticalLinkStatusValue
   ): Promise<void> {
     await this.prisma.businessUnitVertical.update({
-      where: { businessUnitId_verticalId: { businessUnitId, verticalId } },
+      where: { businessUnitId_verticalCode: { businessUnitId, verticalCode } },
       data: { statusId: status, updatedAt: new Date() },
     });
   }

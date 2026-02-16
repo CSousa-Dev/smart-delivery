@@ -33,7 +33,7 @@ model Organization {
   documentType   String   @map("document_type") @db.VarChar(4)
   documentNumber String   @unique @map("document_number") @db.VarChar(14)
   statusId       String   @map("status_id") @db.VarChar(30)
-  ownerUserId    String   @map("owner_user_id") @db.VarChar(36)
+  ownerUserId    String?  @map("owner_user_id") @db.VarChar(36)
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime? @updatedAt @map("updated_at")
   organizationLinks UserOrganizationLink[]
@@ -56,30 +56,16 @@ model UserOrganizationLink {
   @@map("user_organization_links")
 }
 
-model Vertical {
-  id String @id @default(uuid()) @db.VarChar(36)
-  name String @unique @db.VarChar(100)
-  code String @unique @db.VarChar(60)
-  description String @db.VarChar(255)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
-  organizationVerticals OrganizationVertical[]
-  businessUnitVerticals BusinessUnitVertical[]
-
-  @@map("verticals")
-}
-
 model OrganizationVertical {
   organizationId String   @map("organization_id") @db.VarChar(36)
-  verticalId     String   @map("vertical_id") @db.VarChar(36)
+  verticalCode   String   @map("vertical_code") @db.VarChar(60)
   statusId       String   @map("status_id") @db.VarChar(20)
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime? @updatedAt @map("updated_at")
   organization   Organization @relation(fields: [organizationId], references: [id])
-  vertical       Vertical @relation(fields: [verticalId], references: [id])
 
-  @@id([organizationId, verticalId])
-  @@index([verticalId])
+  @@id([organizationId, verticalCode])
+  @@index([verticalCode])
   @@map("organization_verticals")
 }
 
@@ -122,16 +108,15 @@ model BusinessUnitAddress {
 model BusinessUnitVertical {
   businessUnitId String   @map("business_unit_id") @db.VarChar(36)
   organizationId String   @map("organization_id") @db.VarChar(36)
-  verticalId     String   @map("vertical_id") @db.VarChar(36)
+  verticalCode   String   @map("vertical_code") @db.VarChar(60)
   statusId       String   @map("status_id") @db.VarChar(20)
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime? @updatedAt @map("updated_at")
   businessUnit   BusinessUnit @relation(fields: [businessUnitId], references: [id])
   organization   Organization @relation(fields: [organizationId], references: [id])
-  vertical       Vertical @relation(fields: [verticalId], references: [id])
 
-  @@id([businessUnitId, verticalId])
+  @@id([businessUnitId, verticalCode])
   @@index([organizationId])
-  @@index([verticalId])
+  @@index([verticalCode])
   @@map("business_unit_verticals")
 }

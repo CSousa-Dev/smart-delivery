@@ -16,15 +16,22 @@ export class PrismaCategoryAllowedValueRepository implements CategoryAllowedValu
     });
   }
 
+  async deleteByCategoryAttribute(categoryAttributeId: string): Promise<void> {
+    await this.prisma.categoryAllowedValue.deleteMany({
+      where: { categoryAttributeId },
+    });
+  }
+
   async listByCategoryAttribute(
     categoryAttributeId: string
-  ): Promise<Array<{ id: string; name: string; value: string }>> {
+  ): Promise<Array<{ id: string; name: string; value: string; description: string | null }>> {
     const values = await this.prisma.categoryAllowedValue.findMany({
       where: { categoryAttributeId },
       select: {
         id: true,
         name: true,
         value: true,
+        description: true,
       },
     });
 

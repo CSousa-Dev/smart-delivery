@@ -22,9 +22,8 @@ export interface OrganizationUserSummary {
 }
 
 export interface VerticalSummary {
-  id: string;
-  name: string;
   code: string;
+  name: string;
   description: string;
 }
 
@@ -35,7 +34,7 @@ export interface GetOrganizationOutput {
   documentType: string;
   documentNumber: string;
   verticals: VerticalSummary[];
-  ownerUserId: string;
+  ownerUserId: string | null;
   status: string;
   createdAt: Date;
   updatedAt: Date | null;

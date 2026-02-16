@@ -1,5 +1,9 @@
 import { randomUUID } from 'crypto';
-import { InvalidCategoryCodeError } from '../errors/category.errors';
+import {
+  CategoryAlreadyActiveError,
+  CategoryAlreadyInactiveError,
+  InvalidCategoryCodeError,
+} from '../errors/category.errors';
 
 export class CategoryId {
   private constructor(public readonly value: string) {}
@@ -31,6 +35,7 @@ export interface CreateCategoryProps {
   code: string;
   description: string;
   depth: number;
+  isActive?: boolean;
   createdAt?: Date;
   updatedAt?: Date | null;
 }
@@ -39,13 +44,14 @@ export class Category {
   private constructor(
     private readonly id: CategoryId,
     private readonly verticalId: string,
-    private readonly parentCategoryId: string | null,
-    private readonly name: string,
-    private readonly code: CategoryCode,
-    private readonly description: string,
-    private readonly depth: number,
+    private parentCategoryId: string | null,
+    private name: string,
+    private code: CategoryCode,
+    private description: string,
+    private depth: number,
+    private isActive: boolean,
     private readonly createdAt: Date,
-    private readonly updatedAt: Date | null
+    private updatedAt: Date | null
   ) {}
 
   static create(props: CreateCategoryProps): Category {
@@ -59,6 +65,7 @@ export class Category {
       code,
       props.description.trim(),
       props.depth,
+      props.isActive ?? true,
       props.createdAt ?? new Date(),
       props.updatedAt ?? null
     );
@@ -92,11 +99,48 @@ export class Category {
     return this.depth;
   }
 
+  getIsActive(): boolean {
+    return this.isActive;
+  }
+
   getCreatedAt(): Date {
     return this.createdAt;
   }
 
   getUpdatedAt(): Date | null {
     return this.updatedAt;
+  }
+
+  updateDetails(
+    name: string,
+    code: string,
+    description: string,
+    parentCategoryId: string | null,
+    depth: number
+  ): void {
+    this.name = name.trim();
+    this.code = CategoryCode.create(code);
+    this.description = description.trim();
+    this.parentCategoryId = parentCategoryId;
+    this.depth = depth;
+    this.updatedAt = new Date();
+  }
+
+  inactivate(): void {
+    if (!this.isActive) {
+      throw new CategoryAlreadyInactiveError(this.id.value);
+    }
+
+    this.isActive = false;
+    this.updatedAt = new Date();
+  }
+
+  activate(): void {
+    if (this.isActive) {
+      throw new CategoryAlreadyActiveError(this.id.value);
+    }
+
+    this.isActive = true;
+    this.updatedAt = new Date();
   }
 }

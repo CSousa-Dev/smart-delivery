@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { CreateAllowedValueService } from '../../../application/services/create-allowed-value.service';
+import { GetAllowedValueService } from '../../../application/services/get-allowed-value.service';
+import { ListAllowedValuesService } from '../../../application/services/list-allowed-values.service';
+import { UpdateAllowedValueService } from '../../../application/services/update-allowed-value.service';
+import { DeleteAllowedValueService } from '../../../application/services/delete-allowed-value.service';
 import { AppError } from '../../../../../shared/utils/AppError';
 
 const ERROR_STATUS_BY_CODE: Record<string, (message: string, code: string) => AppError> = {
@@ -10,10 +14,18 @@ const ERROR_STATUS_BY_CODE: Record<string, (message: string, code: string) => Ap
   INVALID_ALLOWED_VALUE_VALUE: (message, code) => AppError.badRequest(message, code),
   INVALID_ALLOWED_VALUE_NAME: (message, code) => AppError.badRequest(message, code),
   ALLOWED_VALUE_OUT_OF_BOUNDS: (message, code) => AppError.badRequest(message, code),
+  ALLOWED_VALUE_NOT_FOUND: (message, code) => AppError.notFound(message, code),
+  ALLOWED_VALUE_IN_USE: (message, code) => AppError.conflict(message, code),
 };
 
 export class AllowedValueController {
-  constructor(private readonly createAllowedValueService: CreateAllowedValueService) {}
+  constructor(
+    private readonly createAllowedValueService: CreateAllowedValueService,
+    private readonly getAllowedValueService: GetAllowedValueService,
+    private readonly listAllowedValuesService: ListAllowedValuesService,
+    private readonly updateAllowedValueService: UpdateAllowedValueService,
+    private readonly deleteAllowedValueService: DeleteAllowedValueService
+  ) {}
 
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -25,6 +37,60 @@ export class AllowedValueController {
         success: true,
         data: output,
       });
+    } catch (error) {
+      next(this.mapError(error));
+    }
+  }
+
+  async get(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const output = await this.getAllowedValueService.execute({
+        allowedValueId: String(req.params.allowedValueId),
+      });
+      res.status(200).json({
+        success: true,
+        data: output,
+      });
+    } catch (error) {
+      next(this.mapError(error));
+    }
+  }
+
+  async list(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const output = await this.listAllowedValuesService.execute({
+        attributeId: String(req.params.attributeId),
+      });
+      res.status(200).json({
+        success: true,
+        data: output,
+      });
+    } catch (error) {
+      next(this.mapError(error));
+    }
+  }
+
+  async update(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const output = await this.updateAllowedValueService.execute({
+        ...req.body,
+        allowedValueId: String(req.params.allowedValueId),
+      });
+      res.status(200).json({
+        success: true,
+        data: output,
+      });
+    } catch (error) {
+      next(this.mapError(error));
+    }
+  }
+
+  async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      await this.deleteAllowedValueService.execute({
+        allowedValueId: String(req.params.allowedValueId),
+      });
+      res.sendStatus(204);
     } catch (error) {
       next(this.mapError(error));
     }

@@ -5,6 +5,7 @@ import { ListUsersService } from '../../../application/services/list-users.servi
 import { AppError } from '../../../../../shared/utils/AppError';
 
 const ERROR_STATUS_BY_CODE: Record<string, (message: string, code: string) => AppError> = {
+  ORGANIZATION_ID_REQUIRED: (message, code) => AppError.badRequest(message, code),
   ORGANIZATION_NOT_FOUND: (message, code) => AppError.notFound(message, code),
   DOCUMENT_ALREADY_EXISTS: (message, code) => AppError.conflict(message, code),
   EMAIL_ALREADY_EXISTS: (message, code) => AppError.conflict(message, code),

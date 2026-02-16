@@ -4,7 +4,7 @@ export class OrganizationVerticalMapper {
   static toPersistence(link: OrganizationVerticalLink) {
     return {
       organizationId: link.getOrganizationId(),
-      verticalId: link.getVerticalId(),
+      verticalCode: link.getVerticalCode(),
       statusId: link.getStatus(),
       createdAt: link.getCreatedAt(),
       updatedAt: link.getUpdatedAt(),

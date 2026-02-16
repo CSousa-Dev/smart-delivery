@@ -44,6 +44,20 @@ export class PrismaAttributeRepository implements AttributeRepository {
     });
   }
 
+  async update(attribute: Attribute): Promise<void> {
+    const { id, createdAt, ...data } = AttributeMapper.toPersistence(attribute);
+    await this.prisma.attribute.update({
+      where: { id: attribute.getId().value },
+      data,
+    });
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.attribute.delete({
+      where: { id },
+    });
+  }
+
   async updateDefaultValue(attributeId: string, defaultValueId: string | null): Promise<void> {
     await this.prisma.attribute.update({
       where: { id: attributeId },
@@ -62,6 +76,22 @@ export class PrismaAttributeRepository implements AttributeRepository {
   async existsByCode(code: string): Promise<boolean> {
     const count = await this.prisma.attribute.count({
       where: { code },
+    });
+
+    return count > 0;
+  }
+
+  async existsByNameExcludingId(name: string, excludeId: string): Promise<boolean> {
+    const count = await this.prisma.attribute.count({
+      where: { name, id: { not: excludeId } },
+    });
+
+    return count > 0;
+  }
+
+  async existsByCodeExcludingId(code: string, excludeId: string): Promise<boolean> {
+    const count = await this.prisma.attribute.count({
+      where: { code, id: { not: excludeId } },
     });
 
     return count > 0;

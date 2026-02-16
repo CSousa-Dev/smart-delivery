@@ -5,14 +5,14 @@ import {
 } from '../dtos/list-business-unit-verticals.dto';
 import { BusinessUnitRepository } from '../../domain/repositories/business-unit.repository';
 import { BusinessUnitVerticalRepository } from '../../domain/repositories/business-unit-vertical.repository';
-import { VerticalRepository } from '../../domain/repositories/vertical.repository';
+import { VerticalCatalogPort } from '../ports/vertical-catalog.port';
 import { BusinessUnitNotFoundError } from '../../domain/errors/business-unit.errors';
 
 export class ListBusinessUnitVerticalsService {
   constructor(
     private readonly businessUnitRepository: BusinessUnitRepository,
     private readonly businessUnitVerticalRepository: BusinessUnitVerticalRepository,
-    private readonly verticalRepository: VerticalRepository
+    private readonly verticalCatalog: VerticalCatalogPort
   ) {}
 
   async execute(
@@ -26,21 +26,17 @@ export class ListBusinessUnitVerticalsService {
     const links = await this.businessUnitVerticalRepository.listByBusinessUnitId(
       input.businessUnitId
     );
-    const verticalIds = links.map((link) => link.getVerticalId());
-    const verticals = await this.verticalRepository.listByIds(verticalIds);
-    const verticalsById = new Map(verticals.map((vertical) => [vertical.getId(), vertical]));
+    const catalogList = await this.verticalCatalog.listAllActive();
+    const catalogByCode = new Map(catalogList.map((v) => [v.code, v]));
 
     const items: BusinessUnitVerticalSummary[] = links
       .map((link) => {
-        const vertical = verticalsById.get(link.getVerticalId());
-        if (!vertical) {
-          return null;
-        }
+        const catalog = catalogByCode.get(link.getVerticalCode());
+        if (!catalog) return null;
         return {
-          id: vertical.getId(),
-          name: vertical.getName(),
-          code: vertical.getCode(),
-          description: vertical.getDescription(),
+          code: link.getVerticalCode(),
+          name: catalog.name,
+          description: catalog.description,
           status: link.getStatus(),
         };
       })

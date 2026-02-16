@@ -1,11 +1,9 @@
 import { CreateOrganizationService } from '../../../../src/modules/organization/application/services/create-organization.service';
 import { User } from '../../../../src/modules/organization/domain/entities/user.entity';
-import { Vertical } from '../../../../src/modules/organization/domain/entities/vertical.entity';
 import {
   MissingLegalNameError,
   OwnerUserNotFoundError,
   UserAlreadyLinkedError,
-  VerticalNotRegisteredError,
 } from '../../../../src/modules/organization/domain/errors/organization.errors';
 import { DocumentAlreadyExistsError } from '../../../../src/modules/organization/domain/errors/user.errors';
 import { OrganizationRepository } from '../../../../src/modules/organization/domain/repositories/organization.repository';
@@ -16,7 +14,6 @@ import {
 import { OrganizationVerticalRepository } from '../../../../src/modules/organization/domain/repositories/organization-vertical.repository';
 import { UserOrganizationLinkRepository } from '../../../../src/modules/organization/domain/repositories/user-organization-link.repository';
 import { UserRepository } from '../../../../src/modules/organization/domain/repositories/user.repository';
-import { VerticalRepository } from '../../../../src/modules/organization/domain/repositories/vertical.repository';
 
 describe('CreateOrganizationService', () => {
   const buildOwner = () =>
@@ -39,6 +36,7 @@ describe('CreateOrganizationService', () => {
       existsById: jest.fn(),
       existsByDocumentNumber: jest.fn().mockResolvedValue(false),
       findById: jest.fn(),
+      update: jest.fn(),
       updateStatus: jest.fn(),
       list: jest.fn(),
       countAll: jest.fn(),
@@ -62,20 +60,6 @@ describe('CreateOrganizationService', () => {
       listByUserIds: jest.fn(),
     };
 
-    const verticalRepository: VerticalRepository = {
-      listByIds: jest.fn(async (ids: string[]) =>
-        ids.map((id, index) =>
-          Vertical.restore({
-            id,
-            name: `Vertical ${index + 1}`,
-            code: `CODE_${index + 1}`,
-            description: `Description ${index + 1}`,
-            createdAt: new Date(),
-          })
-        )
-      ),
-    };
-
     const transactionRepositories: OrganizationUnitOfWorkRepositories = {
       businessUnitRepository: {
         save: jest.fn(),
@@ -89,8 +73,8 @@ describe('CreateOrganizationService', () => {
         saveMany: jest.fn(),
         save: jest.fn(),
         listByBusinessUnitId: jest.fn(),
-        findByBusinessUnitAndVerticalId: jest.fn(),
-        findActiveByBusinessUnitAndVerticalId: jest.fn(),
+        findByBusinessUnitAndVerticalCode: jest.fn(),
+        findActiveByBusinessUnitAndVerticalCode: jest.fn(),
         updateStatus: jest.fn(),
         countActiveByBusinessUnitId: jest.fn(),
       },
@@ -101,9 +85,9 @@ describe('CreateOrganizationService', () => {
         listByOrganizationId: jest.fn(),
         listByOrganizationIds: jest.fn(),
         listActiveByOrganizationId: jest.fn(),
-        findByOrganizationAndVerticalId: jest.fn(),
-        findActiveByOrganizationAndVerticalId: jest.fn(),
-        existsActiveByOrganizationAndVerticalId: jest.fn(),
+        findByOrganizationAndVerticalCode: jest.fn(),
+        findActiveByOrganizationAndVerticalCode: jest.fn(),
+        existsActiveByOrganizationAndVerticalCode: jest.fn(),
         updateStatus: jest.fn(),
         countActiveByOrganizationId: jest.fn(),
       } as OrganizationVerticalRepository,
@@ -120,13 +104,11 @@ describe('CreateOrganizationService', () => {
         organizationRepository,
         userRepository,
         userOrganizationLinkRepository,
-        verticalRepository,
         unitOfWork
       ),
       organizationRepository,
       userRepository,
       userOrganizationLinkRepository,
-      verticalRepository,
       unitOfWork,
       transactionRepositories,
     };
@@ -142,7 +124,6 @@ describe('CreateOrganizationService', () => {
         documentType: 'CPF',
         documentNumber: '12345678901',
         ownerUserId: 'user-1',
-        verticalIds: ['vert-1'],
       })
     ).rejects.toBeInstanceOf(OwnerUserNotFoundError);
   });
@@ -157,7 +138,6 @@ describe('CreateOrganizationService', () => {
         documentType: 'CPF',
         documentNumber: '12345678901',
         ownerUserId: 'user-1',
-        verticalIds: ['vert-1'],
       })
     ).rejects.toBeInstanceOf(UserAlreadyLinkedError);
   });
@@ -172,7 +152,6 @@ describe('CreateOrganizationService', () => {
         documentType: 'CPF',
         documentNumber: '12345678901',
         ownerUserId: 'user-1',
-        verticalIds: ['vert-1'],
       })
     ).rejects.toBeInstanceOf(DocumentAlreadyExistsError);
   });
@@ -186,24 +165,8 @@ describe('CreateOrganizationService', () => {
         documentType: 'CNPJ',
         documentNumber: '12345678901234',
         ownerUserId: 'user-1',
-        verticalIds: ['vert-1'],
       })
     ).rejects.toBeInstanceOf(MissingLegalNameError);
-  });
-
-  it('should reject when vertical is not registered', async () => {
-    const { service, verticalRepository } = buildService();
-    (verticalRepository.listByIds as jest.Mock).mockResolvedValue([]);
-
-    await expect(
-      service.execute({
-        tradeName: 'Loja X',
-        documentType: 'CPF',
-        documentNumber: '12345678901',
-        ownerUserId: 'user-1',
-        verticalIds: ['vert-1'],
-      })
-    ).rejects.toBeInstanceOf(VerticalNotRegisteredError);
   });
 
   it('should create organization and owner link', async () => {
@@ -215,14 +178,33 @@ describe('CreateOrganizationService', () => {
       documentType: 'CNPJ',
       documentNumber: '12345678901234',
       ownerUserId: 'user-1',
-      verticalIds: ['vert-1', 'vert-2'],
     });
 
     expect(output.status).toBe('PENDING_BUSINESS_UNIT');
+    expect(output.ownerUserId).toBe('user-1');
     expect(unitOfWork.withTransaction).toHaveBeenCalledTimes(1);
     expect(transactionRepositories.organizationRepository.save).toHaveBeenCalledTimes(1);
     expect(transactionRepositories.userRepository.save).toHaveBeenCalledTimes(1);
     expect(transactionRepositories.userOrganizationLinkRepository.save).toHaveBeenCalledTimes(1);
-    expect(transactionRepositories.organizationVerticalRepository.saveMany).toHaveBeenCalledTimes(1);
+    expect(transactionRepositories.organizationVerticalRepository.saveMany).not.toHaveBeenCalled();
+  });
+
+  it('should create organization without owner', async () => {
+    const { service, unitOfWork, transactionRepositories } = buildService();
+
+    const output = await service.execute({
+      tradeName: 'Loja X',
+      legalName: 'Loja X LTDA',
+      documentType: 'CNPJ',
+      documentNumber: '12345678901234',
+    });
+
+    expect(output.status).toBe('PENDING_BUSINESS_UNIT');
+    expect(output.ownerUserId).toBeNull();
+    expect(unitOfWork.withTransaction).toHaveBeenCalledTimes(1);
+    expect(transactionRepositories.organizationRepository.save).toHaveBeenCalledTimes(1);
+    expect(transactionRepositories.userRepository.save).not.toHaveBeenCalled();
+    expect(transactionRepositories.userOrganizationLinkRepository.save).not.toHaveBeenCalled();
+    expect(transactionRepositories.organizationVerticalRepository.saveMany).not.toHaveBeenCalled();
   });
 });

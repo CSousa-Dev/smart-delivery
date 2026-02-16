@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { LinkAttributeToVerticalService } from '../../../application/services/link-attribute-to-vertical.service';
+import { UpdateVerticalAttributeService } from '../../../application/services/update-vertical-attribute.service';
+import { UnlinkAttributeFromVerticalService } from '../../../application/services/unlink-attribute-from-vertical.service';
+import { ListVerticalAttributesService } from '../../../application/services/list-vertical-attributes.service';
 import { AppError } from '../../../../../shared/utils/AppError';
 
 const ERROR_STATUS_BY_CODE: Record<string, (message: string, code: string) => AppError> = {
@@ -12,10 +15,16 @@ const ERROR_STATUS_BY_CODE: Record<string, (message: string, code: string) => Ap
   DEFAULT_VALUE_NOT_FOUND: (message, code) => AppError.notFound(message, code),
   ALLOWED_VALUE_NOT_FOUND: (message, code) => AppError.notFound(message, code),
   ALLOWED_VALUE_CONFLICT: (message, code) => AppError.conflict(message, code),
+  VERTICAL_ATTRIBUTE_NOT_FOUND: (message, code) => AppError.notFound(message, code),
 };
 
 export class VerticalAttributeController {
-  constructor(private readonly linkAttributeToVerticalService: LinkAttributeToVerticalService) {}
+  constructor(
+    private readonly linkAttributeToVerticalService: LinkAttributeToVerticalService,
+    private readonly updateVerticalAttributeService: UpdateVerticalAttributeService,
+    private readonly unlinkAttributeFromVerticalService: UnlinkAttributeFromVerticalService,
+    private readonly listVerticalAttributesService: ListVerticalAttributesService
+  ) {}
 
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -27,6 +36,48 @@ export class VerticalAttributeController {
         success: true,
         data: output,
       });
+    } catch (error) {
+      next(this.mapError(error));
+    }
+  }
+
+  async list(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const output = await this.listVerticalAttributesService.execute({
+        verticalId: String(req.params.verticalId),
+      });
+      res.status(200).json({
+        success: true,
+        data: output,
+      });
+    } catch (error) {
+      next(this.mapError(error));
+    }
+  }
+
+  async update(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const output = await this.updateVerticalAttributeService.execute({
+        ...req.body,
+        verticalId: String(req.params.verticalId),
+        attributeId: String(req.params.attributeId),
+      });
+      res.status(200).json({
+        success: true,
+        data: output,
+      });
+    } catch (error) {
+      next(this.mapError(error));
+    }
+  }
+
+  async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      await this.unlinkAttributeFromVerticalService.execute({
+        verticalId: String(req.params.verticalId),
+        attributeId: String(req.params.attributeId),
+      });
+      res.sendStatus(204);
     } catch (error) {
       next(this.mapError(error));
     }

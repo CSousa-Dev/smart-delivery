@@ -1,5 +1,8 @@
 import { OrganizationDbClient } from '../../database/prisma';
-import { OrganizationRepository } from '../../../domain/repositories/organization.repository';
+import {
+  OrganizationRepository,
+  UpdateOrganizationData,
+} from '../../../domain/repositories/organization.repository';
 import { Organization } from '../../../domain/entities/organization.entity';
 import { OrganizationMapper } from './organization.mapper';
 
@@ -10,7 +13,7 @@ type OrganizationRecord = {
   documentType: string;
   documentNumber: string;
   statusId: string;
-  ownerUserId: string;
+  ownerUserId: string | null;
   createdAt: Date;
   updatedAt: Date | null;
 };
@@ -56,10 +59,22 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
       documentType: found.documentType,
       documentNumber: found.documentNumber,
       ownerUserId: found.ownerUserId,
-      verticalIds: [],
+      verticalCodes: [],
       status: found.statusId as 'PENDING_BUSINESS_UNIT' | 'ACTIVE',
       createdAt: found.createdAt,
       updatedAt: found.updatedAt,
+    });
+  }
+
+  async update(id: string, data: UpdateOrganizationData): Promise<void> {
+    const updateData: Record<string, unknown> = {};
+    if (data.tradeName !== undefined) updateData.tradeName = data.tradeName;
+    if (data.legalName !== undefined) updateData.legalName = data.legalName;
+    if (Object.keys(updateData).length === 0) return;
+
+    await this.prisma.organization.update({
+      where: { id },
+      data: updateData,
     });
   }
 
@@ -89,7 +104,7 @@ export class PrismaOrganizationRepository implements OrganizationRepository {
         documentType: organization.documentType,
         documentNumber: organization.documentNumber,
         ownerUserId: organization.ownerUserId,
-        verticalIds: [],
+        verticalCodes: [],
         status: organization.statusId as 'PENDING_BUSINESS_UNIT' | 'ACTIVE',
         createdAt: organization.createdAt,
         updatedAt: organization.updatedAt,

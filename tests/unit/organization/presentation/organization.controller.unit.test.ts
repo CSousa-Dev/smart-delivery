@@ -13,16 +13,21 @@ describe('OrganizationController', () => {
     const listOrganizationsService = {
       execute: jest.fn(),
     };
+    const updateOrganizationService = {
+      execute: jest.fn(),
+    };
 
     return {
       controller: new OrganizationController(
         createOrganizationService as any,
         getOrganizationService as any,
-        listOrganizationsService as any
+        listOrganizationsService as any,
+        updateOrganizationService as any
       ),
       createOrganizationService,
       getOrganizationService,
       listOrganizationsService,
+      updateOrganizationService,
     };
   };
 
@@ -138,6 +143,39 @@ describe('OrganizationController', () => {
     const next = jest.fn();
 
     await controller.list(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: true,
+      })
+    );
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('should return 200 with payload on update', async () => {
+    const { controller, updateOrganizationService } = buildController();
+    (updateOrganizationService.execute as jest.Mock).mockResolvedValue({
+      id: 'org-1',
+      tradeName: 'Loja Y',
+      legalName: 'Loja Y LTDA',
+      documentType: 'CNPJ',
+      documentNumber: '12345678901234',
+      ownerUserId: null,
+      verticalCodes: [],
+      status: 'PENDING_BUSINESS_UNIT',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const req = { params: { id: 'org-1' }, body: { tradeName: 'Loja Y', legalName: 'Loja Y LTDA' } } as any;
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    } as any;
+    const next = jest.fn();
+
+    await controller.update(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith(

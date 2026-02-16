@@ -5,9 +5,8 @@ export interface ListOrganizationVerticalsInput {
 }
 
 export interface OrganizationVerticalSummary {
-  id: string;
-  name: string;
   code: string;
+  name: string;
   description: string;
   status: VerticalLinkStatusValue;
 }

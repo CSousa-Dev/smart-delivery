@@ -7,11 +7,11 @@ import { PrismaBusinessUnitRepository } from '../../../../../src/modules/organiz
 import { PrismaOrganizationRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization/organization.repository.impl';
 import { PrismaOrganizationVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization-vertical/organization-vertical.repository.impl';
 import { PrismaUserRepository } from '../../../../../src/modules/organization/infrastructure/repositories/user/user.repository.impl';
-import { PrismaVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/vertical/vertical.repository.impl';
 import {
   createOrganizationTestPrismaClient,
   OrganizationPrismaClient,
 } from '../../../../helpers/prisma/organization/prisma-test-client';
+import { createVerticalCatalogStub } from '../../../../helpers/organization/vertical-catalog-stub';
 
 const describeIf = process.env.DATABASE_URL_ORGANIZATION_TEST ? describe : describe.skip;
 
@@ -35,7 +35,6 @@ describeIf('Capability Get Organization – [CAP-006]', () => {
     await prisma.userOrganizationLink.deleteMany();
     await prisma.user.deleteMany();
     await prisma.organization.deleteMany();
-    await prisma.vertical.deleteMany();
   });
 
   const buildService = () =>
@@ -44,16 +43,10 @@ describeIf('Capability Get Organization – [CAP-006]', () => {
       new PrismaOrganizationVerticalRepository(prisma),
       new PrismaBusinessUnitRepository(prisma),
       new PrismaUserRepository(prisma),
-      new PrismaVerticalRepository(prisma)
+      createVerticalCatalogStub(['v1', 'v2'])
     );
 
   const seedOrganization = async () => {
-    await prisma.vertical.createMany({
-      data: [
-        { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
-        { id: 'vert-2', name: 'V2', code: 'v2', description: 'Vertical 2' },
-      ],
-    });
     await prisma.organization.create({
       data: {
         id: organizationId,
@@ -67,8 +60,8 @@ describeIf('Capability Get Organization – [CAP-006]', () => {
     });
     await prisma.organizationVertical.createMany({
       data: [
-        { organizationId, verticalId: 'vert-1', statusId: 'ACTIVE' },
-        { organizationId, verticalId: 'vert-2', statusId: 'ACTIVE' },
+        { organizationId, verticalCode: 'v1', statusId: 'ACTIVE' },
+        { organizationId, verticalCode: 'v2', statusId: 'ACTIVE' },
       ],
     });
   };
@@ -79,8 +72,8 @@ describeIf('Capability Get Organization – [CAP-006]', () => {
 
     const output = await service.execute({ organizationId });
 
-    expect(output.verticals.map((vertical) => vertical.id)).toEqual(
-      expect.arrayContaining(['vert-1', 'vert-2'])
+    expect(output.verticals.map((v) => v.code)).toEqual(
+      expect.arrayContaining(['v1', 'v2'])
     );
     expect(output.businessUnits).toBeUndefined();
     expect(output.users).toBeUndefined();

@@ -1,5 +1,8 @@
 import { CreateUserService } from '../../../../src/modules/organization/application/services/create-user.service';
-import { OrganizationNotFoundError } from '../../../../src/modules/organization/domain/errors/organization.errors';
+import {
+  OrganizationIdRequiredError,
+  OrganizationNotFoundError,
+} from '../../../../src/modules/organization/domain/errors/organization.errors';
 import {
   DocumentAlreadyExistsError,
   EmailAlreadyExistsError,
@@ -31,6 +34,7 @@ describe('CreateUserService', () => {
       existsById: jest.fn().mockResolvedValue(true),
       existsByDocumentNumber: jest.fn().mockResolvedValue(false),
       findById: jest.fn(),
+      update: jest.fn(),
       updateStatus: jest.fn(),
       list: jest.fn(),
       countAll: jest.fn(),
@@ -49,8 +53,8 @@ describe('CreateUserService', () => {
         saveMany: jest.fn(),
         save: jest.fn(),
         listByBusinessUnitId: jest.fn(),
-        findByBusinessUnitAndVerticalId: jest.fn(),
-        findActiveByBusinessUnitAndVerticalId: jest.fn(),
+        findByBusinessUnitAndVerticalCode: jest.fn(),
+        findActiveByBusinessUnitAndVerticalCode: jest.fn(),
         updateStatus: jest.fn(),
         countActiveByBusinessUnitId: jest.fn(),
       },
@@ -59,6 +63,7 @@ describe('CreateUserService', () => {
         existsById: jest.fn(),
         existsByDocumentNumber: jest.fn(),
         findById: jest.fn(),
+        update: jest.fn(),
         updateStatus: jest.fn(),
         list: jest.fn(),
         countAll: jest.fn(),
@@ -69,9 +74,9 @@ describe('CreateUserService', () => {
         listByOrganizationIds: jest.fn(),
         save: jest.fn(),
         listActiveByOrganizationId: jest.fn(),
-        findByOrganizationAndVerticalId: jest.fn(),
-        findActiveByOrganizationAndVerticalId: jest.fn(),
-        existsActiveByOrganizationAndVerticalId: jest.fn(),
+        findByOrganizationAndVerticalCode: jest.fn(),
+        findActiveByOrganizationAndVerticalCode: jest.fn(),
+        existsActiveByOrganizationAndVerticalCode: jest.fn(),
         updateStatus: jest.fn(),
         countActiveByOrganizationId: jest.fn(),
       },
@@ -97,6 +102,24 @@ describe('CreateUserService', () => {
     };
   };
 
+  it('should reject when organizationId is missing', async () => {
+    const { service } = buildService();
+
+    await expect(
+      service.execute({
+        firstName: 'Ana',
+        lastName: 'Silva',
+        documentType: 'CPF',
+        documentNumber: '12345678901',
+        email: 'ana@example.com',
+        phoneNumber: '11999999999',
+        emailOptIn: true,
+        phoneOptIn: true,
+        organizationId: '',
+      })
+    ).rejects.toBeInstanceOf(OrganizationIdRequiredError);
+  });
+
   it('should reject duplicated document number in users', async () => {
     const { service, userRepository } = buildService();
     (userRepository.existsByDocumentNumber as jest.Mock).mockResolvedValue(true);
@@ -111,6 +134,7 @@ describe('CreateUserService', () => {
         phoneNumber: '11999999999',
         emailOptIn: true,
         phoneOptIn: true,
+        organizationId: 'org-1',
       })
     ).rejects.toBeInstanceOf(DocumentAlreadyExistsError);
   });
@@ -129,6 +153,7 @@ describe('CreateUserService', () => {
         phoneNumber: '11999999999',
         emailOptIn: true,
         phoneOptIn: true,
+        organizationId: 'org-1',
       })
     ).rejects.toBeInstanceOf(DocumentAlreadyExistsError);
   });
@@ -147,6 +172,7 @@ describe('CreateUserService', () => {
         phoneNumber: '11999999999',
         emailOptIn: true,
         phoneOptIn: true,
+        organizationId: 'org-1',
       })
     ).rejects.toBeInstanceOf(EmailAlreadyExistsError);
   });
@@ -165,6 +191,7 @@ describe('CreateUserService', () => {
         phoneNumber: '11999999999',
         emailOptIn: true,
         phoneOptIn: true,
+        organizationId: 'org-1',
       })
     ).rejects.toBeInstanceOf(PhoneAlreadyExistsError);
   });
@@ -188,27 +215,7 @@ describe('CreateUserService', () => {
     ).rejects.toBeInstanceOf(OrganizationNotFoundError);
   });
 
-  it('should create user without organization link', async () => {
-    const { service, transactionRepositories, unitOfWork } = buildService();
-
-    const output = await service.execute({
-      firstName: 'Ana',
-      lastName: 'Silva',
-      documentType: 'CPF',
-      documentNumber: '12345678901',
-      email: 'ana@example.com',
-      phoneNumber: '11999999999',
-      emailOptIn: true,
-      phoneOptIn: true,
-    });
-
-    expect(output.status).toBe('PENDING_ORG_LINK');
-    expect(unitOfWork.withTransaction).toHaveBeenCalledTimes(1);
-    expect(transactionRepositories.userRepository.save).toHaveBeenCalledTimes(1);
-    expect(transactionRepositories.userOrganizationLinkRepository.save).not.toHaveBeenCalled();
-  });
-
-  it('should create user with organization link', async () => {
+  it('should create user linked to organization (not owner)', async () => {
     const { service, transactionRepositories } = buildService();
 
     const output = await service.execute({
@@ -224,6 +231,7 @@ describe('CreateUserService', () => {
     });
 
     expect(output.status).toBe('ORG_LINKED');
+    expect(output.organizationId).toBe('org-1');
     expect(transactionRepositories.userRepository.save).toHaveBeenCalledTimes(1);
     expect(transactionRepositories.userOrganizationLinkRepository.save).toHaveBeenCalledTimes(1);
   });

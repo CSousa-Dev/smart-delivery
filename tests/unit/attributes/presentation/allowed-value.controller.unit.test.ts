@@ -7,9 +7,27 @@ describe('AllowedValueController', () => {
     const createAllowedValueService = {
       execute: jest.fn(),
     };
+    const getAllowedValueService = {
+      execute: jest.fn(),
+    };
+    const listAllowedValuesService = {
+      execute: jest.fn(),
+    };
+    const updateAllowedValueService = {
+      execute: jest.fn(),
+    };
+    const deleteAllowedValueService = {
+      execute: jest.fn(),
+    };
 
     return {
-      controller: new AllowedValueController(createAllowedValueService as any),
+      controller: new AllowedValueController(
+        createAllowedValueService as any,
+        getAllowedValueService as any,
+        listAllowedValuesService as any,
+        updateAllowedValueService as any,
+        deleteAllowedValueService as any
+      ),
       createAllowedValueService,
     };
   };

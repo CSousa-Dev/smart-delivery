@@ -16,5 +16,9 @@ export function createOrganizationsRouter(controller: OrganizationController): R
     controller.getById(req, res, next)
   );
 
+  router.put('/organization/organizations/:id', (req, res, next) =>
+    controller.update(req, res, next)
+  );
+
   return router;
 }

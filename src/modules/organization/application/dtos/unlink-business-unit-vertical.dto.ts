@@ -1,12 +1,12 @@
 export interface UnlinkBusinessUnitVerticalInput {
   businessUnitId: string;
-  verticalId: string;
+  verticalCode: string;
   actorUserId: string;
 }
 
 export interface UnlinkBusinessUnitVerticalOutput {
   businessUnitId: string;
   organizationId: string;
-  verticalId: string;
+  verticalCode: string;
   status: string;
 }

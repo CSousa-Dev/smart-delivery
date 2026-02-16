@@ -29,11 +29,6 @@ export type Organization = $Result.DefaultSelection<Prisma.$OrganizationPayload>
  */
 export type UserOrganizationLink = $Result.DefaultSelection<Prisma.$UserOrganizationLinkPayload>
 /**
- * Model Vertical
- * 
- */
-export type Vertical = $Result.DefaultSelection<Prisma.$VerticalPayload>
-/**
  * Model OrganizationVertical
  * 
  */
@@ -206,16 +201,6 @@ export class PrismaClient<
     * ```
     */
   get userOrganizationLink(): Prisma.UserOrganizationLinkDelegate<ExtArgs>;
-
-  /**
-   * `prisma.vertical`: Exposes CRUD operations for the **Vertical** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Verticals
-    * const verticals = await prisma.vertical.findMany()
-    * ```
-    */
-  get vertical(): Prisma.VerticalDelegate<ExtArgs>;
 
   /**
    * `prisma.organizationVertical`: Exposes CRUD operations for the **OrganizationVertical** model.
@@ -700,7 +685,6 @@ export namespace Prisma {
     User: 'User',
     Organization: 'Organization',
     UserOrganizationLink: 'UserOrganizationLink',
-    Vertical: 'Vertical',
     OrganizationVertical: 'OrganizationVertical',
     BusinessUnit: 'BusinessUnit',
     BusinessUnitAddress: 'BusinessUnitAddress',
@@ -720,7 +704,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "user" | "organization" | "userOrganizationLink" | "vertical" | "organizationVertical" | "businessUnit" | "businessUnitAddress" | "businessUnitVertical"
+      modelProps: "user" | "organization" | "userOrganizationLink" | "organizationVertical" | "businessUnit" | "businessUnitAddress" | "businessUnitVertical"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -919,72 +903,6 @@ export namespace Prisma {
           count: {
             args: Prisma.UserOrganizationLinkCountArgs<ExtArgs>
             result: $Utils.Optional<UserOrganizationLinkCountAggregateOutputType> | number
-          }
-        }
-      }
-      Vertical: {
-        payload: Prisma.$VerticalPayload<ExtArgs>
-        fields: Prisma.VerticalFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.VerticalFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerticalPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.VerticalFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerticalPayload>
-          }
-          findFirst: {
-            args: Prisma.VerticalFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerticalPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.VerticalFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerticalPayload>
-          }
-          findMany: {
-            args: Prisma.VerticalFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerticalPayload>[]
-          }
-          create: {
-            args: Prisma.VerticalCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerticalPayload>
-          }
-          createMany: {
-            args: Prisma.VerticalCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          delete: {
-            args: Prisma.VerticalDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerticalPayload>
-          }
-          update: {
-            args: Prisma.VerticalUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerticalPayload>
-          }
-          deleteMany: {
-            args: Prisma.VerticalDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.VerticalUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          upsert: {
-            args: Prisma.VerticalUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerticalPayload>
-          }
-          aggregate: {
-            args: Prisma.VerticalAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateVertical>
-          }
-          groupBy: {
-            args: Prisma.VerticalGroupByArgs<ExtArgs>
-            result: $Utils.Optional<VerticalGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.VerticalCountArgs<ExtArgs>
-            result: $Utils.Optional<VerticalCountAggregateOutputType> | number
           }
         }
       }
@@ -1463,46 +1381,6 @@ export namespace Prisma {
    */
   export type OrganizationCountOutputTypeCountBusinessUnitsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: BusinessUnitWhereInput
-  }
-
-
-  /**
-   * Count Type VerticalCountOutputType
-   */
-
-  export type VerticalCountOutputType = {
-    organizationVerticals: number
-    businessUnitVerticals: number
-  }
-
-  export type VerticalCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    organizationVerticals?: boolean | VerticalCountOutputTypeCountOrganizationVerticalsArgs
-    businessUnitVerticals?: boolean | VerticalCountOutputTypeCountBusinessUnitVerticalsArgs
-  }
-
-  // Custom InputTypes
-  /**
-   * VerticalCountOutputType without action
-   */
-  export type VerticalCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the VerticalCountOutputType
-     */
-    select?: VerticalCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * VerticalCountOutputType without action
-   */
-  export type VerticalCountOutputTypeCountOrganizationVerticalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: OrganizationVerticalWhereInput
-  }
-
-  /**
-   * VerticalCountOutputType without action
-   */
-  export type VerticalCountOutputTypeCountBusinessUnitVerticalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: BusinessUnitVerticalWhereInput
   }
 
 
@@ -2676,7 +2554,7 @@ export namespace Prisma {
     documentType: string
     documentNumber: string
     statusId: string
-    ownerUserId: string
+    ownerUserId: string | null
     createdAt: Date
     updatedAt: Date | null
     _count: OrganizationCountAggregateOutputType | null
@@ -2751,7 +2629,7 @@ export namespace Prisma {
       documentType: string
       documentNumber: string
       statusId: string
-      ownerUserId: string
+      ownerUserId: string | null
       createdAt: Date
       updatedAt: Date | null
     }, ExtArgs["result"]["organization"]>
@@ -4402,942 +4280,6 @@ export namespace Prisma {
 
 
   /**
-   * Model Vertical
-   */
-
-  export type AggregateVertical = {
-    _count: VerticalCountAggregateOutputType | null
-    _min: VerticalMinAggregateOutputType | null
-    _max: VerticalMaxAggregateOutputType | null
-  }
-
-  export type VerticalMinAggregateOutputType = {
-    id: string | null
-    name: string | null
-    code: string | null
-    description: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type VerticalMaxAggregateOutputType = {
-    id: string | null
-    name: string | null
-    code: string | null
-    description: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type VerticalCountAggregateOutputType = {
-    id: number
-    name: number
-    code: number
-    description: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type VerticalMinAggregateInputType = {
-    id?: true
-    name?: true
-    code?: true
-    description?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type VerticalMaxAggregateInputType = {
-    id?: true
-    name?: true
-    code?: true
-    description?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type VerticalCountAggregateInputType = {
-    id?: true
-    name?: true
-    code?: true
-    description?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type VerticalAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Vertical to aggregate.
-     */
-    where?: VerticalWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Verticals to fetch.
-     */
-    orderBy?: VerticalOrderByWithRelationInput | VerticalOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: VerticalWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Verticals from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Verticals.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Verticals
-    **/
-    _count?: true | VerticalCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: VerticalMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: VerticalMaxAggregateInputType
-  }
-
-  export type GetVerticalAggregateType<T extends VerticalAggregateArgs> = {
-        [P in keyof T & keyof AggregateVertical]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateVertical[P]>
-      : GetScalarType<T[P], AggregateVertical[P]>
-  }
-
-
-
-
-  export type VerticalGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: VerticalWhereInput
-    orderBy?: VerticalOrderByWithAggregationInput | VerticalOrderByWithAggregationInput[]
-    by: VerticalScalarFieldEnum[] | VerticalScalarFieldEnum
-    having?: VerticalScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: VerticalCountAggregateInputType | true
-    _min?: VerticalMinAggregateInputType
-    _max?: VerticalMaxAggregateInputType
-  }
-
-  export type VerticalGroupByOutputType = {
-    id: string
-    name: string
-    code: string
-    description: string
-    createdAt: Date
-    updatedAt: Date | null
-    _count: VerticalCountAggregateOutputType | null
-    _min: VerticalMinAggregateOutputType | null
-    _max: VerticalMaxAggregateOutputType | null
-  }
-
-  type GetVerticalGroupByPayload<T extends VerticalGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<VerticalGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof VerticalGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], VerticalGroupByOutputType[P]>
-            : GetScalarType<T[P], VerticalGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type VerticalSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    name?: boolean
-    code?: boolean
-    description?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    organizationVerticals?: boolean | Vertical$organizationVerticalsArgs<ExtArgs>
-    businessUnitVerticals?: boolean | Vertical$businessUnitVerticalsArgs<ExtArgs>
-    _count?: boolean | VerticalCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["vertical"]>
-
-
-  export type VerticalSelectScalar = {
-    id?: boolean
-    name?: boolean
-    code?: boolean
-    description?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type VerticalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    organizationVerticals?: boolean | Vertical$organizationVerticalsArgs<ExtArgs>
-    businessUnitVerticals?: boolean | Vertical$businessUnitVerticalsArgs<ExtArgs>
-    _count?: boolean | VerticalCountOutputTypeDefaultArgs<ExtArgs>
-  }
-
-  export type $VerticalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Vertical"
-    objects: {
-      organizationVerticals: Prisma.$OrganizationVerticalPayload<ExtArgs>[]
-      businessUnitVerticals: Prisma.$BusinessUnitVerticalPayload<ExtArgs>[]
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      name: string
-      code: string
-      description: string
-      createdAt: Date
-      updatedAt: Date | null
-    }, ExtArgs["result"]["vertical"]>
-    composites: {}
-  }
-
-  type VerticalGetPayload<S extends boolean | null | undefined | VerticalDefaultArgs> = $Result.GetResult<Prisma.$VerticalPayload, S>
-
-  type VerticalCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<VerticalFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: VerticalCountAggregateInputType | true
-    }
-
-  export interface VerticalDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Vertical'], meta: { name: 'Vertical' } }
-    /**
-     * Find zero or one Vertical that matches the filter.
-     * @param {VerticalFindUniqueArgs} args - Arguments to find a Vertical
-     * @example
-     * // Get one Vertical
-     * const vertical = await prisma.vertical.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends VerticalFindUniqueArgs>(args: SelectSubset<T, VerticalFindUniqueArgs<ExtArgs>>): Prisma__VerticalClient<$Result.GetResult<Prisma.$VerticalPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
-
-    /**
-     * Find one Vertical that matches the filter or throw an error with `error.code='P2025'` 
-     * if no matches were found.
-     * @param {VerticalFindUniqueOrThrowArgs} args - Arguments to find a Vertical
-     * @example
-     * // Get one Vertical
-     * const vertical = await prisma.vertical.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends VerticalFindUniqueOrThrowArgs>(args: SelectSubset<T, VerticalFindUniqueOrThrowArgs<ExtArgs>>): Prisma__VerticalClient<$Result.GetResult<Prisma.$VerticalPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
-
-    /**
-     * Find the first Vertical that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {VerticalFindFirstArgs} args - Arguments to find a Vertical
-     * @example
-     * // Get one Vertical
-     * const vertical = await prisma.vertical.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends VerticalFindFirstArgs>(args?: SelectSubset<T, VerticalFindFirstArgs<ExtArgs>>): Prisma__VerticalClient<$Result.GetResult<Prisma.$VerticalPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
-
-    /**
-     * Find the first Vertical that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {VerticalFindFirstOrThrowArgs} args - Arguments to find a Vertical
-     * @example
-     * // Get one Vertical
-     * const vertical = await prisma.vertical.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends VerticalFindFirstOrThrowArgs>(args?: SelectSubset<T, VerticalFindFirstOrThrowArgs<ExtArgs>>): Prisma__VerticalClient<$Result.GetResult<Prisma.$VerticalPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
-
-    /**
-     * Find zero or more Verticals that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {VerticalFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Verticals
-     * const verticals = await prisma.vertical.findMany()
-     * 
-     * // Get first 10 Verticals
-     * const verticals = await prisma.vertical.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const verticalWithIdOnly = await prisma.vertical.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends VerticalFindManyArgs>(args?: SelectSubset<T, VerticalFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VerticalPayload<ExtArgs>, T, "findMany">>
-
-    /**
-     * Create a Vertical.
-     * @param {VerticalCreateArgs} args - Arguments to create a Vertical.
-     * @example
-     * // Create one Vertical
-     * const Vertical = await prisma.vertical.create({
-     *   data: {
-     *     // ... data to create a Vertical
-     *   }
-     * })
-     * 
-     */
-    create<T extends VerticalCreateArgs>(args: SelectSubset<T, VerticalCreateArgs<ExtArgs>>): Prisma__VerticalClient<$Result.GetResult<Prisma.$VerticalPayload<ExtArgs>, T, "create">, never, ExtArgs>
-
-    /**
-     * Create many Verticals.
-     * @param {VerticalCreateManyArgs} args - Arguments to create many Verticals.
-     * @example
-     * // Create many Verticals
-     * const vertical = await prisma.vertical.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends VerticalCreateManyArgs>(args?: SelectSubset<T, VerticalCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Delete a Vertical.
-     * @param {VerticalDeleteArgs} args - Arguments to delete one Vertical.
-     * @example
-     * // Delete one Vertical
-     * const Vertical = await prisma.vertical.delete({
-     *   where: {
-     *     // ... filter to delete one Vertical
-     *   }
-     * })
-     * 
-     */
-    delete<T extends VerticalDeleteArgs>(args: SelectSubset<T, VerticalDeleteArgs<ExtArgs>>): Prisma__VerticalClient<$Result.GetResult<Prisma.$VerticalPayload<ExtArgs>, T, "delete">, never, ExtArgs>
-
-    /**
-     * Update one Vertical.
-     * @param {VerticalUpdateArgs} args - Arguments to update one Vertical.
-     * @example
-     * // Update one Vertical
-     * const vertical = await prisma.vertical.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends VerticalUpdateArgs>(args: SelectSubset<T, VerticalUpdateArgs<ExtArgs>>): Prisma__VerticalClient<$Result.GetResult<Prisma.$VerticalPayload<ExtArgs>, T, "update">, never, ExtArgs>
-
-    /**
-     * Delete zero or more Verticals.
-     * @param {VerticalDeleteManyArgs} args - Arguments to filter Verticals to delete.
-     * @example
-     * // Delete a few Verticals
-     * const { count } = await prisma.vertical.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends VerticalDeleteManyArgs>(args?: SelectSubset<T, VerticalDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Verticals.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {VerticalUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Verticals
-     * const vertical = await prisma.vertical.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends VerticalUpdateManyArgs>(args: SelectSubset<T, VerticalUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one Vertical.
-     * @param {VerticalUpsertArgs} args - Arguments to update or create a Vertical.
-     * @example
-     * // Update or create a Vertical
-     * const vertical = await prisma.vertical.upsert({
-     *   create: {
-     *     // ... data to create a Vertical
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Vertical we want to update
-     *   }
-     * })
-     */
-    upsert<T extends VerticalUpsertArgs>(args: SelectSubset<T, VerticalUpsertArgs<ExtArgs>>): Prisma__VerticalClient<$Result.GetResult<Prisma.$VerticalPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
-
-
-    /**
-     * Count the number of Verticals.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {VerticalCountArgs} args - Arguments to filter Verticals to count.
-     * @example
-     * // Count the number of Verticals
-     * const count = await prisma.vertical.count({
-     *   where: {
-     *     // ... the filter for the Verticals we want to count
-     *   }
-     * })
-    **/
-    count<T extends VerticalCountArgs>(
-      args?: Subset<T, VerticalCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], VerticalCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Vertical.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {VerticalAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends VerticalAggregateArgs>(args: Subset<T, VerticalAggregateArgs>): Prisma.PrismaPromise<GetVerticalAggregateType<T>>
-
-    /**
-     * Group by Vertical.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {VerticalGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends VerticalGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: VerticalGroupByArgs['orderBy'] }
-        : { orderBy?: VerticalGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, VerticalGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVerticalGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Vertical model
-   */
-  readonly fields: VerticalFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for Vertical.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__VerticalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    organizationVerticals<T extends Vertical$organizationVerticalsArgs<ExtArgs> = {}>(args?: Subset<T, Vertical$organizationVerticalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationVerticalPayload<ExtArgs>, T, "findMany"> | Null>
-    businessUnitVerticals<T extends Vertical$businessUnitVerticalsArgs<ExtArgs> = {}>(args?: Subset<T, Vertical$businessUnitVerticalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BusinessUnitVerticalPayload<ExtArgs>, T, "findMany"> | Null>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the Vertical model
-   */ 
-  interface VerticalFieldRefs {
-    readonly id: FieldRef<"Vertical", 'String'>
-    readonly name: FieldRef<"Vertical", 'String'>
-    readonly code: FieldRef<"Vertical", 'String'>
-    readonly description: FieldRef<"Vertical", 'String'>
-    readonly createdAt: FieldRef<"Vertical", 'DateTime'>
-    readonly updatedAt: FieldRef<"Vertical", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * Vertical findUnique
-   */
-  export type VerticalFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Vertical
-     */
-    select?: VerticalSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: VerticalInclude<ExtArgs> | null
-    /**
-     * Filter, which Vertical to fetch.
-     */
-    where: VerticalWhereUniqueInput
-  }
-
-  /**
-   * Vertical findUniqueOrThrow
-   */
-  export type VerticalFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Vertical
-     */
-    select?: VerticalSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: VerticalInclude<ExtArgs> | null
-    /**
-     * Filter, which Vertical to fetch.
-     */
-    where: VerticalWhereUniqueInput
-  }
-
-  /**
-   * Vertical findFirst
-   */
-  export type VerticalFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Vertical
-     */
-    select?: VerticalSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: VerticalInclude<ExtArgs> | null
-    /**
-     * Filter, which Vertical to fetch.
-     */
-    where?: VerticalWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Verticals to fetch.
-     */
-    orderBy?: VerticalOrderByWithRelationInput | VerticalOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Verticals.
-     */
-    cursor?: VerticalWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Verticals from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Verticals.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Verticals.
-     */
-    distinct?: VerticalScalarFieldEnum | VerticalScalarFieldEnum[]
-  }
-
-  /**
-   * Vertical findFirstOrThrow
-   */
-  export type VerticalFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Vertical
-     */
-    select?: VerticalSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: VerticalInclude<ExtArgs> | null
-    /**
-     * Filter, which Vertical to fetch.
-     */
-    where?: VerticalWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Verticals to fetch.
-     */
-    orderBy?: VerticalOrderByWithRelationInput | VerticalOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Verticals.
-     */
-    cursor?: VerticalWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Verticals from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Verticals.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Verticals.
-     */
-    distinct?: VerticalScalarFieldEnum | VerticalScalarFieldEnum[]
-  }
-
-  /**
-   * Vertical findMany
-   */
-  export type VerticalFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Vertical
-     */
-    select?: VerticalSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: VerticalInclude<ExtArgs> | null
-    /**
-     * Filter, which Verticals to fetch.
-     */
-    where?: VerticalWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Verticals to fetch.
-     */
-    orderBy?: VerticalOrderByWithRelationInput | VerticalOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Verticals.
-     */
-    cursor?: VerticalWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Verticals from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Verticals.
-     */
-    skip?: number
-    distinct?: VerticalScalarFieldEnum | VerticalScalarFieldEnum[]
-  }
-
-  /**
-   * Vertical create
-   */
-  export type VerticalCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Vertical
-     */
-    select?: VerticalSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: VerticalInclude<ExtArgs> | null
-    /**
-     * The data needed to create a Vertical.
-     */
-    data: XOR<VerticalCreateInput, VerticalUncheckedCreateInput>
-  }
-
-  /**
-   * Vertical createMany
-   */
-  export type VerticalCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Verticals.
-     */
-    data: VerticalCreateManyInput | VerticalCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Vertical update
-   */
-  export type VerticalUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Vertical
-     */
-    select?: VerticalSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: VerticalInclude<ExtArgs> | null
-    /**
-     * The data needed to update a Vertical.
-     */
-    data: XOR<VerticalUpdateInput, VerticalUncheckedUpdateInput>
-    /**
-     * Choose, which Vertical to update.
-     */
-    where: VerticalWhereUniqueInput
-  }
-
-  /**
-   * Vertical updateMany
-   */
-  export type VerticalUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Verticals.
-     */
-    data: XOR<VerticalUpdateManyMutationInput, VerticalUncheckedUpdateManyInput>
-    /**
-     * Filter which Verticals to update
-     */
-    where?: VerticalWhereInput
-  }
-
-  /**
-   * Vertical upsert
-   */
-  export type VerticalUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Vertical
-     */
-    select?: VerticalSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: VerticalInclude<ExtArgs> | null
-    /**
-     * The filter to search for the Vertical to update in case it exists.
-     */
-    where: VerticalWhereUniqueInput
-    /**
-     * In case the Vertical found by the `where` argument doesn't exist, create a new Vertical with this data.
-     */
-    create: XOR<VerticalCreateInput, VerticalUncheckedCreateInput>
-    /**
-     * In case the Vertical was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<VerticalUpdateInput, VerticalUncheckedUpdateInput>
-  }
-
-  /**
-   * Vertical delete
-   */
-  export type VerticalDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Vertical
-     */
-    select?: VerticalSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: VerticalInclude<ExtArgs> | null
-    /**
-     * Filter which Vertical to delete.
-     */
-    where: VerticalWhereUniqueInput
-  }
-
-  /**
-   * Vertical deleteMany
-   */
-  export type VerticalDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Verticals to delete
-     */
-    where?: VerticalWhereInput
-  }
-
-  /**
-   * Vertical.organizationVerticals
-   */
-  export type Vertical$organizationVerticalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the OrganizationVertical
-     */
-    select?: OrganizationVerticalSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: OrganizationVerticalInclude<ExtArgs> | null
-    where?: OrganizationVerticalWhereInput
-    orderBy?: OrganizationVerticalOrderByWithRelationInput | OrganizationVerticalOrderByWithRelationInput[]
-    cursor?: OrganizationVerticalWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: OrganizationVerticalScalarFieldEnum | OrganizationVerticalScalarFieldEnum[]
-  }
-
-  /**
-   * Vertical.businessUnitVerticals
-   */
-  export type Vertical$businessUnitVerticalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BusinessUnitVertical
-     */
-    select?: BusinessUnitVerticalSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BusinessUnitVerticalInclude<ExtArgs> | null
-    where?: BusinessUnitVerticalWhereInput
-    orderBy?: BusinessUnitVerticalOrderByWithRelationInput | BusinessUnitVerticalOrderByWithRelationInput[]
-    cursor?: BusinessUnitVerticalWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: BusinessUnitVerticalScalarFieldEnum | BusinessUnitVerticalScalarFieldEnum[]
-  }
-
-  /**
-   * Vertical without action
-   */
-  export type VerticalDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Vertical
-     */
-    select?: VerticalSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: VerticalInclude<ExtArgs> | null
-  }
-
-
-  /**
    * Model OrganizationVertical
    */
 
@@ -5349,7 +4291,7 @@ export namespace Prisma {
 
   export type OrganizationVerticalMinAggregateOutputType = {
     organizationId: string | null
-    verticalId: string | null
+    verticalCode: string | null
     statusId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -5357,7 +4299,7 @@ export namespace Prisma {
 
   export type OrganizationVerticalMaxAggregateOutputType = {
     organizationId: string | null
-    verticalId: string | null
+    verticalCode: string | null
     statusId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -5365,7 +4307,7 @@ export namespace Prisma {
 
   export type OrganizationVerticalCountAggregateOutputType = {
     organizationId: number
-    verticalId: number
+    verticalCode: number
     statusId: number
     createdAt: number
     updatedAt: number
@@ -5375,7 +4317,7 @@ export namespace Prisma {
 
   export type OrganizationVerticalMinAggregateInputType = {
     organizationId?: true
-    verticalId?: true
+    verticalCode?: true
     statusId?: true
     createdAt?: true
     updatedAt?: true
@@ -5383,7 +4325,7 @@ export namespace Prisma {
 
   export type OrganizationVerticalMaxAggregateInputType = {
     organizationId?: true
-    verticalId?: true
+    verticalCode?: true
     statusId?: true
     createdAt?: true
     updatedAt?: true
@@ -5391,7 +4333,7 @@ export namespace Prisma {
 
   export type OrganizationVerticalCountAggregateInputType = {
     organizationId?: true
-    verticalId?: true
+    verticalCode?: true
     statusId?: true
     createdAt?: true
     updatedAt?: true
@@ -5472,7 +4414,7 @@ export namespace Prisma {
 
   export type OrganizationVerticalGroupByOutputType = {
     organizationId: string
-    verticalId: string
+    verticalCode: string
     statusId: string
     createdAt: Date
     updatedAt: Date | null
@@ -5497,18 +4439,17 @@ export namespace Prisma {
 
   export type OrganizationVerticalSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     organizationId?: boolean
-    verticalId?: boolean
+    verticalCode?: boolean
     statusId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
-    vertical?: boolean | VerticalDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["organizationVertical"]>
 
 
   export type OrganizationVerticalSelectScalar = {
     organizationId?: boolean
-    verticalId?: boolean
+    verticalCode?: boolean
     statusId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -5516,18 +4457,16 @@ export namespace Prisma {
 
   export type OrganizationVerticalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
-    vertical?: boolean | VerticalDefaultArgs<ExtArgs>
   }
 
   export type $OrganizationVerticalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "OrganizationVertical"
     objects: {
       organization: Prisma.$OrganizationPayload<ExtArgs>
-      vertical: Prisma.$VerticalPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       organizationId: string
-      verticalId: string
+      verticalCode: string
       statusId: string
       createdAt: Date
       updatedAt: Date | null
@@ -5872,7 +4811,6 @@ export namespace Prisma {
   export interface Prisma__OrganizationVerticalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    vertical<T extends VerticalDefaultArgs<ExtArgs> = {}>(args?: Subset<T, VerticalDefaultArgs<ExtArgs>>): Prisma__VerticalClient<$Result.GetResult<Prisma.$VerticalPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5903,7 +4841,7 @@ export namespace Prisma {
    */ 
   interface OrganizationVerticalFieldRefs {
     readonly organizationId: FieldRef<"OrganizationVertical", 'String'>
-    readonly verticalId: FieldRef<"OrganizationVertical", 'String'>
+    readonly verticalCode: FieldRef<"OrganizationVertical", 'String'>
     readonly statusId: FieldRef<"OrganizationVertical", 'String'>
     readonly createdAt: FieldRef<"OrganizationVertical", 'DateTime'>
     readonly updatedAt: FieldRef<"OrganizationVertical", 'DateTime'>
@@ -8157,7 +7095,7 @@ export namespace Prisma {
   export type BusinessUnitVerticalMinAggregateOutputType = {
     businessUnitId: string | null
     organizationId: string | null
-    verticalId: string | null
+    verticalCode: string | null
     statusId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -8166,7 +7104,7 @@ export namespace Prisma {
   export type BusinessUnitVerticalMaxAggregateOutputType = {
     businessUnitId: string | null
     organizationId: string | null
-    verticalId: string | null
+    verticalCode: string | null
     statusId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -8175,7 +7113,7 @@ export namespace Prisma {
   export type BusinessUnitVerticalCountAggregateOutputType = {
     businessUnitId: number
     organizationId: number
-    verticalId: number
+    verticalCode: number
     statusId: number
     createdAt: number
     updatedAt: number
@@ -8186,7 +7124,7 @@ export namespace Prisma {
   export type BusinessUnitVerticalMinAggregateInputType = {
     businessUnitId?: true
     organizationId?: true
-    verticalId?: true
+    verticalCode?: true
     statusId?: true
     createdAt?: true
     updatedAt?: true
@@ -8195,7 +7133,7 @@ export namespace Prisma {
   export type BusinessUnitVerticalMaxAggregateInputType = {
     businessUnitId?: true
     organizationId?: true
-    verticalId?: true
+    verticalCode?: true
     statusId?: true
     createdAt?: true
     updatedAt?: true
@@ -8204,7 +7142,7 @@ export namespace Prisma {
   export type BusinessUnitVerticalCountAggregateInputType = {
     businessUnitId?: true
     organizationId?: true
-    verticalId?: true
+    verticalCode?: true
     statusId?: true
     createdAt?: true
     updatedAt?: true
@@ -8286,7 +7224,7 @@ export namespace Prisma {
   export type BusinessUnitVerticalGroupByOutputType = {
     businessUnitId: string
     organizationId: string
-    verticalId: string
+    verticalCode: string
     statusId: string
     createdAt: Date
     updatedAt: Date | null
@@ -8312,20 +7250,19 @@ export namespace Prisma {
   export type BusinessUnitVerticalSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     businessUnitId?: boolean
     organizationId?: boolean
-    verticalId?: boolean
+    verticalCode?: boolean
     statusId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     businessUnit?: boolean | BusinessUnitDefaultArgs<ExtArgs>
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
-    vertical?: boolean | VerticalDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["businessUnitVertical"]>
 
 
   export type BusinessUnitVerticalSelectScalar = {
     businessUnitId?: boolean
     organizationId?: boolean
-    verticalId?: boolean
+    verticalCode?: boolean
     statusId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -8334,7 +7271,6 @@ export namespace Prisma {
   export type BusinessUnitVerticalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     businessUnit?: boolean | BusinessUnitDefaultArgs<ExtArgs>
     organization?: boolean | OrganizationDefaultArgs<ExtArgs>
-    vertical?: boolean | VerticalDefaultArgs<ExtArgs>
   }
 
   export type $BusinessUnitVerticalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8342,12 +7278,11 @@ export namespace Prisma {
     objects: {
       businessUnit: Prisma.$BusinessUnitPayload<ExtArgs>
       organization: Prisma.$OrganizationPayload<ExtArgs>
-      vertical: Prisma.$VerticalPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       businessUnitId: string
       organizationId: string
-      verticalId: string
+      verticalCode: string
       statusId: string
       createdAt: Date
       updatedAt: Date | null
@@ -8693,7 +7628,6 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     businessUnit<T extends BusinessUnitDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BusinessUnitDefaultArgs<ExtArgs>>): Prisma__BusinessUnitClient<$Result.GetResult<Prisma.$BusinessUnitPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    vertical<T extends VerticalDefaultArgs<ExtArgs> = {}>(args?: Subset<T, VerticalDefaultArgs<ExtArgs>>): Prisma__VerticalClient<$Result.GetResult<Prisma.$VerticalPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8725,7 +7659,7 @@ export namespace Prisma {
   interface BusinessUnitVerticalFieldRefs {
     readonly businessUnitId: FieldRef<"BusinessUnitVertical", 'String'>
     readonly organizationId: FieldRef<"BusinessUnitVertical", 'String'>
-    readonly verticalId: FieldRef<"BusinessUnitVertical", 'String'>
+    readonly verticalCode: FieldRef<"BusinessUnitVertical", 'String'>
     readonly statusId: FieldRef<"BusinessUnitVertical", 'String'>
     readonly createdAt: FieldRef<"BusinessUnitVertical", 'DateTime'>
     readonly updatedAt: FieldRef<"BusinessUnitVertical", 'DateTime'>
@@ -9099,21 +8033,9 @@ export namespace Prisma {
   export type UserOrganizationLinkScalarFieldEnum = (typeof UserOrganizationLinkScalarFieldEnum)[keyof typeof UserOrganizationLinkScalarFieldEnum]
 
 
-  export const VerticalScalarFieldEnum: {
-    id: 'id',
-    name: 'name',
-    code: 'code',
-    description: 'description',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type VerticalScalarFieldEnum = (typeof VerticalScalarFieldEnum)[keyof typeof VerticalScalarFieldEnum]
-
-
   export const OrganizationVerticalScalarFieldEnum: {
     organizationId: 'organizationId',
-    verticalId: 'verticalId',
+    verticalCode: 'verticalCode',
     statusId: 'statusId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -9158,7 +8080,7 @@ export namespace Prisma {
   export const BusinessUnitVerticalScalarFieldEnum: {
     businessUnitId: 'businessUnitId',
     organizationId: 'organizationId',
-    verticalId: 'verticalId',
+    verticalCode: 'verticalCode',
     statusId: 'statusId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -9319,7 +8241,7 @@ export namespace Prisma {
     documentType?: StringFilter<"Organization"> | string
     documentNumber?: StringFilter<"Organization"> | string
     statusId?: StringFilter<"Organization"> | string
-    ownerUserId?: StringFilter<"Organization"> | string
+    ownerUserId?: StringNullableFilter<"Organization"> | string | null
     createdAt?: DateTimeFilter<"Organization"> | Date | string
     updatedAt?: DateTimeNullableFilter<"Organization"> | Date | string | null
     organizationLinks?: UserOrganizationLinkListRelationFilter
@@ -9335,7 +8257,7 @@ export namespace Prisma {
     documentType?: SortOrder
     documentNumber?: SortOrder
     statusId?: SortOrder
-    ownerUserId?: SortOrder
+    ownerUserId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrderInput | SortOrder
     organizationLinks?: UserOrganizationLinkOrderByRelationAggregateInput
@@ -9354,7 +8276,7 @@ export namespace Prisma {
     legalName?: StringNullableFilter<"Organization"> | string | null
     documentType?: StringFilter<"Organization"> | string
     statusId?: StringFilter<"Organization"> | string
-    ownerUserId?: StringFilter<"Organization"> | string
+    ownerUserId?: StringNullableFilter<"Organization"> | string | null
     createdAt?: DateTimeFilter<"Organization"> | Date | string
     updatedAt?: DateTimeNullableFilter<"Organization"> | Date | string | null
     organizationLinks?: UserOrganizationLinkListRelationFilter
@@ -9370,7 +8292,7 @@ export namespace Prisma {
     documentType?: SortOrder
     documentNumber?: SortOrder
     statusId?: SortOrder
-    ownerUserId?: SortOrder
+    ownerUserId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrderInput | SortOrder
     _count?: OrganizationCountOrderByAggregateInput
@@ -9388,7 +8310,7 @@ export namespace Prisma {
     documentType?: StringWithAggregatesFilter<"Organization"> | string
     documentNumber?: StringWithAggregatesFilter<"Organization"> | string
     statusId?: StringWithAggregatesFilter<"Organization"> | string
-    ownerUserId?: StringWithAggregatesFilter<"Organization"> | string
+    ownerUserId?: StringNullableWithAggregatesFilter<"Organization"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Organization"> | Date | string
     updatedAt?: DateTimeNullableWithAggregatesFilter<"Organization"> | Date | string | null
   }
@@ -9446,109 +8368,43 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"UserOrganizationLink"> | Date | string
   }
 
-  export type VerticalWhereInput = {
-    AND?: VerticalWhereInput | VerticalWhereInput[]
-    OR?: VerticalWhereInput[]
-    NOT?: VerticalWhereInput | VerticalWhereInput[]
-    id?: StringFilter<"Vertical"> | string
-    name?: StringFilter<"Vertical"> | string
-    code?: StringFilter<"Vertical"> | string
-    description?: StringFilter<"Vertical"> | string
-    createdAt?: DateTimeFilter<"Vertical"> | Date | string
-    updatedAt?: DateTimeNullableFilter<"Vertical"> | Date | string | null
-    organizationVerticals?: OrganizationVerticalListRelationFilter
-    businessUnitVerticals?: BusinessUnitVerticalListRelationFilter
-  }
-
-  export type VerticalOrderByWithRelationInput = {
-    id?: SortOrder
-    name?: SortOrder
-    code?: SortOrder
-    description?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrderInput | SortOrder
-    organizationVerticals?: OrganizationVerticalOrderByRelationAggregateInput
-    businessUnitVerticals?: BusinessUnitVerticalOrderByRelationAggregateInput
-  }
-
-  export type VerticalWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    name?: string
-    code?: string
-    AND?: VerticalWhereInput | VerticalWhereInput[]
-    OR?: VerticalWhereInput[]
-    NOT?: VerticalWhereInput | VerticalWhereInput[]
-    description?: StringFilter<"Vertical"> | string
-    createdAt?: DateTimeFilter<"Vertical"> | Date | string
-    updatedAt?: DateTimeNullableFilter<"Vertical"> | Date | string | null
-    organizationVerticals?: OrganizationVerticalListRelationFilter
-    businessUnitVerticals?: BusinessUnitVerticalListRelationFilter
-  }, "id" | "name" | "code">
-
-  export type VerticalOrderByWithAggregationInput = {
-    id?: SortOrder
-    name?: SortOrder
-    code?: SortOrder
-    description?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrderInput | SortOrder
-    _count?: VerticalCountOrderByAggregateInput
-    _max?: VerticalMaxOrderByAggregateInput
-    _min?: VerticalMinOrderByAggregateInput
-  }
-
-  export type VerticalScalarWhereWithAggregatesInput = {
-    AND?: VerticalScalarWhereWithAggregatesInput | VerticalScalarWhereWithAggregatesInput[]
-    OR?: VerticalScalarWhereWithAggregatesInput[]
-    NOT?: VerticalScalarWhereWithAggregatesInput | VerticalScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Vertical"> | string
-    name?: StringWithAggregatesFilter<"Vertical"> | string
-    code?: StringWithAggregatesFilter<"Vertical"> | string
-    description?: StringWithAggregatesFilter<"Vertical"> | string
-    createdAt?: DateTimeWithAggregatesFilter<"Vertical"> | Date | string
-    updatedAt?: DateTimeNullableWithAggregatesFilter<"Vertical"> | Date | string | null
-  }
-
   export type OrganizationVerticalWhereInput = {
     AND?: OrganizationVerticalWhereInput | OrganizationVerticalWhereInput[]
     OR?: OrganizationVerticalWhereInput[]
     NOT?: OrganizationVerticalWhereInput | OrganizationVerticalWhereInput[]
     organizationId?: StringFilter<"OrganizationVertical"> | string
-    verticalId?: StringFilter<"OrganizationVertical"> | string
+    verticalCode?: StringFilter<"OrganizationVertical"> | string
     statusId?: StringFilter<"OrganizationVertical"> | string
     createdAt?: DateTimeFilter<"OrganizationVertical"> | Date | string
     updatedAt?: DateTimeNullableFilter<"OrganizationVertical"> | Date | string | null
     organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
-    vertical?: XOR<VerticalRelationFilter, VerticalWhereInput>
   }
 
   export type OrganizationVerticalOrderByWithRelationInput = {
     organizationId?: SortOrder
-    verticalId?: SortOrder
+    verticalCode?: SortOrder
     statusId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrderInput | SortOrder
     organization?: OrganizationOrderByWithRelationInput
-    vertical?: VerticalOrderByWithRelationInput
   }
 
   export type OrganizationVerticalWhereUniqueInput = Prisma.AtLeast<{
-    organizationId_verticalId?: OrganizationVerticalOrganizationIdVerticalIdCompoundUniqueInput
+    organizationId_verticalCode?: OrganizationVerticalOrganizationIdVerticalCodeCompoundUniqueInput
     AND?: OrganizationVerticalWhereInput | OrganizationVerticalWhereInput[]
     OR?: OrganizationVerticalWhereInput[]
     NOT?: OrganizationVerticalWhereInput | OrganizationVerticalWhereInput[]
     organizationId?: StringFilter<"OrganizationVertical"> | string
-    verticalId?: StringFilter<"OrganizationVertical"> | string
+    verticalCode?: StringFilter<"OrganizationVertical"> | string
     statusId?: StringFilter<"OrganizationVertical"> | string
     createdAt?: DateTimeFilter<"OrganizationVertical"> | Date | string
     updatedAt?: DateTimeNullableFilter<"OrganizationVertical"> | Date | string | null
     organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
-    vertical?: XOR<VerticalRelationFilter, VerticalWhereInput>
-  }, "organizationId_verticalId">
+  }, "organizationId_verticalCode">
 
   export type OrganizationVerticalOrderByWithAggregationInput = {
     organizationId?: SortOrder
-    verticalId?: SortOrder
+    verticalCode?: SortOrder
     statusId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrderInput | SortOrder
@@ -9562,7 +8418,7 @@ export namespace Prisma {
     OR?: OrganizationVerticalScalarWhereWithAggregatesInput[]
     NOT?: OrganizationVerticalScalarWhereWithAggregatesInput | OrganizationVerticalScalarWhereWithAggregatesInput[]
     organizationId?: StringWithAggregatesFilter<"OrganizationVertical"> | string
-    verticalId?: StringWithAggregatesFilter<"OrganizationVertical"> | string
+    verticalCode?: StringWithAggregatesFilter<"OrganizationVertical"> | string
     statusId?: StringWithAggregatesFilter<"OrganizationVertical"> | string
     createdAt?: DateTimeWithAggregatesFilter<"OrganizationVertical"> | Date | string
     updatedAt?: DateTimeNullableWithAggregatesFilter<"OrganizationVertical"> | Date | string | null
@@ -9745,47 +8601,44 @@ export namespace Prisma {
     NOT?: BusinessUnitVerticalWhereInput | BusinessUnitVerticalWhereInput[]
     businessUnitId?: StringFilter<"BusinessUnitVertical"> | string
     organizationId?: StringFilter<"BusinessUnitVertical"> | string
-    verticalId?: StringFilter<"BusinessUnitVertical"> | string
+    verticalCode?: StringFilter<"BusinessUnitVertical"> | string
     statusId?: StringFilter<"BusinessUnitVertical"> | string
     createdAt?: DateTimeFilter<"BusinessUnitVertical"> | Date | string
     updatedAt?: DateTimeNullableFilter<"BusinessUnitVertical"> | Date | string | null
     businessUnit?: XOR<BusinessUnitRelationFilter, BusinessUnitWhereInput>
     organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
-    vertical?: XOR<VerticalRelationFilter, VerticalWhereInput>
   }
 
   export type BusinessUnitVerticalOrderByWithRelationInput = {
     businessUnitId?: SortOrder
     organizationId?: SortOrder
-    verticalId?: SortOrder
+    verticalCode?: SortOrder
     statusId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrderInput | SortOrder
     businessUnit?: BusinessUnitOrderByWithRelationInput
     organization?: OrganizationOrderByWithRelationInput
-    vertical?: VerticalOrderByWithRelationInput
   }
 
   export type BusinessUnitVerticalWhereUniqueInput = Prisma.AtLeast<{
-    businessUnitId_verticalId?: BusinessUnitVerticalBusinessUnitIdVerticalIdCompoundUniqueInput
+    businessUnitId_verticalCode?: BusinessUnitVerticalBusinessUnitIdVerticalCodeCompoundUniqueInput
     AND?: BusinessUnitVerticalWhereInput | BusinessUnitVerticalWhereInput[]
     OR?: BusinessUnitVerticalWhereInput[]
     NOT?: BusinessUnitVerticalWhereInput | BusinessUnitVerticalWhereInput[]
     businessUnitId?: StringFilter<"BusinessUnitVertical"> | string
     organizationId?: StringFilter<"BusinessUnitVertical"> | string
-    verticalId?: StringFilter<"BusinessUnitVertical"> | string
+    verticalCode?: StringFilter<"BusinessUnitVertical"> | string
     statusId?: StringFilter<"BusinessUnitVertical"> | string
     createdAt?: DateTimeFilter<"BusinessUnitVertical"> | Date | string
     updatedAt?: DateTimeNullableFilter<"BusinessUnitVertical"> | Date | string | null
     businessUnit?: XOR<BusinessUnitRelationFilter, BusinessUnitWhereInput>
     organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
-    vertical?: XOR<VerticalRelationFilter, VerticalWhereInput>
-  }, "businessUnitId_verticalId">
+  }, "businessUnitId_verticalCode">
 
   export type BusinessUnitVerticalOrderByWithAggregationInput = {
     businessUnitId?: SortOrder
     organizationId?: SortOrder
-    verticalId?: SortOrder
+    verticalCode?: SortOrder
     statusId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrderInput | SortOrder
@@ -9800,7 +8653,7 @@ export namespace Prisma {
     NOT?: BusinessUnitVerticalScalarWhereWithAggregatesInput | BusinessUnitVerticalScalarWhereWithAggregatesInput[]
     businessUnitId?: StringWithAggregatesFilter<"BusinessUnitVertical"> | string
     organizationId?: StringWithAggregatesFilter<"BusinessUnitVertical"> | string
-    verticalId?: StringWithAggregatesFilter<"BusinessUnitVertical"> | string
+    verticalCode?: StringWithAggregatesFilter<"BusinessUnitVertical"> | string
     statusId?: StringWithAggregatesFilter<"BusinessUnitVertical"> | string
     createdAt?: DateTimeWithAggregatesFilter<"BusinessUnitVertical"> | Date | string
     updatedAt?: DateTimeNullableWithAggregatesFilter<"BusinessUnitVertical"> | Date | string | null
@@ -9922,7 +8775,7 @@ export namespace Prisma {
     documentType: string
     documentNumber: string
     statusId: string
-    ownerUserId: string
+    ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string | null
     organizationLinks?: UserOrganizationLinkCreateNestedManyWithoutOrganizationInput
@@ -9938,7 +8791,7 @@ export namespace Prisma {
     documentType: string
     documentNumber: string
     statusId: string
-    ownerUserId: string
+    ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string | null
     organizationLinks?: UserOrganizationLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -9954,7 +8807,7 @@ export namespace Prisma {
     documentType?: StringFieldUpdateOperationsInput | string
     documentNumber?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
-    ownerUserId?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizationLinks?: UserOrganizationLinkUpdateManyWithoutOrganizationNestedInput
@@ -9970,7 +8823,7 @@ export namespace Prisma {
     documentType?: StringFieldUpdateOperationsInput | string
     documentNumber?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
-    ownerUserId?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizationLinks?: UserOrganizationLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -9986,7 +8839,7 @@ export namespace Prisma {
     documentType: string
     documentNumber: string
     statusId: string
-    ownerUserId: string
+    ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string | null
   }
@@ -9998,7 +8851,7 @@ export namespace Prisma {
     documentType?: StringFieldUpdateOperationsInput | string
     documentNumber?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
-    ownerUserId?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -10010,7 +8863,7 @@ export namespace Prisma {
     documentType?: StringFieldUpdateOperationsInput | string
     documentNumber?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
-    ownerUserId?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -10062,104 +8915,33 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type VerticalCreateInput = {
-    id?: string
-    name: string
-    code: string
-    description: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-    organizationVerticals?: OrganizationVerticalCreateNestedManyWithoutVerticalInput
-    businessUnitVerticals?: BusinessUnitVerticalCreateNestedManyWithoutVerticalInput
-  }
-
-  export type VerticalUncheckedCreateInput = {
-    id?: string
-    name: string
-    code: string
-    description: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-    organizationVerticals?: OrganizationVerticalUncheckedCreateNestedManyWithoutVerticalInput
-    businessUnitVerticals?: BusinessUnitVerticalUncheckedCreateNestedManyWithoutVerticalInput
-  }
-
-  export type VerticalUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    organizationVerticals?: OrganizationVerticalUpdateManyWithoutVerticalNestedInput
-    businessUnitVerticals?: BusinessUnitVerticalUpdateManyWithoutVerticalNestedInput
-  }
-
-  export type VerticalUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    organizationVerticals?: OrganizationVerticalUncheckedUpdateManyWithoutVerticalNestedInput
-    businessUnitVerticals?: BusinessUnitVerticalUncheckedUpdateManyWithoutVerticalNestedInput
-  }
-
-  export type VerticalCreateManyInput = {
-    id?: string
-    name: string
-    code: string
-    description: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-  }
-
-  export type VerticalUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type VerticalUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
   export type OrganizationVerticalCreateInput = {
+    verticalCode: string
     statusId: string
     createdAt?: Date | string
     updatedAt?: Date | string | null
     organization: OrganizationCreateNestedOneWithoutOrganizationVerticalsInput
-    vertical: VerticalCreateNestedOneWithoutOrganizationVerticalsInput
   }
 
   export type OrganizationVerticalUncheckedCreateInput = {
     organizationId: string
-    verticalId: string
+    verticalCode: string
     statusId: string
     createdAt?: Date | string
     updatedAt?: Date | string | null
   }
 
   export type OrganizationVerticalUpdateInput = {
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organization?: OrganizationUpdateOneRequiredWithoutOrganizationVerticalsNestedInput
-    vertical?: VerticalUpdateOneRequiredWithoutOrganizationVerticalsNestedInput
   }
 
   export type OrganizationVerticalUncheckedUpdateInput = {
     organizationId?: StringFieldUpdateOperationsInput | string
-    verticalId?: StringFieldUpdateOperationsInput | string
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10167,13 +8949,14 @@ export namespace Prisma {
 
   export type OrganizationVerticalCreateManyInput = {
     organizationId: string
-    verticalId: string
+    verticalCode: string
     statusId: string
     createdAt?: Date | string
     updatedAt?: Date | string | null
   }
 
   export type OrganizationVerticalUpdateManyMutationInput = {
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10181,7 +8964,7 @@ export namespace Prisma {
 
   export type OrganizationVerticalUncheckedUpdateManyInput = {
     organizationId?: StringFieldUpdateOperationsInput | string
-    verticalId?: StringFieldUpdateOperationsInput | string
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10383,36 +9166,36 @@ export namespace Prisma {
   }
 
   export type BusinessUnitVerticalCreateInput = {
+    verticalCode: string
     statusId: string
     createdAt?: Date | string
     updatedAt?: Date | string | null
     businessUnit: BusinessUnitCreateNestedOneWithoutBusinessUnitVerticalsInput
     organization: OrganizationCreateNestedOneWithoutBusinessUnitVerticalsInput
-    vertical: VerticalCreateNestedOneWithoutBusinessUnitVerticalsInput
   }
 
   export type BusinessUnitVerticalUncheckedCreateInput = {
     businessUnitId: string
     organizationId: string
-    verticalId: string
+    verticalCode: string
     statusId: string
     createdAt?: Date | string
     updatedAt?: Date | string | null
   }
 
   export type BusinessUnitVerticalUpdateInput = {
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     businessUnit?: BusinessUnitUpdateOneRequiredWithoutBusinessUnitVerticalsNestedInput
     organization?: OrganizationUpdateOneRequiredWithoutBusinessUnitVerticalsNestedInput
-    vertical?: VerticalUpdateOneRequiredWithoutBusinessUnitVerticalsNestedInput
   }
 
   export type BusinessUnitVerticalUncheckedUpdateInput = {
     businessUnitId?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
-    verticalId?: StringFieldUpdateOperationsInput | string
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10421,13 +9204,14 @@ export namespace Prisma {
   export type BusinessUnitVerticalCreateManyInput = {
     businessUnitId: string
     organizationId: string
-    verticalId: string
+    verticalCode: string
     statusId: string
     createdAt?: Date | string
     updatedAt?: Date | string | null
   }
 
   export type BusinessUnitVerticalUpdateManyMutationInput = {
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10436,7 +9220,7 @@ export namespace Prisma {
   export type BusinessUnitVerticalUncheckedUpdateManyInput = {
     businessUnitId?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
-    verticalId?: StringFieldUpdateOperationsInput | string
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10729,46 +9513,14 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
-  export type VerticalCountOrderByAggregateInput = {
-    id?: SortOrder
-    name?: SortOrder
-    code?: SortOrder
-    description?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type VerticalMaxOrderByAggregateInput = {
-    id?: SortOrder
-    name?: SortOrder
-    code?: SortOrder
-    description?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type VerticalMinOrderByAggregateInput = {
-    id?: SortOrder
-    name?: SortOrder
-    code?: SortOrder
-    description?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type VerticalRelationFilter = {
-    is?: VerticalWhereInput
-    isNot?: VerticalWhereInput
-  }
-
-  export type OrganizationVerticalOrganizationIdVerticalIdCompoundUniqueInput = {
+  export type OrganizationVerticalOrganizationIdVerticalCodeCompoundUniqueInput = {
     organizationId: string
-    verticalId: string
+    verticalCode: string
   }
 
   export type OrganizationVerticalCountOrderByAggregateInput = {
     organizationId?: SortOrder
-    verticalId?: SortOrder
+    verticalCode?: SortOrder
     statusId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -10776,7 +9528,7 @@ export namespace Prisma {
 
   export type OrganizationVerticalMaxOrderByAggregateInput = {
     organizationId?: SortOrder
-    verticalId?: SortOrder
+    verticalCode?: SortOrder
     statusId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -10784,7 +9536,7 @@ export namespace Prisma {
 
   export type OrganizationVerticalMinOrderByAggregateInput = {
     organizationId?: SortOrder
-    verticalId?: SortOrder
+    verticalCode?: SortOrder
     statusId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -10881,15 +9633,15 @@ export namespace Prisma {
     referencePoint?: SortOrder
   }
 
-  export type BusinessUnitVerticalBusinessUnitIdVerticalIdCompoundUniqueInput = {
+  export type BusinessUnitVerticalBusinessUnitIdVerticalCodeCompoundUniqueInput = {
     businessUnitId: string
-    verticalId: string
+    verticalCode: string
   }
 
   export type BusinessUnitVerticalCountOrderByAggregateInput = {
     businessUnitId?: SortOrder
     organizationId?: SortOrder
-    verticalId?: SortOrder
+    verticalCode?: SortOrder
     statusId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -10898,7 +9650,7 @@ export namespace Prisma {
   export type BusinessUnitVerticalMaxOrderByAggregateInput = {
     businessUnitId?: SortOrder
     organizationId?: SortOrder
-    verticalId?: SortOrder
+    verticalCode?: SortOrder
     statusId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -10907,7 +9659,7 @@ export namespace Prisma {
   export type BusinessUnitVerticalMinOrderByAggregateInput = {
     businessUnitId?: SortOrder
     organizationId?: SortOrder
-    verticalId?: SortOrder
+    verticalCode?: SortOrder
     statusId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -11161,100 +9913,10 @@ export namespace Prisma {
     update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutOrganizationLinksInput, OrganizationUpdateWithoutOrganizationLinksInput>, OrganizationUncheckedUpdateWithoutOrganizationLinksInput>
   }
 
-  export type OrganizationVerticalCreateNestedManyWithoutVerticalInput = {
-    create?: XOR<OrganizationVerticalCreateWithoutVerticalInput, OrganizationVerticalUncheckedCreateWithoutVerticalInput> | OrganizationVerticalCreateWithoutVerticalInput[] | OrganizationVerticalUncheckedCreateWithoutVerticalInput[]
-    connectOrCreate?: OrganizationVerticalCreateOrConnectWithoutVerticalInput | OrganizationVerticalCreateOrConnectWithoutVerticalInput[]
-    createMany?: OrganizationVerticalCreateManyVerticalInputEnvelope
-    connect?: OrganizationVerticalWhereUniqueInput | OrganizationVerticalWhereUniqueInput[]
-  }
-
-  export type BusinessUnitVerticalCreateNestedManyWithoutVerticalInput = {
-    create?: XOR<BusinessUnitVerticalCreateWithoutVerticalInput, BusinessUnitVerticalUncheckedCreateWithoutVerticalInput> | BusinessUnitVerticalCreateWithoutVerticalInput[] | BusinessUnitVerticalUncheckedCreateWithoutVerticalInput[]
-    connectOrCreate?: BusinessUnitVerticalCreateOrConnectWithoutVerticalInput | BusinessUnitVerticalCreateOrConnectWithoutVerticalInput[]
-    createMany?: BusinessUnitVerticalCreateManyVerticalInputEnvelope
-    connect?: BusinessUnitVerticalWhereUniqueInput | BusinessUnitVerticalWhereUniqueInput[]
-  }
-
-  export type OrganizationVerticalUncheckedCreateNestedManyWithoutVerticalInput = {
-    create?: XOR<OrganizationVerticalCreateWithoutVerticalInput, OrganizationVerticalUncheckedCreateWithoutVerticalInput> | OrganizationVerticalCreateWithoutVerticalInput[] | OrganizationVerticalUncheckedCreateWithoutVerticalInput[]
-    connectOrCreate?: OrganizationVerticalCreateOrConnectWithoutVerticalInput | OrganizationVerticalCreateOrConnectWithoutVerticalInput[]
-    createMany?: OrganizationVerticalCreateManyVerticalInputEnvelope
-    connect?: OrganizationVerticalWhereUniqueInput | OrganizationVerticalWhereUniqueInput[]
-  }
-
-  export type BusinessUnitVerticalUncheckedCreateNestedManyWithoutVerticalInput = {
-    create?: XOR<BusinessUnitVerticalCreateWithoutVerticalInput, BusinessUnitVerticalUncheckedCreateWithoutVerticalInput> | BusinessUnitVerticalCreateWithoutVerticalInput[] | BusinessUnitVerticalUncheckedCreateWithoutVerticalInput[]
-    connectOrCreate?: BusinessUnitVerticalCreateOrConnectWithoutVerticalInput | BusinessUnitVerticalCreateOrConnectWithoutVerticalInput[]
-    createMany?: BusinessUnitVerticalCreateManyVerticalInputEnvelope
-    connect?: BusinessUnitVerticalWhereUniqueInput | BusinessUnitVerticalWhereUniqueInput[]
-  }
-
-  export type OrganizationVerticalUpdateManyWithoutVerticalNestedInput = {
-    create?: XOR<OrganizationVerticalCreateWithoutVerticalInput, OrganizationVerticalUncheckedCreateWithoutVerticalInput> | OrganizationVerticalCreateWithoutVerticalInput[] | OrganizationVerticalUncheckedCreateWithoutVerticalInput[]
-    connectOrCreate?: OrganizationVerticalCreateOrConnectWithoutVerticalInput | OrganizationVerticalCreateOrConnectWithoutVerticalInput[]
-    upsert?: OrganizationVerticalUpsertWithWhereUniqueWithoutVerticalInput | OrganizationVerticalUpsertWithWhereUniqueWithoutVerticalInput[]
-    createMany?: OrganizationVerticalCreateManyVerticalInputEnvelope
-    set?: OrganizationVerticalWhereUniqueInput | OrganizationVerticalWhereUniqueInput[]
-    disconnect?: OrganizationVerticalWhereUniqueInput | OrganizationVerticalWhereUniqueInput[]
-    delete?: OrganizationVerticalWhereUniqueInput | OrganizationVerticalWhereUniqueInput[]
-    connect?: OrganizationVerticalWhereUniqueInput | OrganizationVerticalWhereUniqueInput[]
-    update?: OrganizationVerticalUpdateWithWhereUniqueWithoutVerticalInput | OrganizationVerticalUpdateWithWhereUniqueWithoutVerticalInput[]
-    updateMany?: OrganizationVerticalUpdateManyWithWhereWithoutVerticalInput | OrganizationVerticalUpdateManyWithWhereWithoutVerticalInput[]
-    deleteMany?: OrganizationVerticalScalarWhereInput | OrganizationVerticalScalarWhereInput[]
-  }
-
-  export type BusinessUnitVerticalUpdateManyWithoutVerticalNestedInput = {
-    create?: XOR<BusinessUnitVerticalCreateWithoutVerticalInput, BusinessUnitVerticalUncheckedCreateWithoutVerticalInput> | BusinessUnitVerticalCreateWithoutVerticalInput[] | BusinessUnitVerticalUncheckedCreateWithoutVerticalInput[]
-    connectOrCreate?: BusinessUnitVerticalCreateOrConnectWithoutVerticalInput | BusinessUnitVerticalCreateOrConnectWithoutVerticalInput[]
-    upsert?: BusinessUnitVerticalUpsertWithWhereUniqueWithoutVerticalInput | BusinessUnitVerticalUpsertWithWhereUniqueWithoutVerticalInput[]
-    createMany?: BusinessUnitVerticalCreateManyVerticalInputEnvelope
-    set?: BusinessUnitVerticalWhereUniqueInput | BusinessUnitVerticalWhereUniqueInput[]
-    disconnect?: BusinessUnitVerticalWhereUniqueInput | BusinessUnitVerticalWhereUniqueInput[]
-    delete?: BusinessUnitVerticalWhereUniqueInput | BusinessUnitVerticalWhereUniqueInput[]
-    connect?: BusinessUnitVerticalWhereUniqueInput | BusinessUnitVerticalWhereUniqueInput[]
-    update?: BusinessUnitVerticalUpdateWithWhereUniqueWithoutVerticalInput | BusinessUnitVerticalUpdateWithWhereUniqueWithoutVerticalInput[]
-    updateMany?: BusinessUnitVerticalUpdateManyWithWhereWithoutVerticalInput | BusinessUnitVerticalUpdateManyWithWhereWithoutVerticalInput[]
-    deleteMany?: BusinessUnitVerticalScalarWhereInput | BusinessUnitVerticalScalarWhereInput[]
-  }
-
-  export type OrganizationVerticalUncheckedUpdateManyWithoutVerticalNestedInput = {
-    create?: XOR<OrganizationVerticalCreateWithoutVerticalInput, OrganizationVerticalUncheckedCreateWithoutVerticalInput> | OrganizationVerticalCreateWithoutVerticalInput[] | OrganizationVerticalUncheckedCreateWithoutVerticalInput[]
-    connectOrCreate?: OrganizationVerticalCreateOrConnectWithoutVerticalInput | OrganizationVerticalCreateOrConnectWithoutVerticalInput[]
-    upsert?: OrganizationVerticalUpsertWithWhereUniqueWithoutVerticalInput | OrganizationVerticalUpsertWithWhereUniqueWithoutVerticalInput[]
-    createMany?: OrganizationVerticalCreateManyVerticalInputEnvelope
-    set?: OrganizationVerticalWhereUniqueInput | OrganizationVerticalWhereUniqueInput[]
-    disconnect?: OrganizationVerticalWhereUniqueInput | OrganizationVerticalWhereUniqueInput[]
-    delete?: OrganizationVerticalWhereUniqueInput | OrganizationVerticalWhereUniqueInput[]
-    connect?: OrganizationVerticalWhereUniqueInput | OrganizationVerticalWhereUniqueInput[]
-    update?: OrganizationVerticalUpdateWithWhereUniqueWithoutVerticalInput | OrganizationVerticalUpdateWithWhereUniqueWithoutVerticalInput[]
-    updateMany?: OrganizationVerticalUpdateManyWithWhereWithoutVerticalInput | OrganizationVerticalUpdateManyWithWhereWithoutVerticalInput[]
-    deleteMany?: OrganizationVerticalScalarWhereInput | OrganizationVerticalScalarWhereInput[]
-  }
-
-  export type BusinessUnitVerticalUncheckedUpdateManyWithoutVerticalNestedInput = {
-    create?: XOR<BusinessUnitVerticalCreateWithoutVerticalInput, BusinessUnitVerticalUncheckedCreateWithoutVerticalInput> | BusinessUnitVerticalCreateWithoutVerticalInput[] | BusinessUnitVerticalUncheckedCreateWithoutVerticalInput[]
-    connectOrCreate?: BusinessUnitVerticalCreateOrConnectWithoutVerticalInput | BusinessUnitVerticalCreateOrConnectWithoutVerticalInput[]
-    upsert?: BusinessUnitVerticalUpsertWithWhereUniqueWithoutVerticalInput | BusinessUnitVerticalUpsertWithWhereUniqueWithoutVerticalInput[]
-    createMany?: BusinessUnitVerticalCreateManyVerticalInputEnvelope
-    set?: BusinessUnitVerticalWhereUniqueInput | BusinessUnitVerticalWhereUniqueInput[]
-    disconnect?: BusinessUnitVerticalWhereUniqueInput | BusinessUnitVerticalWhereUniqueInput[]
-    delete?: BusinessUnitVerticalWhereUniqueInput | BusinessUnitVerticalWhereUniqueInput[]
-    connect?: BusinessUnitVerticalWhereUniqueInput | BusinessUnitVerticalWhereUniqueInput[]
-    update?: BusinessUnitVerticalUpdateWithWhereUniqueWithoutVerticalInput | BusinessUnitVerticalUpdateWithWhereUniqueWithoutVerticalInput[]
-    updateMany?: BusinessUnitVerticalUpdateManyWithWhereWithoutVerticalInput | BusinessUnitVerticalUpdateManyWithWhereWithoutVerticalInput[]
-    deleteMany?: BusinessUnitVerticalScalarWhereInput | BusinessUnitVerticalScalarWhereInput[]
-  }
-
   export type OrganizationCreateNestedOneWithoutOrganizationVerticalsInput = {
     create?: XOR<OrganizationCreateWithoutOrganizationVerticalsInput, OrganizationUncheckedCreateWithoutOrganizationVerticalsInput>
     connectOrCreate?: OrganizationCreateOrConnectWithoutOrganizationVerticalsInput
     connect?: OrganizationWhereUniqueInput
-  }
-
-  export type VerticalCreateNestedOneWithoutOrganizationVerticalsInput = {
-    create?: XOR<VerticalCreateWithoutOrganizationVerticalsInput, VerticalUncheckedCreateWithoutOrganizationVerticalsInput>
-    connectOrCreate?: VerticalCreateOrConnectWithoutOrganizationVerticalsInput
-    connect?: VerticalWhereUniqueInput
   }
 
   export type OrganizationUpdateOneRequiredWithoutOrganizationVerticalsNestedInput = {
@@ -11263,14 +9925,6 @@ export namespace Prisma {
     upsert?: OrganizationUpsertWithoutOrganizationVerticalsInput
     connect?: OrganizationWhereUniqueInput
     update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutOrganizationVerticalsInput, OrganizationUpdateWithoutOrganizationVerticalsInput>, OrganizationUncheckedUpdateWithoutOrganizationVerticalsInput>
-  }
-
-  export type VerticalUpdateOneRequiredWithoutOrganizationVerticalsNestedInput = {
-    create?: XOR<VerticalCreateWithoutOrganizationVerticalsInput, VerticalUncheckedCreateWithoutOrganizationVerticalsInput>
-    connectOrCreate?: VerticalCreateOrConnectWithoutOrganizationVerticalsInput
-    upsert?: VerticalUpsertWithoutOrganizationVerticalsInput
-    connect?: VerticalWhereUniqueInput
-    update?: XOR<XOR<VerticalUpdateToOneWithWhereWithoutOrganizationVerticalsInput, VerticalUpdateWithoutOrganizationVerticalsInput>, VerticalUncheckedUpdateWithoutOrganizationVerticalsInput>
   }
 
   export type OrganizationCreateNestedOneWithoutBusinessUnitsInput = {
@@ -11387,12 +10041,6 @@ export namespace Prisma {
     connect?: OrganizationWhereUniqueInput
   }
 
-  export type VerticalCreateNestedOneWithoutBusinessUnitVerticalsInput = {
-    create?: XOR<VerticalCreateWithoutBusinessUnitVerticalsInput, VerticalUncheckedCreateWithoutBusinessUnitVerticalsInput>
-    connectOrCreate?: VerticalCreateOrConnectWithoutBusinessUnitVerticalsInput
-    connect?: VerticalWhereUniqueInput
-  }
-
   export type BusinessUnitUpdateOneRequiredWithoutBusinessUnitVerticalsNestedInput = {
     create?: XOR<BusinessUnitCreateWithoutBusinessUnitVerticalsInput, BusinessUnitUncheckedCreateWithoutBusinessUnitVerticalsInput>
     connectOrCreate?: BusinessUnitCreateOrConnectWithoutBusinessUnitVerticalsInput
@@ -11407,14 +10055,6 @@ export namespace Prisma {
     upsert?: OrganizationUpsertWithoutBusinessUnitVerticalsInput
     connect?: OrganizationWhereUniqueInput
     update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutBusinessUnitVerticalsInput, OrganizationUpdateWithoutBusinessUnitVerticalsInput>, OrganizationUncheckedUpdateWithoutBusinessUnitVerticalsInput>
-  }
-
-  export type VerticalUpdateOneRequiredWithoutBusinessUnitVerticalsNestedInput = {
-    create?: XOR<VerticalCreateWithoutBusinessUnitVerticalsInput, VerticalUncheckedCreateWithoutBusinessUnitVerticalsInput>
-    connectOrCreate?: VerticalCreateOrConnectWithoutBusinessUnitVerticalsInput
-    upsert?: VerticalUpsertWithoutBusinessUnitVerticalsInput
-    connect?: VerticalWhereUniqueInput
-    update?: XOR<XOR<VerticalUpdateToOneWithWhereWithoutBusinessUnitVerticalsInput, VerticalUpdateWithoutBusinessUnitVerticalsInput>, VerticalUncheckedUpdateWithoutBusinessUnitVerticalsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -11627,14 +10267,14 @@ export namespace Prisma {
   }
 
   export type OrganizationVerticalCreateWithoutOrganizationInput = {
+    verticalCode: string
     statusId: string
     createdAt?: Date | string
     updatedAt?: Date | string | null
-    vertical: VerticalCreateNestedOneWithoutOrganizationVerticalsInput
   }
 
   export type OrganizationVerticalUncheckedCreateWithoutOrganizationInput = {
-    verticalId: string
+    verticalCode: string
     statusId: string
     createdAt?: Date | string
     updatedAt?: Date | string | null
@@ -11651,16 +10291,16 @@ export namespace Prisma {
   }
 
   export type BusinessUnitVerticalCreateWithoutOrganizationInput = {
+    verticalCode: string
     statusId: string
     createdAt?: Date | string
     updatedAt?: Date | string | null
     businessUnit: BusinessUnitCreateNestedOneWithoutBusinessUnitVerticalsInput
-    vertical: VerticalCreateNestedOneWithoutBusinessUnitVerticalsInput
   }
 
   export type BusinessUnitVerticalUncheckedCreateWithoutOrganizationInput = {
     businessUnitId: string
-    verticalId: string
+    verticalCode: string
     statusId: string
     createdAt?: Date | string
     updatedAt?: Date | string | null
@@ -11763,7 +10403,7 @@ export namespace Prisma {
     OR?: OrganizationVerticalScalarWhereInput[]
     NOT?: OrganizationVerticalScalarWhereInput | OrganizationVerticalScalarWhereInput[]
     organizationId?: StringFilter<"OrganizationVertical"> | string
-    verticalId?: StringFilter<"OrganizationVertical"> | string
+    verticalCode?: StringFilter<"OrganizationVertical"> | string
     statusId?: StringFilter<"OrganizationVertical"> | string
     createdAt?: DateTimeFilter<"OrganizationVertical"> | Date | string
     updatedAt?: DateTimeNullableFilter<"OrganizationVertical"> | Date | string | null
@@ -11791,7 +10431,7 @@ export namespace Prisma {
     NOT?: BusinessUnitVerticalScalarWhereInput | BusinessUnitVerticalScalarWhereInput[]
     businessUnitId?: StringFilter<"BusinessUnitVertical"> | string
     organizationId?: StringFilter<"BusinessUnitVertical"> | string
-    verticalId?: StringFilter<"BusinessUnitVertical"> | string
+    verticalCode?: StringFilter<"BusinessUnitVertical"> | string
     statusId?: StringFilter<"BusinessUnitVertical"> | string
     createdAt?: DateTimeFilter<"BusinessUnitVertical"> | Date | string
     updatedAt?: DateTimeNullableFilter<"BusinessUnitVertical"> | Date | string | null
@@ -11872,7 +10512,7 @@ export namespace Prisma {
     documentType: string
     documentNumber: string
     statusId: string
-    ownerUserId: string
+    ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string | null
     organizationVerticals?: OrganizationVerticalCreateNestedManyWithoutOrganizationInput
@@ -11887,7 +10527,7 @@ export namespace Prisma {
     documentType: string
     documentNumber: string
     statusId: string
-    ownerUserId: string
+    ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string | null
     organizationVerticals?: OrganizationVerticalUncheckedCreateNestedManyWithoutOrganizationInput
@@ -11959,7 +10599,7 @@ export namespace Prisma {
     documentType?: StringFieldUpdateOperationsInput | string
     documentNumber?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
-    ownerUserId?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizationVerticals?: OrganizationVerticalUpdateManyWithoutOrganizationNestedInput
@@ -11974,94 +10614,12 @@ export namespace Prisma {
     documentType?: StringFieldUpdateOperationsInput | string
     documentNumber?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
-    ownerUserId?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizationVerticals?: OrganizationVerticalUncheckedUpdateManyWithoutOrganizationNestedInput
     businessUnitVerticals?: BusinessUnitVerticalUncheckedUpdateManyWithoutOrganizationNestedInput
     businessUnits?: BusinessUnitUncheckedUpdateManyWithoutOrganizationNestedInput
-  }
-
-  export type OrganizationVerticalCreateWithoutVerticalInput = {
-    statusId: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-    organization: OrganizationCreateNestedOneWithoutOrganizationVerticalsInput
-  }
-
-  export type OrganizationVerticalUncheckedCreateWithoutVerticalInput = {
-    organizationId: string
-    statusId: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-  }
-
-  export type OrganizationVerticalCreateOrConnectWithoutVerticalInput = {
-    where: OrganizationVerticalWhereUniqueInput
-    create: XOR<OrganizationVerticalCreateWithoutVerticalInput, OrganizationVerticalUncheckedCreateWithoutVerticalInput>
-  }
-
-  export type OrganizationVerticalCreateManyVerticalInputEnvelope = {
-    data: OrganizationVerticalCreateManyVerticalInput | OrganizationVerticalCreateManyVerticalInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type BusinessUnitVerticalCreateWithoutVerticalInput = {
-    statusId: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-    businessUnit: BusinessUnitCreateNestedOneWithoutBusinessUnitVerticalsInput
-    organization: OrganizationCreateNestedOneWithoutBusinessUnitVerticalsInput
-  }
-
-  export type BusinessUnitVerticalUncheckedCreateWithoutVerticalInput = {
-    businessUnitId: string
-    organizationId: string
-    statusId: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-  }
-
-  export type BusinessUnitVerticalCreateOrConnectWithoutVerticalInput = {
-    where: BusinessUnitVerticalWhereUniqueInput
-    create: XOR<BusinessUnitVerticalCreateWithoutVerticalInput, BusinessUnitVerticalUncheckedCreateWithoutVerticalInput>
-  }
-
-  export type BusinessUnitVerticalCreateManyVerticalInputEnvelope = {
-    data: BusinessUnitVerticalCreateManyVerticalInput | BusinessUnitVerticalCreateManyVerticalInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type OrganizationVerticalUpsertWithWhereUniqueWithoutVerticalInput = {
-    where: OrganizationVerticalWhereUniqueInput
-    update: XOR<OrganizationVerticalUpdateWithoutVerticalInput, OrganizationVerticalUncheckedUpdateWithoutVerticalInput>
-    create: XOR<OrganizationVerticalCreateWithoutVerticalInput, OrganizationVerticalUncheckedCreateWithoutVerticalInput>
-  }
-
-  export type OrganizationVerticalUpdateWithWhereUniqueWithoutVerticalInput = {
-    where: OrganizationVerticalWhereUniqueInput
-    data: XOR<OrganizationVerticalUpdateWithoutVerticalInput, OrganizationVerticalUncheckedUpdateWithoutVerticalInput>
-  }
-
-  export type OrganizationVerticalUpdateManyWithWhereWithoutVerticalInput = {
-    where: OrganizationVerticalScalarWhereInput
-    data: XOR<OrganizationVerticalUpdateManyMutationInput, OrganizationVerticalUncheckedUpdateManyWithoutVerticalInput>
-  }
-
-  export type BusinessUnitVerticalUpsertWithWhereUniqueWithoutVerticalInput = {
-    where: BusinessUnitVerticalWhereUniqueInput
-    update: XOR<BusinessUnitVerticalUpdateWithoutVerticalInput, BusinessUnitVerticalUncheckedUpdateWithoutVerticalInput>
-    create: XOR<BusinessUnitVerticalCreateWithoutVerticalInput, BusinessUnitVerticalUncheckedCreateWithoutVerticalInput>
-  }
-
-  export type BusinessUnitVerticalUpdateWithWhereUniqueWithoutVerticalInput = {
-    where: BusinessUnitVerticalWhereUniqueInput
-    data: XOR<BusinessUnitVerticalUpdateWithoutVerticalInput, BusinessUnitVerticalUncheckedUpdateWithoutVerticalInput>
-  }
-
-  export type BusinessUnitVerticalUpdateManyWithWhereWithoutVerticalInput = {
-    where: BusinessUnitVerticalScalarWhereInput
-    data: XOR<BusinessUnitVerticalUpdateManyMutationInput, BusinessUnitVerticalUncheckedUpdateManyWithoutVerticalInput>
   }
 
   export type OrganizationCreateWithoutOrganizationVerticalsInput = {
@@ -12071,7 +10629,7 @@ export namespace Prisma {
     documentType: string
     documentNumber: string
     statusId: string
-    ownerUserId: string
+    ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string | null
     organizationLinks?: UserOrganizationLinkCreateNestedManyWithoutOrganizationInput
@@ -12086,7 +10644,7 @@ export namespace Prisma {
     documentType: string
     documentNumber: string
     statusId: string
-    ownerUserId: string
+    ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string | null
     organizationLinks?: UserOrganizationLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -12097,31 +10655,6 @@ export namespace Prisma {
   export type OrganizationCreateOrConnectWithoutOrganizationVerticalsInput = {
     where: OrganizationWhereUniqueInput
     create: XOR<OrganizationCreateWithoutOrganizationVerticalsInput, OrganizationUncheckedCreateWithoutOrganizationVerticalsInput>
-  }
-
-  export type VerticalCreateWithoutOrganizationVerticalsInput = {
-    id?: string
-    name: string
-    code: string
-    description: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-    businessUnitVerticals?: BusinessUnitVerticalCreateNestedManyWithoutVerticalInput
-  }
-
-  export type VerticalUncheckedCreateWithoutOrganizationVerticalsInput = {
-    id?: string
-    name: string
-    code: string
-    description: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-    businessUnitVerticals?: BusinessUnitVerticalUncheckedCreateNestedManyWithoutVerticalInput
-  }
-
-  export type VerticalCreateOrConnectWithoutOrganizationVerticalsInput = {
-    where: VerticalWhereUniqueInput
-    create: XOR<VerticalCreateWithoutOrganizationVerticalsInput, VerticalUncheckedCreateWithoutOrganizationVerticalsInput>
   }
 
   export type OrganizationUpsertWithoutOrganizationVerticalsInput = {
@@ -12142,7 +10675,7 @@ export namespace Prisma {
     documentType?: StringFieldUpdateOperationsInput | string
     documentNumber?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
-    ownerUserId?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizationLinks?: UserOrganizationLinkUpdateManyWithoutOrganizationNestedInput
@@ -12157,43 +10690,12 @@ export namespace Prisma {
     documentType?: StringFieldUpdateOperationsInput | string
     documentNumber?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
-    ownerUserId?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizationLinks?: UserOrganizationLinkUncheckedUpdateManyWithoutOrganizationNestedInput
     businessUnitVerticals?: BusinessUnitVerticalUncheckedUpdateManyWithoutOrganizationNestedInput
     businessUnits?: BusinessUnitUncheckedUpdateManyWithoutOrganizationNestedInput
-  }
-
-  export type VerticalUpsertWithoutOrganizationVerticalsInput = {
-    update: XOR<VerticalUpdateWithoutOrganizationVerticalsInput, VerticalUncheckedUpdateWithoutOrganizationVerticalsInput>
-    create: XOR<VerticalCreateWithoutOrganizationVerticalsInput, VerticalUncheckedCreateWithoutOrganizationVerticalsInput>
-    where?: VerticalWhereInput
-  }
-
-  export type VerticalUpdateToOneWithWhereWithoutOrganizationVerticalsInput = {
-    where?: VerticalWhereInput
-    data: XOR<VerticalUpdateWithoutOrganizationVerticalsInput, VerticalUncheckedUpdateWithoutOrganizationVerticalsInput>
-  }
-
-  export type VerticalUpdateWithoutOrganizationVerticalsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    businessUnitVerticals?: BusinessUnitVerticalUpdateManyWithoutVerticalNestedInput
-  }
-
-  export type VerticalUncheckedUpdateWithoutOrganizationVerticalsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    businessUnitVerticals?: BusinessUnitVerticalUncheckedUpdateManyWithoutVerticalNestedInput
   }
 
   export type OrganizationCreateWithoutBusinessUnitsInput = {
@@ -12203,7 +10705,7 @@ export namespace Prisma {
     documentType: string
     documentNumber: string
     statusId: string
-    ownerUserId: string
+    ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string | null
     organizationLinks?: UserOrganizationLinkCreateNestedManyWithoutOrganizationInput
@@ -12218,7 +10720,7 @@ export namespace Prisma {
     documentType: string
     documentNumber: string
     statusId: string
-    ownerUserId: string
+    ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string | null
     organizationLinks?: UserOrganizationLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -12261,16 +10763,16 @@ export namespace Prisma {
   }
 
   export type BusinessUnitVerticalCreateWithoutBusinessUnitInput = {
+    verticalCode: string
     statusId: string
     createdAt?: Date | string
     updatedAt?: Date | string | null
     organization: OrganizationCreateNestedOneWithoutBusinessUnitVerticalsInput
-    vertical: VerticalCreateNestedOneWithoutBusinessUnitVerticalsInput
   }
 
   export type BusinessUnitVerticalUncheckedCreateWithoutBusinessUnitInput = {
     organizationId: string
-    verticalId: string
+    verticalCode: string
     statusId: string
     createdAt?: Date | string
     updatedAt?: Date | string | null
@@ -12304,7 +10806,7 @@ export namespace Prisma {
     documentType?: StringFieldUpdateOperationsInput | string
     documentNumber?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
-    ownerUserId?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizationLinks?: UserOrganizationLinkUpdateManyWithoutOrganizationNestedInput
@@ -12319,7 +10821,7 @@ export namespace Prisma {
     documentType?: StringFieldUpdateOperationsInput | string
     documentNumber?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
-    ownerUserId?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizationLinks?: UserOrganizationLinkUncheckedUpdateManyWithoutOrganizationNestedInput
@@ -12496,7 +10998,7 @@ export namespace Prisma {
     documentType: string
     documentNumber: string
     statusId: string
-    ownerUserId: string
+    ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string | null
     organizationLinks?: UserOrganizationLinkCreateNestedManyWithoutOrganizationInput
@@ -12511,7 +11013,7 @@ export namespace Prisma {
     documentType: string
     documentNumber: string
     statusId: string
-    ownerUserId: string
+    ownerUserId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string | null
     organizationLinks?: UserOrganizationLinkUncheckedCreateNestedManyWithoutOrganizationInput
@@ -12522,31 +11024,6 @@ export namespace Prisma {
   export type OrganizationCreateOrConnectWithoutBusinessUnitVerticalsInput = {
     where: OrganizationWhereUniqueInput
     create: XOR<OrganizationCreateWithoutBusinessUnitVerticalsInput, OrganizationUncheckedCreateWithoutBusinessUnitVerticalsInput>
-  }
-
-  export type VerticalCreateWithoutBusinessUnitVerticalsInput = {
-    id?: string
-    name: string
-    code: string
-    description: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-    organizationVerticals?: OrganizationVerticalCreateNestedManyWithoutVerticalInput
-  }
-
-  export type VerticalUncheckedCreateWithoutBusinessUnitVerticalsInput = {
-    id?: string
-    name: string
-    code: string
-    description: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-    organizationVerticals?: OrganizationVerticalUncheckedCreateNestedManyWithoutVerticalInput
-  }
-
-  export type VerticalCreateOrConnectWithoutBusinessUnitVerticalsInput = {
-    where: VerticalWhereUniqueInput
-    create: XOR<VerticalCreateWithoutBusinessUnitVerticalsInput, VerticalUncheckedCreateWithoutBusinessUnitVerticalsInput>
   }
 
   export type BusinessUnitUpsertWithoutBusinessUnitVerticalsInput = {
@@ -12608,7 +11085,7 @@ export namespace Prisma {
     documentType?: StringFieldUpdateOperationsInput | string
     documentNumber?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
-    ownerUserId?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizationLinks?: UserOrganizationLinkUpdateManyWithoutOrganizationNestedInput
@@ -12623,43 +11100,12 @@ export namespace Prisma {
     documentType?: StringFieldUpdateOperationsInput | string
     documentNumber?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
-    ownerUserId?: StringFieldUpdateOperationsInput | string
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organizationLinks?: UserOrganizationLinkUncheckedUpdateManyWithoutOrganizationNestedInput
     organizationVerticals?: OrganizationVerticalUncheckedUpdateManyWithoutOrganizationNestedInput
     businessUnits?: BusinessUnitUncheckedUpdateManyWithoutOrganizationNestedInput
-  }
-
-  export type VerticalUpsertWithoutBusinessUnitVerticalsInput = {
-    update: XOR<VerticalUpdateWithoutBusinessUnitVerticalsInput, VerticalUncheckedUpdateWithoutBusinessUnitVerticalsInput>
-    create: XOR<VerticalCreateWithoutBusinessUnitVerticalsInput, VerticalUncheckedCreateWithoutBusinessUnitVerticalsInput>
-    where?: VerticalWhereInput
-  }
-
-  export type VerticalUpdateToOneWithWhereWithoutBusinessUnitVerticalsInput = {
-    where?: VerticalWhereInput
-    data: XOR<VerticalUpdateWithoutBusinessUnitVerticalsInput, VerticalUncheckedUpdateWithoutBusinessUnitVerticalsInput>
-  }
-
-  export type VerticalUpdateWithoutBusinessUnitVerticalsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    organizationVerticals?: OrganizationVerticalUpdateManyWithoutVerticalNestedInput
-  }
-
-  export type VerticalUncheckedUpdateWithoutBusinessUnitVerticalsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    code?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    organizationVerticals?: OrganizationVerticalUncheckedUpdateManyWithoutVerticalNestedInput
   }
 
   export type UserOrganizationLinkCreateManyOrganizationInput = {
@@ -12669,7 +11115,7 @@ export namespace Prisma {
   }
 
   export type OrganizationVerticalCreateManyOrganizationInput = {
-    verticalId: string
+    verticalCode: string
     statusId: string
     createdAt?: Date | string
     updatedAt?: Date | string | null
@@ -12677,7 +11123,7 @@ export namespace Prisma {
 
   export type BusinessUnitVerticalCreateManyOrganizationInput = {
     businessUnitId: string
-    verticalId: string
+    verticalCode: string
     statusId: string
     createdAt?: Date | string
     updatedAt?: Date | string | null
@@ -12715,37 +11161,37 @@ export namespace Prisma {
   }
 
   export type OrganizationVerticalUpdateWithoutOrganizationInput = {
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    vertical?: VerticalUpdateOneRequiredWithoutOrganizationVerticalsNestedInput
   }
 
   export type OrganizationVerticalUncheckedUpdateWithoutOrganizationInput = {
-    verticalId?: StringFieldUpdateOperationsInput | string
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type OrganizationVerticalUncheckedUpdateManyWithoutOrganizationInput = {
-    verticalId?: StringFieldUpdateOperationsInput | string
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type BusinessUnitVerticalUpdateWithoutOrganizationInput = {
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     businessUnit?: BusinessUnitUpdateOneRequiredWithoutBusinessUnitVerticalsNestedInput
-    vertical?: VerticalUpdateOneRequiredWithoutBusinessUnitVerticalsNestedInput
   }
 
   export type BusinessUnitVerticalUncheckedUpdateWithoutOrganizationInput = {
     businessUnitId?: StringFieldUpdateOperationsInput | string
-    verticalId?: StringFieldUpdateOperationsInput | string
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12753,7 +11199,7 @@ export namespace Prisma {
 
   export type BusinessUnitVerticalUncheckedUpdateManyWithoutOrganizationInput = {
     businessUnitId?: StringFieldUpdateOperationsInput | string
-    verticalId?: StringFieldUpdateOperationsInput | string
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12802,85 +11248,25 @@ export namespace Prisma {
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type OrganizationVerticalCreateManyVerticalInput = {
-    organizationId: string
-    statusId: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-  }
-
-  export type BusinessUnitVerticalCreateManyVerticalInput = {
-    businessUnitId: string
-    organizationId: string
-    statusId: string
-    createdAt?: Date | string
-    updatedAt?: Date | string | null
-  }
-
-  export type OrganizationVerticalUpdateWithoutVerticalInput = {
-    statusId?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    organization?: OrganizationUpdateOneRequiredWithoutOrganizationVerticalsNestedInput
-  }
-
-  export type OrganizationVerticalUncheckedUpdateWithoutVerticalInput = {
-    organizationId?: StringFieldUpdateOperationsInput | string
-    statusId?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type OrganizationVerticalUncheckedUpdateManyWithoutVerticalInput = {
-    organizationId?: StringFieldUpdateOperationsInput | string
-    statusId?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type BusinessUnitVerticalUpdateWithoutVerticalInput = {
-    statusId?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    businessUnit?: BusinessUnitUpdateOneRequiredWithoutBusinessUnitVerticalsNestedInput
-    organization?: OrganizationUpdateOneRequiredWithoutBusinessUnitVerticalsNestedInput
-  }
-
-  export type BusinessUnitVerticalUncheckedUpdateWithoutVerticalInput = {
-    businessUnitId?: StringFieldUpdateOperationsInput | string
-    organizationId?: StringFieldUpdateOperationsInput | string
-    statusId?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type BusinessUnitVerticalUncheckedUpdateManyWithoutVerticalInput = {
-    businessUnitId?: StringFieldUpdateOperationsInput | string
-    organizationId?: StringFieldUpdateOperationsInput | string
-    statusId?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
   export type BusinessUnitVerticalCreateManyBusinessUnitInput = {
     organizationId: string
-    verticalId: string
+    verticalCode: string
     statusId: string
     createdAt?: Date | string
     updatedAt?: Date | string | null
   }
 
   export type BusinessUnitVerticalUpdateWithoutBusinessUnitInput = {
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     organization?: OrganizationUpdateOneRequiredWithoutBusinessUnitVerticalsNestedInput
-    vertical?: VerticalUpdateOneRequiredWithoutBusinessUnitVerticalsNestedInput
   }
 
   export type BusinessUnitVerticalUncheckedUpdateWithoutBusinessUnitInput = {
     organizationId?: StringFieldUpdateOperationsInput | string
-    verticalId?: StringFieldUpdateOperationsInput | string
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12888,7 +11274,7 @@ export namespace Prisma {
 
   export type BusinessUnitVerticalUncheckedUpdateManyWithoutBusinessUnitInput = {
     organizationId?: StringFieldUpdateOperationsInput | string
-    verticalId?: StringFieldUpdateOperationsInput | string
+    verticalCode?: StringFieldUpdateOperationsInput | string
     statusId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -12903,10 +11289,6 @@ export namespace Prisma {
      * @deprecated Use OrganizationCountOutputTypeDefaultArgs instead
      */
     export type OrganizationCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OrganizationCountOutputTypeDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use VerticalCountOutputTypeDefaultArgs instead
-     */
-    export type VerticalCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = VerticalCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use BusinessUnitCountOutputTypeDefaultArgs instead
      */
@@ -12923,10 +11305,6 @@ export namespace Prisma {
      * @deprecated Use UserOrganizationLinkDefaultArgs instead
      */
     export type UserOrganizationLinkArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UserOrganizationLinkDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use VerticalDefaultArgs instead
-     */
-    export type VerticalArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = VerticalDefaultArgs<ExtArgs>
     /**
      * @deprecated Use OrganizationVerticalDefaultArgs instead
      */

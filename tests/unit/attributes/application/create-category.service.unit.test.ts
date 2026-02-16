@@ -13,18 +13,28 @@ describe('CreateCategoryService', () => {
   const buildService = () => {
     const categoryRepository: CategoryRepository = {
       save: jest.fn(),
+      update: jest.fn(),
       existsByNameAndVerticalId: jest.fn().mockResolvedValue(false),
       existsByCodeAndVerticalId: jest.fn().mockResolvedValue(false),
+      existsByNameExcludingId: jest.fn(),
+      existsByCodeExcludingId: jest.fn(),
       findById: jest.fn().mockResolvedValue(null),
+      listAll: jest.fn(),
+      listByVerticalId: jest.fn(),
       getAncestry: jest.fn().mockResolvedValue([]),
       getInheritanceChain: jest.fn().mockResolvedValue([]),
       validateChain: jest.fn(),
     };
     const verticalRepository: VerticalRepository = {
       save: jest.fn(),
+      update: jest.fn(),
       existsByName: jest.fn(),
       existsByCode: jest.fn(),
+      existsByNameExcludingId: jest.fn(),
+      existsByCodeExcludingId: jest.fn(),
       existsById: jest.fn().mockResolvedValue(true),
+      findById: jest.fn(),
+      listAll: jest.fn(),
     };
     const hierarchyService = new CategoryHierarchyService();
 

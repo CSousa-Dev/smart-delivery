@@ -14,7 +14,7 @@ import { BusinessUnitRepository } from '../../domain/repositories/business-unit.
 import { OrganizationRepository } from '../../domain/repositories/organization.repository';
 import { OrganizationVerticalRepository } from '../../domain/repositories/organization-vertical.repository';
 import { UserRepository } from '../../domain/repositories/user.repository';
-import { VerticalRepository } from '../../domain/repositories/vertical.repository';
+import { VerticalCatalogPort } from '../ports/vertical-catalog.port';
 
 export class GetOrganizationService {
   constructor(
@@ -22,7 +22,7 @@ export class GetOrganizationService {
     private readonly organizationVerticalRepository: OrganizationVerticalRepository,
     private readonly businessUnitRepository: BusinessUnitRepository,
     private readonly userRepository: UserRepository,
-    private readonly verticalRepository: VerticalRepository
+    private readonly verticalCatalog: VerticalCatalogPort
   ) {}
 
   async execute(input: GetOrganizationInput): Promise<GetOrganizationOutput> {
@@ -45,18 +45,15 @@ export class GetOrganizationService {
     const verticalLinks = await this.organizationVerticalRepository.listByOrganizationId(
       input.organizationId
     );
-    const verticalIds = verticalLinks.map((link) => link.getVerticalId());
-    const verticals = await this.verticalRepository.listByIds(verticalIds);
-    const verticalsById = new Map(verticals.map((vertical) => [vertical.getId(), vertical]));
+    const catalogList = await this.verticalCatalog.listAllActive();
+    const catalogByCode = new Map(catalogList.map((v) => [v.code, v]));
     const verticalSummaries: VerticalSummary[] = verticalLinks
-      .map((link) => verticalsById.get(link.getVerticalId()))
-      .filter((vertical): vertical is NonNullable<typeof vertical> => Boolean(vertical))
-      .map((vertical) => ({
-        id: vertical.getId(),
-        name: vertical.getName(),
-        code: vertical.getCode(),
-        description: vertical.getDescription(),
-      }));
+      .map((link) => {
+        const catalog = catalogByCode.get(link.getVerticalCode());
+        if (!catalog) return null;
+        return { code: link.getVerticalCode(), name: catalog.name, description: catalog.description };
+      })
+      .filter((v): v is VerticalSummary => v !== null);
 
     let businessUnits: BusinessUnitSummary[] | undefined;
     if (includeSet.has('businessUnits')) {

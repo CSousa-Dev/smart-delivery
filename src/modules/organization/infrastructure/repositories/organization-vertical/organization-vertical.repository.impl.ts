@@ -29,16 +29,10 @@ export class PrismaOrganizationVerticalRepository implements OrganizationVertica
       orderBy: { createdAt: 'desc' },
     });
 
-    return links.map((link: {
-      organizationId: string;
-      verticalId: string;
-      statusId: string;
-      createdAt: Date;
-      updatedAt: Date | null;
-    }) =>
+    return links.map((link) =>
       OrganizationVerticalLink.restore({
         organizationId: link.organizationId,
-        verticalId: link.verticalId,
+        verticalCode: link.verticalCode,
         status: link.statusId as VerticalLinkStatusValue,
         createdAt: link.createdAt,
         updatedAt: link.updatedAt,
@@ -52,16 +46,10 @@ export class PrismaOrganizationVerticalRepository implements OrganizationVertica
       orderBy: { createdAt: 'desc' },
     });
 
-    return links.map((link: {
-      organizationId: string;
-      verticalId: string;
-      statusId: string;
-      createdAt: Date;
-      updatedAt: Date | null;
-    }) =>
+    return links.map((link) =>
       OrganizationVerticalLink.restore({
         organizationId: link.organizationId,
-        verticalId: link.verticalId,
+        verticalCode: link.verticalCode,
         status: link.statusId as VerticalLinkStatusValue,
         createdAt: link.createdAt,
         updatedAt: link.updatedAt,
@@ -79,16 +67,10 @@ export class PrismaOrganizationVerticalRepository implements OrganizationVertica
       orderBy: { createdAt: 'desc' },
     });
 
-    return links.map((link: {
-      organizationId: string;
-      verticalId: string;
-      statusId: string;
-      createdAt: Date;
-      updatedAt: Date | null;
-    }) =>
+    return links.map((link) =>
       OrganizationVerticalLink.restore({
         organizationId: link.organizationId,
-        verticalId: link.verticalId,
+        verticalCode: link.verticalCode,
         status: link.statusId as VerticalLinkStatusValue,
         createdAt: link.createdAt,
         updatedAt: link.updatedAt,
@@ -96,12 +78,12 @@ export class PrismaOrganizationVerticalRepository implements OrganizationVertica
     );
   }
 
-  async findByOrganizationAndVerticalId(
+  async findByOrganizationAndVerticalCode(
     organizationId: string,
-    verticalId: string
+    verticalCode: string
   ): Promise<OrganizationVerticalLink | null> {
     const link = await this.prisma.organizationVertical.findUnique({
-      where: { organizationId_verticalId: { organizationId, verticalId } },
+      where: { organizationId_verticalCode: { organizationId, verticalCode } },
     });
 
     if (!link) {
@@ -110,19 +92,19 @@ export class PrismaOrganizationVerticalRepository implements OrganizationVertica
 
     return OrganizationVerticalLink.restore({
       organizationId: link.organizationId,
-      verticalId: link.verticalId,
+      verticalCode: link.verticalCode,
       status: link.statusId as VerticalLinkStatusValue,
       createdAt: link.createdAt,
       updatedAt: link.updatedAt,
     });
   }
 
-  async findActiveByOrganizationAndVerticalId(
+  async findActiveByOrganizationAndVerticalCode(
     organizationId: string,
-    verticalId: string
+    verticalCode: string
   ): Promise<OrganizationVerticalLink | null> {
     const link = await this.prisma.organizationVertical.findFirst({
-      where: { organizationId, verticalId, statusId: 'ACTIVE' },
+      where: { organizationId, verticalCode, statusId: 'ACTIVE' },
     });
 
     if (!link) {
@@ -131,19 +113,19 @@ export class PrismaOrganizationVerticalRepository implements OrganizationVertica
 
     return OrganizationVerticalLink.restore({
       organizationId: link.organizationId,
-      verticalId: link.verticalId,
+      verticalCode: link.verticalCode,
       status: link.statusId as VerticalLinkStatusValue,
       createdAt: link.createdAt,
       updatedAt: link.updatedAt,
     });
   }
 
-  async existsActiveByOrganizationAndVerticalId(
+  async existsActiveByOrganizationAndVerticalCode(
     organizationId: string,
-    verticalId: string
+    verticalCode: string
   ): Promise<boolean> {
     const count = await this.prisma.organizationVertical.count({
-      where: { organizationId, verticalId, statusId: 'ACTIVE' },
+      where: { organizationId, verticalCode, statusId: 'ACTIVE' },
     });
 
     return count > 0;
@@ -151,11 +133,11 @@ export class PrismaOrganizationVerticalRepository implements OrganizationVertica
 
   async updateStatus(
     organizationId: string,
-    verticalId: string,
+    verticalCode: string,
     status: VerticalLinkStatusValue
   ): Promise<void> {
     await this.prisma.organizationVertical.update({
-      where: { organizationId_verticalId: { organizationId, verticalId } },
+      where: { organizationId_verticalCode: { organizationId, verticalCode } },
       data: { statusId: status, updatedAt: new Date() },
     });
   }

@@ -18,14 +18,6 @@ export class OrganizationId {
   }
 }
 
-export class VerticalId {
-  private constructor(public readonly value: string) {}
-
-  static create(value: string): VerticalId {
-    return new VerticalId(value);
-  }
-}
-
 export class OrganizationStatus {
   private constructor(public readonly value: OrganizationStatusValue) {}
 
@@ -40,8 +32,8 @@ export interface CreateOrganizationProps {
   legalName?: string | null;
   documentType: string;
   documentNumber: string;
-  ownerUserId: string;
-  verticalIds: string[];
+  ownerUserId?: string | null;
+  verticalCodes?: string[];
   status: OrganizationStatusValue;
   createdAt?: Date;
   updatedAt?: Date | null;
@@ -54,8 +46,8 @@ export class Organization {
     private readonly legalName: string | null,
     private readonly documentType: DocumentType,
     private readonly documentNumber: DocumentNumber,
-    private readonly ownerUserId: string,
-    private readonly verticalIds: VerticalId[],
+    private readonly ownerUserId: string | null,
+    private readonly verticalCodes: string[],
     private readonly status: OrganizationStatus,
     private readonly createdAt: Date,
     private readonly updatedAt: Date | null
@@ -71,16 +63,14 @@ export class Organization {
       throw new MissingLegalNameError();
     }
 
-    const verticalIds = props.verticalIds.map((id) => VerticalId.create(id));
-
     return new Organization(
       OrganizationId.create(props.id),
       tradeName,
       legalName,
       documentType,
       documentNumber,
-      props.ownerUserId,
-      verticalIds,
+      props.ownerUserId ?? null,
+      [...(props.verticalCodes ?? [])],
       OrganizationStatus.create(props.status),
       props.createdAt ?? new Date(),
       props.updatedAt ?? null
@@ -107,12 +97,12 @@ export class Organization {
     return this.documentNumber.value;
   }
 
-  getOwnerUserId(): string {
+  getOwnerUserId(): string | null {
     return this.ownerUserId;
   }
 
-  getVerticalIds(): string[] {
-    return this.verticalIds.map((id) => id.value);
+  getVerticalCodes(): string[] {
+    return [...this.verticalCodes];
   }
 
   getStatus(): OrganizationStatusValue {

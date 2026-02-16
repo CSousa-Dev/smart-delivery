@@ -3,9 +3,7 @@ import { Organization } from '../../../../src/modules/organization/domain/entiti
 import { OrganizationVerticalLink } from '../../../../src/modules/organization/domain/entities/organization-vertical-link.entity';
 import { OrganizationRepository } from '../../../../src/modules/organization/domain/repositories/organization.repository';
 import { OrganizationVerticalRepository } from '../../../../src/modules/organization/domain/repositories/organization-vertical.repository';
-import { VerticalRepository } from '../../../../src/modules/organization/domain/repositories/vertical.repository';
-import { Vertical } from '../../../../src/modules/organization/domain/entities/vertical.entity';
-
+import { VerticalCatalogPort } from '../../../../src/modules/organization/application/ports/vertical-catalog.port';
 describe('ListOrganizationsService', () => {
   const buildOrganization = (id: string, createdAt: Date) =>
     Organization.create({
@@ -15,7 +13,7 @@ describe('ListOrganizationsService', () => {
       documentType: 'CNPJ',
       documentNumber: '12345678901234',
       ownerUserId: 'user-1',
-      verticalIds: ['vert-1'],
+      verticalCodes: ['v1'],
       status: 'ACTIVE',
       createdAt,
     });
@@ -26,6 +24,7 @@ describe('ListOrganizationsService', () => {
       existsById: jest.fn(),
       existsByDocumentNumber: jest.fn(),
       findById: jest.fn(),
+      update: jest.fn(),
       updateStatus: jest.fn(),
       list: jest.fn().mockResolvedValue([buildOrganization('org-1', new Date())]),
       countAll: jest.fn().mockResolvedValue(1),
@@ -38,40 +37,33 @@ describe('ListOrganizationsService', () => {
       listByOrganizationIds: jest.fn().mockResolvedValue([
         OrganizationVerticalLink.restore({
           organizationId: 'org-1',
-          verticalId: 'vert-1',
+          verticalCode: 'v1',
           status: 'ACTIVE',
           createdAt: new Date(),
         }),
       ]),
       listActiveByOrganizationId: jest.fn(),
-      findByOrganizationAndVerticalId: jest.fn(),
-      findActiveByOrganizationAndVerticalId: jest.fn(),
-      existsActiveByOrganizationAndVerticalId: jest.fn(),
+      findByOrganizationAndVerticalCode: jest.fn(),
+      findActiveByOrganizationAndVerticalCode: jest.fn(),
+      existsActiveByOrganizationAndVerticalCode: jest.fn(),
       updateStatus: jest.fn(),
       countActiveByOrganizationId: jest.fn(),
     };
 
-    const verticalRepository: VerticalRepository = {
-      listByIds: jest.fn().mockResolvedValue([
-        Vertical.restore({
-          id: 'vert-1',
-          name: 'Restaurante',
-          code: 'FOOD',
-          description: 'Food services',
-          createdAt: new Date(),
-        }),
-      ]),
+    const verticalCatalog: VerticalCatalogPort = {
+      listAllActive: jest.fn().mockResolvedValue([{ code: 'v1', name: 'V1', description: 'd1' }]),
+      validateCodes: jest.fn().mockResolvedValue(true),
     };
 
     return {
       service: new ListOrganizationsService(
         organizationRepository,
         organizationVerticalRepository,
-        verticalRepository
+        verticalCatalog
       ),
       organizationRepository,
       organizationVerticalRepository,
-      verticalRepository,
+      verticalCatalog,
     };
   };
 
@@ -93,7 +85,7 @@ describe('ListOrganizationsService', () => {
     if (!first) {
       throw new Error('Expected at least one organization item');
     }
-    expect(first.verticals.map((vertical) => vertical.id)).toEqual(['vert-1']);
+    expect(first.verticals.map((v) => v.code)).toEqual(['v1']);
     expect(output.totalItems).toBe(1);
   });
 

@@ -5,11 +5,11 @@ import {
 } from '../../../../../src/modules/organization/domain/errors/business-unit.errors';
 import { PrismaBusinessUnitRepository } from '../../../../../src/modules/organization/infrastructure/repositories/business-unit/business-unit.repository.impl';
 import { PrismaBusinessUnitVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/business-unit-vertical/business-unit-vertical.repository.impl';
-import { PrismaVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/vertical/vertical.repository.impl';
 import {
   createOrganizationTestPrismaClient,
   OrganizationPrismaClient,
 } from '../../../../helpers/prisma/organization/prisma-test-client';
+import { createVerticalCatalogStub } from '../../../../helpers/organization/vertical-catalog-stub';
 
 const describeIf = process.env.DATABASE_URL_ORGANIZATION_TEST ? describe : describe.skip;
 
@@ -32,14 +32,13 @@ describeIf('Capability Get Business Unit – [CAP-008]', () => {
     await prisma.userOrganizationLink.deleteMany();
     await prisma.user.deleteMany();
     await prisma.organization.deleteMany();
-    await prisma.vertical.deleteMany();
   });
 
   const buildService = () =>
     new GetBusinessUnitService(
       new PrismaBusinessUnitRepository(prisma),
       new PrismaBusinessUnitVerticalRepository(prisma),
-      new PrismaVerticalRepository(prisma)
+      createVerticalCatalogStub(['v1', 'v2'])
     );
 
   it('should return business unit details – [SCN-001]', async () => {
@@ -54,9 +53,6 @@ describeIf('Capability Get Business Unit – [CAP-008]', () => {
         statusId: 'ACTIVE',
         ownerUserId: 'user-1',
       },
-    });
-    await prisma.vertical.create({
-      data: { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
     });
     await prisma.businessUnit.create({
       data: {
@@ -84,7 +80,7 @@ describeIf('Capability Get Business Unit – [CAP-008]', () => {
       data: {
         businessUnitId: '11111111-1111-4111-8111-111111111111',
         organizationId: 'org-1',
-        verticalId: 'vert-1',
+        verticalCode: 'v1',
         statusId: 'ACTIVE',
       },
     });
@@ -96,7 +92,7 @@ describeIf('Capability Get Business Unit – [CAP-008]', () => {
 
     expect(output.status).toBe('PENDING_PRODUCTS');
     expect(output.address.city).toBe('Sao Paulo');
-    expect(output.verticals.map((vertical) => vertical.id)).toEqual(['vert-1']);
+    expect(output.verticals.map((v) => v.code)).toEqual(['v1']);
   });
 
   it('should return pending status – [SCN-002]', async () => {
@@ -111,9 +107,6 @@ describeIf('Capability Get Business Unit – [CAP-008]', () => {
         statusId: 'ACTIVE',
         ownerUserId: 'user-1',
       },
-    });
-    await prisma.vertical.create({
-      data: { id: 'vert-2', name: 'V2', code: 'v2', description: 'Vertical 2' },
     });
     await prisma.businessUnit.create({
       data: {
@@ -141,7 +134,7 @@ describeIf('Capability Get Business Unit – [CAP-008]', () => {
       data: {
         businessUnitId: '22222222-2222-4222-8222-222222222222',
         organizationId: 'org-2',
-        verticalId: 'vert-2',
+        verticalCode: 'v2',
         statusId: 'ACTIVE',
       },
     });

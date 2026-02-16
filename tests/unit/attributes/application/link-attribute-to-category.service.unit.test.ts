@@ -17,37 +17,56 @@ describe('LinkAttributeToCategoryService', () => {
   const buildService = () => {
     const categoryRepository: CategoryRepository = {
       save: jest.fn(),
+      update: jest.fn(),
       existsByNameAndVerticalId: jest.fn(),
       existsByCodeAndVerticalId: jest.fn(),
+      existsByNameExcludingId: jest.fn(),
+      existsByCodeExcludingId: jest.fn(),
       findById: jest.fn().mockResolvedValue(null),
+      listAll: jest.fn(),
+      listByVerticalId: jest.fn(),
       getAncestry: jest.fn().mockResolvedValue([]),
       getInheritanceChain: jest.fn().mockResolvedValue([]),
       validateChain: jest.fn(),
     };
     const categoryAttributeRepository: CategoryAttributeRepository = {
       save: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
       existsByCategoryAndAttribute: jest.fn().mockResolvedValue(false),
+      existsByAttributeId: jest.fn(),
       saveSubsetLinks: jest.fn(),
+      deleteSubsetLinks: jest.fn(),
+      findByCategoryAndAttribute: jest.fn().mockResolvedValue(null),
       listByCategories: jest.fn().mockResolvedValue([]),
       listSubsetLinks: jest.fn().mockResolvedValue([]),
     };
     const categoryAllowedValueRepository: CategoryAllowedValueRepository = {
       saveAll: jest.fn(),
+      deleteByCategoryAttribute: jest.fn(),
       listByCategoryAttribute: jest.fn().mockResolvedValue([]),
     };
     const attributeRepository: AttributeRepository = {
       save: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
       updateDefaultValue: jest.fn(),
       existsByName: jest.fn(),
       existsByCode: jest.fn(),
+      existsByNameExcludingId: jest.fn(),
+      existsByCodeExcludingId: jest.fn(),
       findById: jest.fn().mockResolvedValue(null),
       listGlobal: jest.fn().mockResolvedValue([]),
       findByIds: jest.fn().mockResolvedValue([]),
     };
     const verticalAttributeRepository: VerticalAttributeRepository = {
       save: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
       existsByVerticalAndAttribute: jest.fn(),
+      existsByAttributeId: jest.fn(),
       saveSubsetLinks: jest.fn(),
+      deleteSubsetLinks: jest.fn(),
       findByVerticalAndAttribute: jest.fn().mockResolvedValue(null),
       listSubsetLinks: jest.fn().mockResolvedValue([]),
       listByVertical: jest.fn().mockResolvedValue([]),
@@ -56,10 +75,17 @@ describe('LinkAttributeToCategoryService', () => {
       saveAll: jest.fn(),
       existsByName: jest.fn(),
       existsByValue: jest.fn(),
+      existsByNameExcludingId: jest.fn(),
+      existsByValueExcludingId: jest.fn(),
+      findById: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      isLinkedToUsage: jest.fn(),
       listByAttribute: jest.fn().mockResolvedValue([]),
     };
     const verticalAllowedValueRepository: VerticalAllowedValueRepository = {
       saveAll: jest.fn(),
+      deleteByVerticalAttribute: jest.fn(),
       listByVerticalAttribute: jest.fn().mockResolvedValue([]),
     };
 
@@ -98,6 +124,7 @@ describe('LinkAttributeToCategoryService', () => {
     (categoryRepository.findById as jest.Mock).mockResolvedValue(
       Category.create({
         verticalId: 'vertical-1',
+        parentCategoryId: null,
         name: 'Bebidas',
         code: 'BEVERAGES',
         description: 'Bebidas',
@@ -118,6 +145,7 @@ describe('LinkAttributeToCategoryService', () => {
     (categoryRepository.findById as jest.Mock).mockResolvedValue(
       Category.create({
         verticalId: 'vertical-1',
+        parentCategoryId: null,
         name: 'Bebidas',
         code: 'BEVERAGES',
         description: 'Bebidas',
@@ -148,6 +176,7 @@ describe('LinkAttributeToCategoryService', () => {
     (categoryRepository.findById as jest.Mock).mockResolvedValue(
       Category.create({
         verticalId: 'vertical-1',
+        parentCategoryId: null,
         name: 'Bebidas',
         code: 'BEVERAGES',
         description: 'Bebidas',
@@ -188,6 +217,7 @@ describe('LinkAttributeToCategoryService', () => {
     (categoryRepository.findById as jest.Mock).mockResolvedValue(
       Category.create({
         verticalId: 'vertical-1',
+        parentCategoryId: null,
         name: 'Bebidas',
         code: 'BEVERAGES',
         description: 'Bebidas',
@@ -229,6 +259,7 @@ describe('LinkAttributeToCategoryService', () => {
     (categoryRepository.findById as jest.Mock).mockResolvedValue(
       Category.create({
         verticalId: 'vertical-1',
+        parentCategoryId: null,
         name: 'Bebidas',
         code: 'BEVERAGES',
         description: 'Bebidas',
@@ -269,6 +300,7 @@ describe('LinkAttributeToCategoryService', () => {
     (categoryRepository.findById as jest.Mock).mockResolvedValue(
       Category.create({
         verticalId: 'vertical-1',
+        parentCategoryId: null,
         name: 'Bebidas',
         code: 'BEVERAGES',
         description: 'Bebidas',
@@ -312,6 +344,7 @@ describe('LinkAttributeToCategoryService', () => {
     (categoryRepository.findById as jest.Mock).mockResolvedValue(
       Category.create({
         verticalId: 'vertical-1',
+        parentCategoryId: null,
         name: 'Bebidas',
         code: 'BEVERAGES',
         description: 'Bebidas',

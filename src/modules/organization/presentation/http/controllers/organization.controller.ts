@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { CreateOrganizationService } from '../../../application/services/create-organization.service';
 import { GetOrganizationService } from '../../../application/services/get-organization.service';
 import { ListOrganizationsService } from '../../../application/services/list-organizations.service';
+import { UpdateOrganizationService } from '../../../application/services/update-organization.service';
 import { AppError } from '../../../../../shared/utils/AppError';
 
 const ERROR_STATUS_BY_CODE: Record<string, (message: string, code: string) => AppError> = {
@@ -20,7 +21,8 @@ export class OrganizationController {
   constructor(
     private readonly createOrganizationService: CreateOrganizationService,
     private readonly getOrganizationService: GetOrganizationService,
-    private readonly listOrganizationsService: ListOrganizationsService
+    private readonly listOrganizationsService: ListOrganizationsService,
+    private readonly updateOrganizationService: UpdateOrganizationService
   ) {}
 
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -65,6 +67,25 @@ export class OrganizationController {
         input.sortDirection = String(req.query.sortDirection);
       }
       const output = await this.listOrganizationsService.execute(input);
+      res.status(200).json({
+        success: true,
+        data: output,
+      });
+    } catch (error) {
+      next(this.mapError(error));
+    }
+  }
+
+  async update(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const organizationId = String(req.params.id || '');
+      const body = req.body as { tradeName?: string; legalName?: string | null };
+      const input: { organizationId: string; tradeName?: string; legalName?: string | null } = {
+        organizationId,
+      };
+      if (body.tradeName !== undefined) input.tradeName = body.tradeName;
+      if (body.legalName !== undefined) input.legalName = body.legalName;
+      const output = await this.updateOrganizationService.execute(input);
       res.status(200).json({
         success: true,
         data: output,

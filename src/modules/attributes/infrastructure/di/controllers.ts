@@ -12,15 +12,47 @@ type AppServices = ReturnType<typeof createAttributesAppServices>;
 
 export function createAttributesControllers(services: AppServices) {
   return {
-    attributeController: new AttributeController(services.createAttributeService),
-    verticalController: new VerticalController(services.createVerticalService),
-    categoryController: new CategoryController(services.createCategoryService),
-    allowedValueController: new AllowedValueController(services.createAllowedValueService),
+    attributeController: new AttributeController(
+      services.createAttributeService,
+      services.getAttributeService,
+      services.listAttributesService,
+      services.updateAttributeService,
+      services.deleteAttributeService
+    ),
+    verticalController: new VerticalController(
+      services.createVerticalService,
+      services.updateVerticalService,
+      services.inactivateVerticalService,
+      services.activateVerticalService,
+      services.getVerticalService,
+      services.listVerticalsService
+    ),
+    categoryController: new CategoryController(
+      services.createCategoryService,
+      services.updateCategoryService,
+      services.inactivateCategoryService,
+      services.activateCategoryService,
+      services.getCategoryService,
+      services.listCategoriesService
+    ),
+    allowedValueController: new AllowedValueController(
+      services.createAllowedValueService,
+      services.getAllowedValueService,
+      services.listAllowedValuesService,
+      services.updateAllowedValueService,
+      services.deleteAllowedValueService
+    ),
     verticalAttributeController: new VerticalAttributeController(
-      services.linkAttributeToVerticalService
+      services.linkAttributeToVerticalService,
+      services.updateVerticalAttributeService,
+      services.unlinkAttributeFromVerticalService,
+      services.listVerticalAttributesService
     ),
     categoryAttributeController: new CategoryAttributeController(
-      services.linkAttributeToCategoryService
+      services.linkAttributeToCategoryService,
+      services.updateCategoryAttributeService,
+      services.unlinkAttributeFromCategoryService,
+      services.listCategoryAttributesService
     ),
     resolvedAttributeController: new ResolvedAttributeController(
       services.resolveAttributeConfigurationService

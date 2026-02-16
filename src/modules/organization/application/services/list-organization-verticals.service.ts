@@ -5,14 +5,14 @@ import {
 } from '../dtos/list-organization-verticals.dto';
 import { OrganizationRepository } from '../../domain/repositories/organization.repository';
 import { OrganizationVerticalRepository } from '../../domain/repositories/organization-vertical.repository';
-import { VerticalRepository } from '../../domain/repositories/vertical.repository';
+import { VerticalCatalogPort } from '../ports/vertical-catalog.port';
 import { OrganizationNotFoundError } from '../../domain/errors/organization.errors';
 
 export class ListOrganizationVerticalsService {
   constructor(
     private readonly organizationRepository: OrganizationRepository,
     private readonly organizationVerticalRepository: OrganizationVerticalRepository,
-    private readonly verticalRepository: VerticalRepository
+    private readonly verticalCatalog: VerticalCatalogPort
   ) {}
 
   async execute(
@@ -26,21 +26,17 @@ export class ListOrganizationVerticalsService {
     const links = await this.organizationVerticalRepository.listByOrganizationId(
       input.organizationId
     );
-    const verticalIds = links.map((link) => link.getVerticalId());
-    const verticals = await this.verticalRepository.listByIds(verticalIds);
-    const verticalsById = new Map(verticals.map((vertical) => [vertical.getId(), vertical]));
+    const catalogList = await this.verticalCatalog.listAllActive();
+    const catalogByCode = new Map(catalogList.map((v) => [v.code, v]));
 
     const items: OrganizationVerticalSummary[] = links
       .map((link) => {
-        const vertical = verticalsById.get(link.getVerticalId());
-        if (!vertical) {
-          return null;
-        }
+        const catalog = catalogByCode.get(link.getVerticalCode());
+        if (!catalog) return null;
         return {
-          id: vertical.getId(),
-          name: vertical.getName(),
-          code: vertical.getCode(),
-          description: vertical.getDescription(),
+          code: link.getVerticalCode(),
+          name: catalog.name,
+          description: catalog.description,
           status: link.getStatus(),
         };
       })

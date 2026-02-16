@@ -6,13 +6,13 @@ import {
 } from '../../domain/errors/business-unit.errors';
 import { BusinessUnitRepository } from '../../domain/repositories/business-unit.repository';
 import { BusinessUnitVerticalRepository } from '../../domain/repositories/business-unit-vertical.repository';
-import { VerticalRepository } from '../../domain/repositories/vertical.repository';
+import { VerticalCatalogPort } from '../ports/vertical-catalog.port';
 
 export class GetBusinessUnitService {
   constructor(
     private readonly businessUnitRepository: BusinessUnitRepository,
     private readonly businessUnitVerticalRepository: BusinessUnitVerticalRepository,
-    private readonly verticalRepository: VerticalRepository
+    private readonly verticalCatalog: VerticalCatalogPort
   ) {}
 
   async execute(input: GetBusinessUnitInput): Promise<GetBusinessUnitOutput> {
@@ -28,20 +28,16 @@ export class GetBusinessUnitService {
     const verticalLinks = await this.businessUnitVerticalRepository.listByBusinessUnitId(
       input.businessUnitId
     );
-    const verticalIds = verticalLinks.map((link) => link.getVerticalId());
-    const verticals = await this.verticalRepository.listByIds(verticalIds);
-    const verticalsById = new Map(verticals.map((vertical) => [vertical.getId(), vertical]));
+    const catalogList = await this.verticalCatalog.listAllActive();
+    const catalogByCode = new Map(catalogList.map((v) => [v.code, v]));
     const verticalSummaries: VerticalSummary[] = verticalLinks
       .map((link) => {
-        const vertical = verticalsById.get(link.getVerticalId());
-        if (!vertical) {
-          return null;
-        }
+        const catalog = catalogByCode.get(link.getVerticalCode());
+        if (!catalog) return null;
         return {
-          id: vertical.getId(),
-          name: vertical.getName(),
-          code: vertical.getCode(),
-          description: vertical.getDescription(),
+          code: link.getVerticalCode(),
+          name: catalog.name,
+          description: catalog.description,
           status: link.getStatus(),
         };
       })

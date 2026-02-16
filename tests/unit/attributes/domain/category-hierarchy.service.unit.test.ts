@@ -29,7 +29,7 @@ describe('CategoryHierarchyService', () => {
   it('should reject depth over limit', () => {
     expect(() =>
       service.validateHierarchy(
-        { id: 'parent-1', verticalId: 'vertical-1', parentCategoryId: null, depth: 3 },
+        { id: 'parent-1', verticalId: 'vertical-1', parentCategoryId: null, depth: 5 },
         []
       )
     ).toThrow(CategoryDepthExceededError);
@@ -43,4 +43,5 @@ describe('CategoryHierarchyService', () => {
 
     expect(depth).toBe(2);
   });
+
 });

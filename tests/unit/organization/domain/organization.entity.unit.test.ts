@@ -9,7 +9,7 @@ describe('Organization Entity', () => {
       documentType: 'CPF',
       documentNumber: '12345678901',
       ownerUserId: 'user-1',
-      verticalIds: ['vert-1'],
+      verticalCodes: ['vert-1'],
       status: 'PENDING_BUSINESS_UNIT',
     });
 
@@ -25,7 +25,7 @@ describe('Organization Entity', () => {
         documentType: 'CNPJ',
         documentNumber: '12345678901234',
         ownerUserId: 'user-1',
-        verticalIds: ['vert-1'],
+        verticalCodes: ['vert-1'],
         status: 'PENDING_BUSINESS_UNIT',
       })
     ).toThrow(MissingLegalNameError);
@@ -38,7 +38,7 @@ describe('Organization Entity', () => {
         documentType: 'CPF',
         documentNumber: '123',
         ownerUserId: 'user-1',
-        verticalIds: ['vert-1'],
+        verticalCodes: ['vert-1'],
         status: 'PENDING_BUSINESS_UNIT',
       })
     ).toThrow(InvalidDocumentError);

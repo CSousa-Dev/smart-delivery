@@ -9,6 +9,15 @@ export class VerticalAttributeAlreadyExistsError extends DomainError {
   }
 }
 
+export class VerticalAttributeNotFoundError extends DomainError {
+  constructor(verticalId: string, attributeId: string) {
+    super('Vertical attribute link not found', 'VERTICAL_ATTRIBUTE_NOT_FOUND', {
+      verticalId,
+      attributeId,
+    });
+  }
+}
+
 export class AllowedValueNotFoundError extends DomainError {
   constructor(allowedValueId: string) {
     super('Allowed value not found', 'ALLOWED_VALUE_NOT_FOUND', { allowedValueId });

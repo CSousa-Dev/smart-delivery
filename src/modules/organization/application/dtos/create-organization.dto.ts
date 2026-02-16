@@ -5,8 +5,7 @@ export interface CreateOrganizationInput {
   legalName?: string | null;
   documentType: string;
   documentNumber: string;
-  ownerUserId: string;
-  verticalIds: string[];
+  ownerUserId?: string | null;
 }
 
 export interface CreateOrganizationOutput {
@@ -15,8 +14,7 @@ export interface CreateOrganizationOutput {
   legalName: string | null;
   documentType: string;
   documentNumber: string;
-  ownerUserId: string;
-  verticalIds: string[];
+  ownerUserId: string | null;
   status: OrganizationStatusValue;
   createdAt: Date;
 }

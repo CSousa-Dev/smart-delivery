@@ -1,5 +1,6 @@
 import { CreateBusinessUnitService } from '../../application/services/create-business-unit.service';
 import { CreateOrganizationService } from '../../application/services/create-organization.service';
+import { UpdateOrganizationService } from '../../application/services/update-organization.service';
 import { CreateUserService } from '../../application/services/create-user.service';
 import { GetBusinessUnitService } from '../../application/services/get-business-unit.service';
 import { GetOrganizationService } from '../../application/services/get-organization.service';
@@ -11,13 +12,18 @@ import { ListBusinessUnitVerticalsService } from '../../application/services/lis
 import { ListOrganizationsService } from '../../application/services/list-organizations.service';
 import { ListOrganizationVerticalsService } from '../../application/services/list-organization-verticals.service';
 import { ListUsersService } from '../../application/services/list-users.service';
+import { ListVerticalsService } from '../../application/services/list-verticals.service';
 import { UnlinkBusinessUnitVerticalService } from '../../application/services/unlink-business-unit-vertical.service';
 import { UnlinkOrganizationVerticalService } from '../../application/services/unlink-organization-vertical.service';
+import { VerticalCatalogPort } from '../../application/ports/vertical-catalog.port';
 import { createOrganizationRepositories } from './repositories';
 
 type Repositories = ReturnType<typeof createOrganizationRepositories>;
 
-export function createOrganizationAppServices(repos: Repositories) {
+export function createOrganizationAppServices(
+  repos: Repositories,
+  verticalCatalog: VerticalCatalogPort
+) {
   return {
     createUserService: new CreateUserService(
       repos.userRepository,
@@ -28,8 +34,11 @@ export function createOrganizationAppServices(repos: Repositories) {
       repos.organizationRepository,
       repos.userRepository,
       repos.userOrganizationLinkRepository,
-      repos.verticalRepository,
       repos.unitOfWork
+    ),
+    updateOrganizationService: new UpdateOrganizationService(
+      repos.organizationRepository,
+      repos.organizationVerticalRepository
     ),
     createBusinessUnitService: new CreateBusinessUnitService(
       repos.businessUnitRepository,
@@ -51,23 +60,23 @@ export function createOrganizationAppServices(repos: Repositories) {
       repos.organizationVerticalRepository,
       repos.businessUnitRepository,
       repos.userRepository,
-      repos.verticalRepository
+      verticalCatalog
     ),
     listOrganizationsService: new ListOrganizationsService(
       repos.organizationRepository,
       repos.organizationVerticalRepository,
-      repos.verticalRepository
+      verticalCatalog
     ),
     getBusinessUnitService: new GetBusinessUnitService(
       repos.businessUnitRepository,
       repos.businessUnitVerticalRepository,
-      repos.verticalRepository
+      verticalCatalog
     ),
     listBusinessUnitsService: new ListBusinessUnitsService(repos.businessUnitRepository),
     linkOrganizationVerticalService: new LinkOrganizationVerticalService(
       repos.organizationRepository,
       repos.organizationVerticalRepository,
-      repos.verticalRepository
+      verticalCatalog
     ),
     unlinkOrganizationVerticalService: new UnlinkOrganizationVerticalService(
       repos.organizationRepository,
@@ -89,12 +98,13 @@ export function createOrganizationAppServices(repos: Repositories) {
     listOrganizationVerticalsService: new ListOrganizationVerticalsService(
       repos.organizationRepository,
       repos.organizationVerticalRepository,
-      repos.verticalRepository
+      verticalCatalog
     ),
     listBusinessUnitVerticalsService: new ListBusinessUnitVerticalsService(
       repos.businessUnitRepository,
       repos.businessUnitVerticalRepository,
-      repos.verticalRepository
+      verticalCatalog
     ),
+    listVerticalsService: new ListVerticalsService(verticalCatalog),
   };
 }

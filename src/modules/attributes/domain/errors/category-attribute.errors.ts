@@ -15,6 +15,15 @@ export class CategoryAttributeAlreadyExistsError extends DomainError {
   }
 }
 
+export class CategoryAttributeNotFoundError extends DomainError {
+  constructor(categoryId: string, attributeId: string) {
+    super('Category attribute link not found', 'CATEGORY_ATTRIBUTE_NOT_FOUND', {
+      categoryId,
+      attributeId,
+    });
+  }
+}
+
 export class AttributeNotLinkedToVerticalError extends DomainError {
   constructor(attributeId: string, verticalId: string) {
     super('Attribute not linked to vertical', 'ATTRIBUTE_NOT_IN_VERTICAL', {

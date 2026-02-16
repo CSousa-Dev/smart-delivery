@@ -6,10 +6,8 @@ import {
 } from '../../../../src/modules/organization/domain/errors/business-unit.errors';
 import { BusinessUnitRepository } from '../../../../src/modules/organization/domain/repositories/business-unit.repository';
 import { BusinessUnitVerticalRepository } from '../../../../src/modules/organization/domain/repositories/business-unit-vertical.repository';
-import { VerticalRepository } from '../../../../src/modules/organization/domain/repositories/vertical.repository';
+import { VerticalCatalogPort } from '../../../../src/modules/organization/application/ports/vertical-catalog.port';
 import { BusinessUnitVerticalLink } from '../../../../src/modules/organization/domain/entities/business-unit-vertical-link.entity';
-import { Vertical } from '../../../../src/modules/organization/domain/entities/vertical.entity';
-
 describe('GetBusinessUnitService', () => {
   const unit = BusinessUnit.create({
     id: '11111111-1111-4111-8111-111111111111',
@@ -48,38 +46,31 @@ describe('GetBusinessUnitService', () => {
         BusinessUnitVerticalLink.restore({
           businessUnitId: unit.getId().value,
           organizationId: unit.getOrganizationId(),
-          verticalId: 'vert-1',
+          verticalCode: 'v1',
           status: 'ACTIVE',
           createdAt: new Date(),
         }),
       ]),
-      findByBusinessUnitAndVerticalId: jest.fn(),
-      findActiveByBusinessUnitAndVerticalId: jest.fn(),
+      findByBusinessUnitAndVerticalCode: jest.fn(),
+      findActiveByBusinessUnitAndVerticalCode: jest.fn(),
       updateStatus: jest.fn(),
       countActiveByBusinessUnitId: jest.fn(),
     };
 
-    const verticalRepository: VerticalRepository = {
-      listByIds: jest.fn().mockResolvedValue([
-        Vertical.restore({
-          id: 'vert-1',
-          name: 'Restaurante',
-          code: 'FOOD',
-          description: 'Food services',
-          createdAt: new Date(),
-        }),
-      ]),
+    const verticalCatalog: VerticalCatalogPort = {
+      listAllActive: jest.fn().mockResolvedValue([{ code: 'v1', name: 'V1', description: 'd1' }]),
+      validateCodes: jest.fn().mockResolvedValue(true),
     };
 
     return {
       service: new GetBusinessUnitService(
         businessUnitRepository,
         businessUnitVerticalRepository,
-        verticalRepository
+        verticalCatalog
       ),
       businessUnitRepository,
       businessUnitVerticalRepository,
-      verticalRepository,
+      verticalCatalog,
     };
   };
 
@@ -113,6 +104,6 @@ describe('GetBusinessUnitService', () => {
 
     expect(output.status).toBe('PENDING_PRODUCTS');
     expect(output.address.postalCode).toBe('01001000');
-    expect(output.verticals.map((vertical) => vertical.id)).toEqual(['vert-1']);
+    expect(output.verticals.map((v) => v.code)).toEqual(['v1']);
   });
 });

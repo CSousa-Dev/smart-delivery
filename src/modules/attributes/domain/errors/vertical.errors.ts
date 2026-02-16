@@ -29,3 +29,21 @@ export class InvalidVerticalDescriptionError extends DomainError {
     super('Invalid vertical description', 'INVALID_VERTICAL_DESCRIPTION', { description });
   }
 }
+
+export class VerticalNotFoundError extends DomainError {
+  constructor(verticalId: string) {
+    super('Vertical not found', 'VERTICAL_NOT_FOUND', { verticalId });
+  }
+}
+
+export class VerticalAlreadyInactiveError extends DomainError {
+  constructor(verticalId: string) {
+    super('Vertical already inactive', 'VERTICAL_ALREADY_INACTIVE', { verticalId });
+  }
+}
+
+export class VerticalAlreadyActiveError extends DomainError {
+  constructor(verticalId: string) {
+    super('Vertical already active', 'VERTICAL_ALREADY_ACTIVE', { verticalId });
+  }
+}

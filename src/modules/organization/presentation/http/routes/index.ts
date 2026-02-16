@@ -4,11 +4,13 @@ import { createOrganizationsRouter } from './organizations.routes';
 import { createBusinessUnitsRouter } from './business-units.routes';
 import { createOrganizationVerticalsRouter } from './organization-verticals.routes';
 import { createBusinessUnitVerticalsRouter } from './business-unit-verticals.routes';
+import { createVerticalsRouter } from './verticals.routes';
 import { UserController } from '../controllers/user.controller';
 import { OrganizationController } from '../controllers/organization.controller';
 import { BusinessUnitController } from '../controllers/business-unit.controller';
 import { OrganizationVerticalController } from '../controllers/organization-vertical.controller';
 import { BusinessUnitVerticalController } from '../controllers/business-unit-vertical.controller';
+import { VerticalController } from '../controllers/vertical.controller';
 
 export interface OrganizationControllers {
   userController: UserController;
@@ -16,6 +18,7 @@ export interface OrganizationControllers {
   businessUnitController: BusinessUnitController;
   organizationVerticalController: OrganizationVerticalController;
   businessUnitVerticalController: BusinessUnitVerticalController;
+  verticalController: VerticalController;
 }
 
 export function createOrganizationHttpRouter(controllers: OrganizationControllers): Router {
@@ -26,6 +29,7 @@ export function createOrganizationHttpRouter(controllers: OrganizationController
   router.use(createBusinessUnitsRouter(controllers.businessUnitController));
   router.use(createOrganizationVerticalsRouter(controllers.organizationVerticalController));
   router.use(createBusinessUnitVerticalsRouter(controllers.businessUnitVerticalController));
+  router.use(createVerticalsRouter(controllers.verticalController));
 
   return router;
 }

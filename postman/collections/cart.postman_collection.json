@@ -15,7 +15,7 @@
             "value": "application/json"
           }
         ],
-        "url": "{{baseUrl}}{{apiPrefix}}/{{apiVersion}}/carts/open",
+        "url": "{{baseUrl}}{{apiPrefix}}/carts/open",
         "body": {
           "mode": "raw",
           "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"verticalId\": \"{{verticalId}}\",\n  \"businessUnitId\": \"{{businessUnitId}}\"\n}"
@@ -57,10 +57,6 @@
     {
       "key": "apiPrefix",
       "value": "/api"
-    },
-    {
-      "key": "apiVersion",
-      "value": "v1"
     },
     {
       "key": "customerId",

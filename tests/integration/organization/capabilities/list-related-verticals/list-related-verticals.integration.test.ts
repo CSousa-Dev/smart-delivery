@@ -10,11 +10,11 @@ import { PrismaBusinessUnitRepository } from '../../../../../src/modules/organiz
 import { PrismaBusinessUnitVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/business-unit-vertical/business-unit-vertical.repository.impl';
 import { PrismaOrganizationRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization/organization.repository.impl';
 import { PrismaOrganizationVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/organization-vertical/organization-vertical.repository.impl';
-import { PrismaVerticalRepository } from '../../../../../src/modules/organization/infrastructure/repositories/vertical/vertical.repository.impl';
 import {
   createOrganizationTestPrismaClient,
   OrganizationPrismaClient,
 } from '../../../../helpers/prisma/organization/prisma-test-client';
+import { createVerticalCatalogStub } from '../../../../helpers/organization/vertical-catalog-stub';
 
 const describeIf = process.env.DATABASE_URL_ORGANIZATION_TEST ? describe : describe.skip;
 
@@ -35,21 +35,22 @@ describeIf('Capability List Related Verticals – [CAP-012]', () => {
     await prisma.businessUnit.deleteMany();
     await prisma.organizationVertical.deleteMany();
     await prisma.organization.deleteMany();
-    await prisma.vertical.deleteMany();
   });
+
+  const verticalCatalog = createVerticalCatalogStub(['v1', 'v2']);
 
   const buildOrgService = () =>
     new ListOrganizationVerticalsService(
       new PrismaOrganizationRepository(prisma),
       new PrismaOrganizationVerticalRepository(prisma),
-      new PrismaVerticalRepository(prisma)
+      verticalCatalog
     );
 
   const buildBuService = () =>
     new ListBusinessUnitVerticalsService(
       new PrismaBusinessUnitRepository(prisma),
       new PrismaBusinessUnitVerticalRepository(prisma),
-      new PrismaVerticalRepository(prisma)
+      verticalCatalog
     );
 
   const seedOrganization = async () =>
@@ -92,16 +93,10 @@ describeIf('Capability List Related Verticals – [CAP-012]', () => {
   it('should list organization verticals with status – [SCN-001]', async () => {
     const service = buildOrgService();
     await seedOrganization();
-    await prisma.vertical.createMany({
-      data: [
-        { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
-        { id: 'vert-2', name: 'V2', code: 'v2', description: 'Vertical 2' },
-      ],
-    });
     await prisma.organizationVertical.createMany({
       data: [
-        { organizationId: 'org-1', verticalId: 'vert-1', statusId: 'ACTIVE' },
-        { organizationId: 'org-1', verticalId: 'vert-2', statusId: 'INACTIVE' },
+        { organizationId: 'org-1', verticalCode: 'v1', statusId: 'ACTIVE' },
+        { organizationId: 'org-1', verticalCode: 'v2', statusId: 'INACTIVE' },
       ],
     });
 
@@ -117,24 +112,18 @@ describeIf('Capability List Related Verticals – [CAP-012]', () => {
     const service = buildBuService();
     await seedOrganization();
     await seedBusinessUnit();
-    await prisma.vertical.createMany({
-      data: [
-        { id: 'vert-1', name: 'V1', code: 'v1', description: 'Vertical 1' },
-        { id: 'vert-2', name: 'V2', code: 'v2', description: 'Vertical 2' },
-      ],
-    });
     await prisma.businessUnitVertical.createMany({
       data: [
         {
           businessUnitId: 'unit-1',
           organizationId: 'org-1',
-          verticalId: 'vert-1',
+          verticalCode: 'v1',
           statusId: 'ACTIVE',
         },
         {
           businessUnitId: 'unit-1',
           organizationId: 'org-1',
-          verticalId: 'vert-2',
+          verticalCode: 'v2',
           statusId: 'INACTIVE',
         },
       ],

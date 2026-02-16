@@ -11,7 +11,10 @@ import {
   BusinessUnitVerticalNotFoundError,
   UserNotOwnerError,
 } from '../../domain/errors/business-unit.errors';
-import { OrganizationNotFoundError } from '../../domain/errors/organization.errors';
+import {
+  OrganizationHasNoOwnerError,
+  OrganizationNotFoundError,
+} from '../../domain/errors/organization.errors';
 import { OrganizationUnitOfWork } from '../../domain/repositories/organization-unit-of-work';
 
 export class UnlinkBusinessUnitVerticalService {
@@ -37,17 +40,21 @@ export class UnlinkBusinessUnitVerticalService {
       throw new OrganizationNotFoundError(businessUnit.getOrganizationId());
     }
 
-    if (organization.getOwnerUserId() !== input.actorUserId) {
+    const ownerUserId = organization.getOwnerUserId();
+    if (!ownerUserId) {
+      throw new OrganizationHasNoOwnerError(organization.getId().value);
+    }
+    if (ownerUserId !== input.actorUserId) {
       throw new UserNotOwnerError(input.actorUserId, organization.getId().value);
     }
 
     const activeLink =
-      await this.businessUnitVerticalRepository.findActiveByBusinessUnitAndVerticalId(
+      await this.businessUnitVerticalRepository.findActiveByBusinessUnitAndVerticalCode(
         input.businessUnitId,
-        input.verticalId
+        input.verticalCode
       );
     if (!activeLink) {
-      throw new BusinessUnitVerticalNotFoundError(input.businessUnitId, input.verticalId);
+      throw new BusinessUnitVerticalNotFoundError(input.businessUnitId, input.verticalCode);
     }
 
     await this.unitOfWork.withTransaction(async (repositories) => {
@@ -59,7 +66,7 @@ export class UnlinkBusinessUnitVerticalService {
       }
       await repositories.businessUnitVerticalRepository.updateStatus(
         input.businessUnitId,
-        input.verticalId,
+        input.verticalCode,
         'INACTIVE'
       );
     });
@@ -67,7 +74,7 @@ export class UnlinkBusinessUnitVerticalService {
     return {
       businessUnitId: input.businessUnitId,
       organizationId: organization.getId().value,
-      verticalId: input.verticalId,
+      verticalCode: input.verticalCode,
       status: 'INACTIVE',
     };
   }

@@ -49,19 +49,39 @@ export class VerticalRequiredError extends DomainError {
 }
 
 export class VerticalNotInOrganizationError extends DomainError {
-  constructor(organizationId: string, verticalId: string) {
+  constructor(organizationId: string, verticalCode: string) {
     super('Vertical not in organization', 'VERTICAL_NOT_IN_ORGANIZATION', {
       organizationId,
-      verticalId,
+      verticalCode,
     });
   }
 }
 
 export class BusinessUnitVerticalNotFoundError extends DomainError {
-  constructor(businessUnitId: string, verticalId: string) {
+  constructor(businessUnitId: string, verticalCode: string) {
     super('Business unit vertical not found', 'BUSINESS_UNIT_VERTICAL_NOT_FOUND', {
       businessUnitId,
-      verticalId,
+      verticalCode,
+    });
+  }
+}
+
+/** BU creation is platform-only; owner cannot create BU. */
+export class OwnerCannotCreateBusinessUnitError extends DomainError {
+  constructor(ownerUserId: string, organizationId: string) {
+    super('Owner cannot create business unit; only platform can', 'OWNER_CANNOT_CREATE_BUSINESS_UNIT', {
+      ownerUserId,
+      organizationId,
+    });
+  }
+}
+
+/** Organization has reached its business unit limit. */
+export class BusinessUnitLimitReachedError extends DomainError {
+  constructor(organizationId: string, limit: number) {
+    super('Business unit limit reached for organization', 'BUSINESS_UNIT_LIMIT_REACHED', {
+      organizationId,
+      limit,
     });
   }
 }
