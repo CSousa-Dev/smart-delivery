@@ -1,0 +1,3 @@
+interface:
+  display_name: "Spec Creator"
+  short_description: "Criar novas specs de negocio"

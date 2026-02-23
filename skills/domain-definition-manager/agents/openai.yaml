@@ -1,0 +1,3 @@
+interface:
+  display_name: "Domain Definition Manager"
+  short_description: "Criar e validar definicoes de dominio"
